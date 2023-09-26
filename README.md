@@ -20,10 +20,3 @@ The application also has an error handler that logs errors to the console and re
 
 To run the application, you need to have Node.js installed on your system. You can start the server by running the command `node app.js` in the terminal. The server will listen on port 3000 by default. You can access the application by visiting `http://localhost:3000` in your web browser.
 
-Citations:
-[1] https://youtube.com/watch?v=yQBw8skBdZU
-[2] https://tutorialedge.net/nodejs/reading-writing-files-with-nodejs/
-[3] https://youtube.com/watch?v=dtTnWxfH19U
-[4] https://youtube.com/watch?v=U57kU311-nE
-[5] https://blog.shahednasser.com/how-to-read-and-write-csv-files-using-node-js-and-express/
-[6] https://nodejs.dev/en/learn/writing-files-with-nodejs/
