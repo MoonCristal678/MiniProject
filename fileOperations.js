@@ -88,8 +88,8 @@ app.get('/', (req, res) => {
 const v1Router = express.Router();
 
 const jsonData = [
-  { id: 1, name: 'John' },
-  { id: 2, name: 'Jane' }
+  { id: 1, name: 'John', age: 28},
+  { id: 2, name: 'Jane', age: 55 }
 ];
 // Route to get JSON data
 v1Router.get('/api/users', async (req, res) => {
