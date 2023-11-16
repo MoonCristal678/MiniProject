@@ -55,3 +55,5 @@ Updated Implementation (Second Snippet):
 Requires Node.js and a running MongoDB instance.
 Connects to MongoDB to perform CRUD operations.
 MongoDB Compass can be used to inspect and manipulate data stored in the connected MongoDB database.
+
+To diploy on render.com. The build command prompt for both backend and front end is npm install. For the start you can use "node" your-file-name for backend and npm start for frontend. Make sure if diployed seperately that for each you input the necessary path. 
