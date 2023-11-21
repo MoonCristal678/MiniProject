@@ -1,0 +1,54 @@
+<!-- views/updateUser.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Title for the web page -->
+  <title>Update User</title>
+</head>
+<body>
+  <!-- Heading for the update user section -->
+  <h1>Update User</h1>
+  
+  <!-- Form for submitting data to update a user -->
+  <form action="/v1/updateUser" method="post">
+    <!-- Label for the user ID input field -->
+    <label for="userId">User ID:</label>
+    
+    <!-- Input field for entering the user's ID -->
+    <input type="text" id="userId" name="userId" required><br>
+
+    <!-- Label for the name input field -->
+    <label for="name">Name:</label>
+    
+    <!-- Input field for entering the user's name -->
+    <input type="text" id="name" name="name" required><br>
+    
+    <!-- Label for the age input field -->
+    <label for="age">Age:</label>
+    
+    <!-- Input field for entering the user's age -->
+    <input type="number" id="age" name="age" required><br>
+    
+    <!-- Label for the bloodType input field -->
+    <label for="bloodType">Blood Type:</label>
+    
+    <!-- Input field for entering the user's blood type -->
+    <input type="text" id="bloodType" name="bloodType" required><br>
+    
+    <!-- Label for the birthdate input field -->
+    <label for="birthdate">Birthdate:</label>
+    
+    <!-- Input field for entering the user's birthdate -->
+    <input type="date" id="birthdate" name="birthdate" required><br>
+    
+    <!-- Label for the countryOfBirth input field -->
+    <label for="countryOfBirth">Country of Birth:</label>
+    
+    <!-- Input field for entering the user's country of birth -->
+    <input type="text" id="countryOfBirth" name="countryOfBirth" required><br>
+    
+    <!-- Button to submit the form and update the user -->
+    <button type="submit">Update User</button>
+  </form>
+</body>
+</html>

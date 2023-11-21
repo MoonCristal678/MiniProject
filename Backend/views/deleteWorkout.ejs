@@ -1,0 +1,27 @@
+<!-- deleteWorkout.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Workout</title>
+</head>
+<body>
+  <h1>Delete Workout</h1>
+
+  <form action="/v1/api/deleteWorkout" method="post">
+    <label for="workoutId">Select Workout ID:</label>
+    <select id="workoutId" name="workoutId" required>
+      <!-- Populate the dropdown options dynamically from the server -->
+      <% workouts.forEach(workout => { %>
+        <option value="<%= workout._id %>"><%= workout.name %> - <%= workout._id %></option>
+      <% }); %>
+    </select>
+    
+    <button type="submit">Delete Workout</button>
+  </form>
+
+  <!-- Add any additional content or styling as needed -->
+</body>
+</html>

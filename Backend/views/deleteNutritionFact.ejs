@@ -1,0 +1,27 @@
+<!-- deleteNutritionFact.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Nutrition Fact</title>
+</head>
+<body>
+  <h1>Delete Nutrition Fact</h1>
+
+  <form action="/v1/api/deleteNutritionFact" method="post">
+    <label for="nutritionFactId">Select Nutrition Fact ID:</label>
+    <select id="nutritionFactId" name="nutritionFactId" required>
+      <!-- Populate the dropdown options dynamically from the server -->
+      <% nutritionFacts.forEach(nutritionFact => { %>
+        <option value="<%= nutritionFact._id %>"><%= nutritionFact.name %> - <%= nutritionFact._id %></option>
+      <% }); %>
+    </select>
+    
+    <button type="submit">Delete Nutrition Fact</button>
+  </form>
+
+  <!-- Add any additional content or styling as needed -->
+</body>
+</html>

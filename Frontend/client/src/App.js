@@ -56,7 +56,7 @@ function App() {
       alert('Please enter a file name.');
       return;
     }
-  
+
     try {
       const response = await fetch(`https://backend-j7qq.onrender.com/v1/read`, {
         method: 'POST',
@@ -71,8 +71,8 @@ function App() {
       console.error('Error reading file:', error);
     }
   };
-  
-  
+
+
 
   const handleDeleteFile = async (fileName) => {
     try {
@@ -198,8 +198,8 @@ function App() {
         <h2>JSON Data</h2>
         <ul className="app-file-list">
           {jsonData.map((user) => (
-            <li key={user.id}>
-              ID: {user.id}, Name: {user.name}, Age: {user.age}
+            <li key={user._id}>
+              Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType}, Birthdate: {user.birthdate}, Country of Birth: {user.countryOfBirth}
             </li>
           ))}
         </ul>

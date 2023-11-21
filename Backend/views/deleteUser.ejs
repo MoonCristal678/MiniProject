@@ -1,0 +1,24 @@
+<!-- views/deleteUser.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Title for the web page -->
+  <title>Delete User</title>
+</head>
+<body>
+  <!-- Heading for the delete user section -->
+  <h1>Delete User</h1>
+  
+  <!-- Form for submitting data to delete a user -->
+  <form action="/v1/deleteUser" method="post">
+    <!-- Label for the user ID input field -->
+    <label for="userId">User ID:</label>
+    
+    <!-- Input field for entering the user's ID -->
+    <input type="text" id="userId" name="userId" required><br>
+    
+    <!-- Button to submit the form and delete the user -->
+    <button type="submit">Delete User</button>
+  </form>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!-- updateNutritionFact.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Nutrition Fact</title>
+</head>
+<body>
+  <h1>Update Nutrition Fact</h1>
+
+  <form action="/v1/api/updateNutritionFact" method="post">
+    <label for="nutritionFactId">Select Nutrition Fact ID:</label>
+    <select id="nutritionFactId" name="nutritionFactId" required>
+      <!-- Populate the dropdown options dynamically from the server -->
+      <% nutritionFacts.forEach(nutritionFact => { %>
+        <option value="<%= nutritionFact._id %>"><%= nutritionFact.name %> - <%= nutritionFact._id %></option>
+      <% }); %>
+    </select>
+    
+    <label for="name">New Nutrition Fact Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="calories">New Calories:</label>
+    <input type="number" id="calories" name="calories" required>
+
+    <label for="protein">New Protein:</label>
+    <input type="number" id="protein" name="protein" required>
+
+    <label for="carbs">New Carbs:</label>
+    <input type="number" id="carbs" name="carbs" required>
+
+    <label for="fat">New Fat:</label>
+    <input type="number" id="fat" name="fat" required>
+
+    <!-- Add other fields as needed -->
+
+    <button type="submit">Update Nutrition Fact</button>
+  </form>
+
+  <!-- Add any additional content or styling as needed -->
+</body>
+</html>
