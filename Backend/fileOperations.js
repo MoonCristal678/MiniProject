@@ -199,9 +199,7 @@ v1Router.get('/updateUser', async (req, res) => {
 
 // Using async/await for update route
 v1Router.post('/updateUser', async (req, res) => {
-  const userId = req.body.userId; // Assuming you have a field for entering the user ID in your updateUser.ejs form
-
-  // Fetch the user by ID and update their information
+  const userId = req.body.userId; 
   try {
     const user = await User.findById(userId);
 
@@ -231,9 +229,7 @@ v1Router.get('/deleteUser', (req, res) => {
 
 // Using async/await for delete route
 v1Router.post('/deleteUser', async (req, res) => {
-  const userId = req.body.userId; // Assuming you have a field for entering the user ID in your deleteUser.ejs form
-
-  // Delete the user by ID
+  const userId = req.body.userId; 
   try {
     const result = await User.deleteOne({ _id: userId });
 

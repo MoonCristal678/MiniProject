@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import Workout from './Workout';
+import Nutrition from './Nutrition';
+import Goal from './Goal';
 
 function App() {
   const [fileName, setFileName] = useState('');
@@ -10,19 +13,29 @@ function App() {
   const [jsonData, setJsonData] = useState([]);
   const [newName, setNewName] = useState('');
   const [newAge, setNewAge] = useState('');
+  const [newBloodType, setNewBloodType] = useState('');
+  const [newBirthdate, setNewBirthdate] = useState('');
+  const [newCountryOfBirth, setNewCountryOfBirth] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [updatedUser, setUpdatedUser] = useState({
+    name: '',
+    age: '',
+    bloodType: ' ',
+    birthdate: ' ',
+    countryOfBirth: ' ',
+  });
+  const fetchJsonData = async () => {
+    try {
+      const response = await fetch('https://miniproject8-backend.onrender.com/v1/api/users'); // Update the URL as needed
+      const data = await response.json();
+      console.log(data);
+      setJsonData(data);
+    } catch (error) {
+      console.error('Error fetching JSON data:', error);
+    }
+  };
 
   useEffect(() => {
-    async function fetchJsonData() {
-      try {
-        const response = await fetch('https://backend-j7qq.onrender.com/v1/api/users'); // Update the URL as needed
-        const data = await response.json();
-        console.log(data);
-        setJsonData(data);
-      } catch (error) {
-        console.error('Error fetching JSON data:', error);
-      }
-    }
-
     fetchJsonData();
   }, []);
 
@@ -33,7 +46,7 @@ function App() {
     }
 
     try {
-      await fetch('https://backend-j7qq.onrender.com/v1/write', {
+      await fetch('https://miniproject8-backend.onrender.com/v1/write', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +71,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`https://backend-j7qq.onrender.com/v1/read`, {
+      const response = await fetch(`https://miniproject8-backend.onrender.com/v1/read`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,11 +85,9 @@ function App() {
     }
   };
 
-
-
   const handleDeleteFile = async (fileName) => {
     try {
-      await fetch(`https://backend-j7qq.onrender.com/v1/delete`, {
+      await fetch(`https://miniproject8-backend.onrender.com/v1/delete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,8 +112,11 @@ function App() {
       const newUser = {
         name: newName,
         age: newAge,
+        bloodType: newBloodType,
+        birthdate: newBirthdate,
+        countryOfBirth: newCountryOfBirth,
       };
-      await fetch('https://backend-j7qq.onrender.com/v1/api/users', {
+      await fetch('https://miniproject8-backend.onrender.com/v1/api/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,8 +126,70 @@ function App() {
       setJsonData((prevData) => [...prevData, newUser]);
       setNewName('');
       setNewAge('');
+      setNewBloodType('');
+      setNewBirthdate('');
+      setNewCountryOfBirth('');
     } catch (error) {
       console.error('Error adding user:', error);
+    }
+  };
+
+
+  const handleSelectUser = (e) => {
+    const selectedId = e.target.value;
+    setSelectedUserId(selectedId);
+
+    const selectedUser = jsonData.find((user) => user._id === selectedId);
+
+
+    setUpdatedUser(selectedUser || { name: '', age: '' });
+  };
+
+  const handleUpdateUser = async () => {
+    try {
+      await fetch(`https://miniproject8-backend.onrender.com/v1/updateUser`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: selectedUserId,
+          name: updatedUser.name,
+          age: updatedUser.age,
+          bloodType: updatedUser.bloodType,
+          birthdate: updatedUser.birthdate,
+          countryOfBirth: updatedUser.countryOfBirth,
+        }),
+      });
+
+
+      fetchJsonData();
+
+
+      setSelectedUserId('');
+      setUpdatedUser({
+        name: '',
+        age: '',
+        bloodType: ' ',
+        birthdate: ' ',
+        countryOfBirth: ' ',
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+  const handleDeleteUser = async (userId) => {
+    try {
+      await fetch(`https://miniproject8-backend.onrender.com/v1/deleteUser`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+      fetchJsonData();
+    } catch (error) {
+      console.error('Error deleting user:', error);
     }
   };
 
@@ -189,8 +265,98 @@ function App() {
           onChange={(e) => setNewAge(e.target.value)}
           placeholder="Enter age"
         />
+        <input
+          type="text"
+          name="newBloodType"
+          value={newBloodType}
+          onChange={(e) => setNewBloodType(e.target.value)}
+          placeholder="Enter blood type"
+        />
+        <input
+          type="text"
+          name="newBirthdate"
+          value={newBirthdate}
+          onChange={(e) => setNewBirthdate(e.target.value)}
+          placeholder="Enter birthdate"
+        />
+        <input
+          type="text"
+          name="newCountryOfBirth"
+          value={newCountryOfBirth}
+          onChange={(e) => setNewCountryOfBirth(e.target.value)}
+          placeholder="Enter country of birth"
+        />
         <button className="app-button" onClick={handleAddUser}>
           Add User
+        </button>
+      </div>
+
+      <div className="app-section">
+        <h3>Update User</h3>
+        <label>
+          Select User:
+          <select className="app-button" onChange={handleSelectUser} value={selectedUserId}>
+            <option value="">Select User</option>
+            {jsonData.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+        <label>
+          Name:
+          <input
+            type="text"
+            name="name"
+            value={updatedUser.name}
+            onChange={(e) => setUpdatedUser({ ...updatedUser, name: e.target.value })}
+          />
+        </label>
+        <br />
+        <label>
+          Age:
+          <input
+            type="number"
+            name="age"
+            value={updatedUser.age}
+            onChange={(e) => setUpdatedUser({ ...updatedUser, age: e.target.value })}
+          />
+        </label>
+        <br />
+        <label>
+          Blood Type:
+          <input
+            type="text"
+            name="bloodType"
+            value={updatedUser.bloodType}
+            onChange={(e) => setUpdatedUser({ ...updatedUser, bloodType: e.target.value })}
+          />
+        </label>
+        <br />
+        <label>
+          Birthdate:
+          <input
+            type="date"
+            name="birthdate"
+            value={updatedUser.birthdate}
+            onChange={(e) => setUpdatedUser({ ...updatedUser, birthdate: e.target.value })}
+          />
+        </label>
+        <br />
+        <label>
+          Country of Birth:
+          <input
+            type="text"
+            name="countryOfBirth"
+            value={updatedUser.countryOfBirth}
+            onChange={(e) => setUpdatedUser({ ...updatedUser, countryOfBirth: e.target.value })}
+          />
+        </label>
+        <br />
+        <button className="app-button" type="button" onClick={handleUpdateUser} disabled={!selectedUserId}>
+          Update User
         </button>
       </div>
 
@@ -200,10 +366,17 @@ function App() {
           {jsonData.map((user) => (
             <li key={user._id}>
               Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType}, Birthdate: {user.birthdate}, Country of Birth: {user.countryOfBirth}
+              <button className="app-delete-button" onClick={() => handleDeleteUser(user._id)}>
+                Delete User
+              </button>
             </li>
           ))}
         </ul>
       </div>
+
+      <Workout />
+      <Nutrition />
+      <Goal />
     </div>
   );
 }

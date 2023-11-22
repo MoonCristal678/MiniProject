@@ -1,4 +1,4 @@
-<!-- updateWorkout.ejs -->
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +13,7 @@
   <form action="/v1/api/updateWorkout" method="post">
     <label for="workoutId">Select Workout ID:</label>
     <select id="workoutId" name="workoutId" required>
-      <!-- Populate the dropdown options dynamically from the server -->
+    
       <% workouts.forEach(workout => { %>
         <option value="<%= workout._id %>"><%= workout.name %> - <%= workout._id %></option>
       <% }); %>
@@ -28,11 +28,9 @@
     <label for="intensity">New Intensity:</label>
     <input type="text" id="intensity" name="intensity" required>
 
-    <!-- Add other fields as needed -->
 
     <button type="submit">Update Workout</button>
   </form>
 
-  <!-- Add any additional content or styling as needed -->
 </body>
 </html>
