@@ -52,6 +52,7 @@ Form to Delete a User: /v1/deleteUser
 Error Handling
 Both versions include a generic error handler to catch and log any unexpected errors, returning a 500 status and a corresponding error message. Additionally, specific error handling is implemented for validation errors in Version 2, responding with a 400 status and an array of validation errors.
 
+<<<<<<< HEAD
 Workout, Nutrition Fact, and Goal Management API
 Overview
 This project is an Express.js API designed to manage workout information, nutrition facts, and fitness goals. It employs MongoDB as its database and Mongoose as an ODM (Object Data Modeling) library. The API supports CRUD (Create, Read, Update, Delete) operations for workouts, nutrition facts, and goals. Additionally, it incorporates EJS for rendering HTML templates.
@@ -133,3 +134,10 @@ Install dependencies using npm install.
 Set up a MongoDB Atlas cluster and replace the connection strings in the code with your MongoDB URI.
 Run the application using nodemon fileOperations.js as they are connected.
 Access the API at http://localhost:3000/v1.
+=======
+Requires Node.js and a running MongoDB instance.
+Connects to MongoDB to perform CRUD operations.
+MongoDB Compass can be used to inspect and manipulate data stored in the connected MongoDB database.
+
+To diploy on render.com. The build command prompt for both backend and front end is npm install. For the start you can use "node" your-file-name for backend and npm start for frontend. Make sure if diployed seperately that for each you input the necessary path. 
+>>>>>>> 49e946b5984ea4ef652f5a9dc67350509868e966
