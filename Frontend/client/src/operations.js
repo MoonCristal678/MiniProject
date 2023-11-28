@@ -26,7 +26,7 @@ function FileOperations() {
   });
   const fetchJsonData = async () => {
     try {
-      const response = await fetch('https://miniproject8-backend.onrender.com/v1/api/users'); // Update the URL as needed
+      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users'); // Update the URL as needed
       const data = await response.json();
       console.log(data);
       setJsonData(data);
@@ -46,7 +46,7 @@ function FileOperations() {
     }
 
     try {
-      await fetch('https://miniproject8-backend.onrender.com/v1/write', {
+      await fetch('https://miniproject9-backend.onrender.com/v1/write', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ function FileOperations() {
     }
 
     try {
-      const response = await fetch(`https://miniproject8-backend.onrender.com/v1/read`, {
+      const response = await fetch(`https://miniproject9-backend.onrender.com/v1/read`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ function FileOperations() {
 
   const handleDeleteFile = async (fileName) => {
     try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/delete`, {
+      await fetch(`https://miniproject9-backend.onrender.com/v1/delete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ function FileOperations() {
         birthdate: newBirthdate,
         countryOfBirth: newCountryOfBirth,
       };
-      await fetch('https://miniproject8-backend.onrender.com/v1/api/users', {
+      await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ function FileOperations() {
 
   const handleUpdateUser = async () => {
     try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/updateUser`, {
+      await fetch(`https://miniproject9-backend.onrender.com/v1/updateUser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ function FileOperations() {
   };
   const handleDeleteUser = async (userId) => {
     try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/deleteUser`, {
+      await fetch(`https://miniproject9-backend.onrender.com/v1/deleteUser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

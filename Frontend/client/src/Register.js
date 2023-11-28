@@ -8,7 +8,7 @@ const Register = ({ onRegister }) => {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch('http://localhost:3000/auth/register', {
+      const response = await fetch('https://miniproject9-backend.onrender.com/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
