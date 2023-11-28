@@ -4,6 +4,14 @@ import mongoose from 'mongoose';
 import { body, validationResult } from 'express-validator';
 import cors from 'cors';
 import v1Router from './schemas.js'
+import session from 'express-session';
+import passport from 'passport';
+import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv'; 
+import { UserAuth, userAuthRouter } from './userAuth.js';
+import flash from 'connect-flash';
+
+dotenv.config();
 const app = express();
 const port = 3000;
 app.use(cors());
@@ -11,8 +19,33 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
+app.use(session({ secret: process.env.SECRET || 'fallback-secret-key', resave: true, saveUninitialized: true, cookie: {
+  maxAge: 30 * 60 * 1000, 
+} }));
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+app.use('/auth', userAuthRouter);
+app.use((req, res, next) => {
+  console.log(`${req.method} request for ${req.url}`);
+  next();
+});
+app.use((req, res, next) => {
+  if (req.isAuthenticated()) {
+    
+    next();
+  } else {
+    
+    res.redirect('/auth/login');
+  }
+});
+app.use((req, res, next) => {
+  res.locals.success_messages = req.flash('success');
+  res.locals.error_messages = req.flash('error');
+  next();
+});
 
-// Connect to MongoDB using Mongoose
+
 mongoose.connect("mongodb+srv://blackkrystal438:DemonSlayer1@fileanduserdata.3ynz8zm.mongodb.net/fileAndUserData", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -41,17 +74,17 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Create a Mongoose model for users
+
 const User = mongoose.model('User', userSchema);
 
-app.use((req, res, next) => {
-  console.log(`${req.method} request for ${req.url}`);
-  next();
-});
 
-// Render home page with links to file and user operations
+
 app.get('/', (req, res) => {
-  res.send(`<button ><a href="/v1/read"> Read a File </a> </button> 
+  if (req.isAuthenticated()) {
+    const welcomeMessage = `Welcome, ${req.user.username}!`;
+    res.send(` <h1>${welcomeMessage}</h1>
+    <br>
+    <button ><a href="/v1/read"> Read a File </a> </button> 
               <button ><a href="/v1/write"> Write to a File </a> </button>
               <button ><a href="/v1/delete"> Delete a File </a> </button>
               <button ><a href="/v1/api/users"> Display JSON Data </a> </button>
@@ -66,18 +99,25 @@ app.get('/', (req, res) => {
               <button><a href="/v1/api/workouts"> Display Workouts </a></button>
               <button><a href="/v1/api/nutrition-facts"> Display Nutrition Facts </a></button>
               <button><a href="/v1/api/goals"> Display Goals </a></button>
+              <br>
+              <br>
+              <br>
+              <br>
+              <form action="/auth/logout" method="post">
+                 <button type="submit">Logout</button>
+              </form>
 `);
+  }
 });
 
 
 
-// Render form to add a new user
+
 v1Router.get('/add', (req, res) => {
   res.render('addUser.ejs');
 });
 
-// Add a new user with validation
-// Modify the user creation route
+
 v1Router.post(
   '/api/users',
   [
@@ -199,7 +239,7 @@ v1Router.get('/updateUser', async (req, res) => {
 
 // Using async/await for update route
 v1Router.post('/updateUser', async (req, res) => {
-  const userId = req.body.userId; 
+  const userId = req.body.userId;
   try {
     const user = await User.findById(userId);
 
@@ -229,7 +269,7 @@ v1Router.get('/deleteUser', (req, res) => {
 
 // Using async/await for delete route
 v1Router.post('/deleteUser', async (req, res) => {
-  const userId = req.body.userId; 
+  const userId = req.body.userId;
   try {
     const result = await User.deleteOne({ _id: userId });
 
