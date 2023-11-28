@@ -1,77 +1,63 @@
-First Code Snippet:
-This initial code employs the React app to manage file operations and user data operations, emulating file operations through local state manipulation and performing actions on that data.
+ReadMe: Frontend Components - Login.js, Register.js, and App.js
+Login.js
+Overview
+The Login.js component is responsible for rendering a login form, handling user authentication, and providing a link to the registration page.
 
-Local State Management:
+Usage
+State Management:
 
-Uses React useState hooks to manage state variables (fileName, fileContent, createdFiles) within the component.
-Manages created files and their content within the createdFiles state object.
-File Operations:
+useState hooks manage the username, password, errorMessage, and redirectToRegister state variables.
+Authentication:
 
-Handles file creation, reading, and deletion locally by manipulating the createdFiles state.
-Reads, writes, and deletes files within the application's local state, not interacting with any external API or database.
-User Data Operations:
+The handleLogin function sends a POST request to the server for user authentication.
+Displays an error message if authentication fails.
+Navigation:
 
-Manages user data (jsonData) within the component's local state.
-Allows addition of users to the jsonData state without interacting with an API.
-Execution:
+Includes a link to redirect users to the registration page.
+Conditional Rendering:
 
-Runs within the React environment.
-Local state management simulates file operations and user data actions within the React application without communicating with any external server or API.
-Second Code Snippet:
-This updated code interacts with an API for file and user data operations, communicating with a server to perform CRUD actions on files and users.
+Redirects to the registration page if the redirectToRegister state is true.
+Styling:
 
-Local State Management:
+Basic styling using CSS-in-JS for a responsive and user-friendly interface.
+Register.js
+Overview
+The Register.js component renders a registration form, handles user registration, and provides a link to the login page.
 
-Utilizes React useState hooks to manage similar state variables as the first snippet (fileName, fileContent, createdFiles, jsonData, etc.).
-File Operations:
+Usage
+State Management:
 
-Communicates with a server API (http://localhost:3000/v1/write, http://localhost:3000/v1/read, http://localhost:3000/v1/delete) to perform file operations via fetch requests.
-Sends POST requests to create, read, and delete files on the server.
-User Data Operations:
+useState hooks manage the username, password, email, and errorMessage state variables.
+Registration:
 
-Interacts with an API endpoint (http://localhost:3000/v1/api/users) to retrieve and add users via fetch requests.
-Execution:
+The handleRegister function sends a POST request to the server for user registration.
+Displays an error message if registration fails.
+Styling:
 
-Communicates with an external server (assumed to handle file operations and user data) using API endpoints.
-Requires the server to be running on http://localhost:3000 to handle requests.
-Comparison:
-The first snippet handles file operations and user data locally within the React app's state.
-The second snippet communicates with a server API to perform CRUD operations on files and user data.
-Running the Applications:
-First Snippet:
+Basic styling using CSS-in-JS for a responsive and user-friendly interface.
+Navigation:
 
-Runs within a React application environment.
-No external server communication required.
-Second Snippet:
+Includes a link to redirect users to the login page.
+App.js
+Overview
+The App.js component serves as the main entry point for the application, managing user authentication and rendering either the login page or the main application page based on the user's login status.
 
-Requires an external server running (assumed to be available at http://localhost:3000).
-The server should handle API endpoints for file operations and user data to interact correctly with the React app.
+Usage
+State Management:
 
-RUN BY INPUTTING ("npm start"). Cors on the backend allows to connect applications running on two different servers. 
+useState hooks manage the isLoggedIn state variable.
+Authentication:
 
-This project is a full-stack application built using React for the frontend and Express.js for the backend. It provides an interface for users to perform CRUD (Create, Read, Update, Delete) operations on workouts, nutrition facts, and goals
+The handleLogin function sets the isLoggedIn state to true upon successful login.
+The handleLogout function sends a POST request to the server for user logout.
+Conditional Rendering:
 
-Functionality
-The App component contains several sub-components: Workout, Nutrition, and Goal. Each of these components corresponds to a different section of the application and has its own set of functions to handle data manipulation.
+Renders either the Login component or the main application content based on the user's login status.
+Styling:
 
-Workout Component
-In the Workout component, the handleAddWorkout function is used to add a new workout to the database. It sends a POST request to the server with the workout details entered by the user. The handleUpdateWorkout function is used to update an existing workout. It sends a POST request to the server with the updated workout details. The handleDeleteWorkout function deletes a workout from the database by sending a POST request to the server with the ID of the workout to be deleted.
-
-Nutrition Component
-The Nutrition component has similar functions as the Workout component but for managing nutrition facts. The handleAddNutritionFact function adds a new nutrition fact, handleUpdateNutritionFact updates an existing nutrition fact, and handleDeleteNutritionFact deletes a nutrition fact.
-
-Goal Component
-
-The Goal component also has similar functions for managing goals. The handleAddGoal function adds a new goal, handleUpdateGoal updates an existing goal, and handleDeleteGoal deletes a goal.
-
-Running the Application
-
-To run this application, you need to have Node.js and npm installed on your machine. Follow these steps:
-
-Clone the repository to your local machine.
-
-Navigate to the project directory in the terminal.
-
-Run npm install to install all the necessary dependencies.
-
-Run npm start to start the application. It should open in your default web browser.
+Basic styling using CSS-in-JS for a responsive and user-friendly interface.
+Running the Frontend
+Ensure the backend server is running.
+Install dependencies: npm install.
+Run the frontend: npm start.
+Access the application at http://localhost:3000/.
