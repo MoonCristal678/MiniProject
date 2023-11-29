@@ -1,4 +1,4 @@
-const API_ENDPOINT = 'https://miniproject8-backend.onrender.com/v1/api';
+const API_ENDPOINT = 'https://miniproject9-backend.onrender.com/v1/api';
 
 const addGoal = async (newGoal, fetchGoals, setNewGoal) => {
   try {

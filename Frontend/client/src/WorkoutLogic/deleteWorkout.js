@@ -1,7 +1,7 @@
 // deleteWorkout.js
 const deleteWorkout = async (workoutId, fetchWorkouts) => {
     try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/api/deleteWorkout`, {
+      await fetch(`https://miniproject9-backend.onrender.com/v1/api/deleteWorkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
