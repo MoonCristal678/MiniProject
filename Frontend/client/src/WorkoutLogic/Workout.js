@@ -1,7 +1,12 @@
+// Workout.js
 import React, { useState, useEffect } from 'react';
-import './App.css'; 
+import '../App.css';
+import addWorkout from './addWorkout';
+import selectWorkout from './selectWorkout';
+import updateWorkout from './updateWorkout';
+import deleteWorkout from './deleteWorkout';
 
-function Workout() {
+const Workout = () => {
   const [workouts, setWorkouts] = useState([]);
   const [newWorkout, setNewWorkout] = useState({
     name: '',
@@ -37,84 +42,22 @@ function Workout() {
     }));
   };
 
-  const handleAddWorkout = async () => {
-    try {
-      await fetch('https://miniproject8-backend.onrender.com/v1/api/workouts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newWorkout),
-      });
-
- 
-      fetchWorkouts();
-
-      setNewWorkout({
-        name: '',
-        duration: '',
-        intensity: '',
-      });
-    } catch (error) {
-      console.error('Error adding workout:', error);
-    }
+  const handleAddWorkout = () => {
+    addWorkout(newWorkout, fetchWorkouts, setNewWorkout);
   };
 
   const handleSelectWorkout = (e) => {
-    const selectedId = e.target.value;
-    setSelectedWorkoutId(selectedId);
-
-    const selectedWorkout = workouts.find((workout) => workout._id === selectedId);
-
-    setUpdatedWorkout(selectedWorkout || { name: '', duration: '', intensity: '' });
+    selectWorkout(e, setSelectedWorkoutId, workouts, setUpdatedWorkout);
   };
 
-  const handleUpdateWorkout = async () => {
-    try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/api/updateWorkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          workoutId: selectedWorkoutId,
-          name: updatedWorkout.name,
-          duration: updatedWorkout.duration,
-          intensity: updatedWorkout.intensity,
-        }),
-      });
-
-      
-      fetchWorkouts();
-
-   
-      setSelectedWorkoutId('');
-      setUpdatedWorkout({
-        name: '',
-        duration: '',
-        intensity: '',
-      });
-    } catch (error) {
-      console.error('Error updating workout:', error);
-    }
+  const handleUpdateWorkout = () => {
+    updateWorkout(selectedWorkoutId, updatedWorkout, fetchWorkouts, setSelectedWorkoutId, setUpdatedWorkout);
   };
 
-  const handleDeleteWorkout = async (workoutId) => {
-    try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/api/deleteWorkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ workoutId }),
-      });
-
-      
-      fetchWorkouts();
-    } catch (error) {
-      console.error('Error deleting workout:', error);
-    }
+  const handleDeleteWorkout = (workoutId) => {
+    deleteWorkout(workoutId, fetchWorkouts);
   };
+
 
   return (
     <div className="app-container">

@@ -1,37 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import '../App.css';
+import addNutritionFact from './addNutritionFact';
+import selectNutritionFact from './selectNutritionFact';
+import updateNutritionFact from './updateNutritionFact';
+import deleteNutritionFact from './deleteNutritionFact';
 
-function Nutrition() {
-    const [nutritionFacts, setNutritionFacts] = useState([]);
-    const [newNutritionFact, setNewNutritionFact] = useState({
-      name: '',
-      calories: '',
-      protein: '',
-      carbs: '',
-      fat: '',
-    });
-    const [selectedNutritionFactId, setSelectedNutritionFactId] = useState('');
-    const [updatedNutritionFact, setUpdatedNutritionFact] = useState({
-      name: '',
-      calories: '',
-      protein: '',
-      carbs: '',
-      fat: '',
-    });
-  
-    const fetchNutritionFacts = async () => {
-      try {
-        const response = await fetch('https://miniproject8-backend.onrender.com/v1/api/nutrition-facts');
-        const data = await response.json();
-        setNutritionFacts(data);
-      } catch (error) {
-        console.error('Error fetching nutrition facts:', error);
-      }
-    };
-  
-    useEffect(() => {
-      fetchNutritionFacts();
-    }, []);
+const API_ENDPOINT = 'https://miniproject8-backend.onrender.com/v1/api';
+
+const Nutrition = () => {
+  const [nutritionFacts, setNutritionFacts] = useState([]);
+  const [newNutritionFact, setNewNutritionFact] = useState({
+    name: '',
+    calories: '',
+    protein: '',
+    carbs: '',
+    fat: '',
+  });
+  const [selectedNutritionFactId, setSelectedNutritionFactId] = useState('');
+  const [updatedNutritionFact, setUpdatedNutritionFact] = useState({
+    name: '',
+    calories: '',
+    protein: '',
+    carbs: '',
+    fat: '',
+  });
+
+  const fetchNutritionFacts = async () => {
+    try {
+      const response = await fetch(`${API_ENDPOINT}/nutrition-facts`);
+      const data = await response.json();
+      setNutritionFacts(data);
+    } catch (error) {
+      console.error('Error fetching nutrition facts:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNutritionFacts();
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewNutritionFact((prevNutritionFact) => ({
@@ -41,89 +48,19 @@ function Nutrition() {
   };
 
   const handleAddNutritionFact = async () => {
-    try {
-      const response = await fetch('https://miniproject8-backend.onrender.com/v1/api/nutrition-facts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newNutritionFact),
-      });
-      const data = await response.json();
-
-      setNutritionFacts((prevNutritionFacts) => [...prevNutritionFacts, data.nutritionFact]);
-      setNewNutritionFact({
-        name: '',
-        calories: '',
-        protein: '',
-        carbs: '',
-        fat: '',
-      });
-    } catch (error) {
-      console.error('Error adding nutrition fact:', error);
-    }
+    addNutritionFact(newNutritionFact, setNutritionFacts, setNewNutritionFact);
   };
 
   const handleSelectNutritionFact = (e) => {
-    const selectedId = e.target.value;
-    setSelectedNutritionFactId(selectedId);
-
-    
-    const selectedNutritionFact = nutritionFacts.find((nutritionFact) => nutritionFact._id === selectedId);
-
-
-    setUpdatedNutritionFact(selectedNutritionFact || { name: '', calories: '', protein: '', carbs: '', fat: '' });
+    selectNutritionFact(e, setSelectedNutritionFactId, nutritionFacts, setUpdatedNutritionFact);
   };
 
   const handleUpdateNutritionFact = async () => {
-    try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/api/updateNutritionFact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nutritionFactId: selectedNutritionFactId,
-          name: updatedNutritionFact.name,
-          calories: updatedNutritionFact.calories,
-          protein: updatedNutritionFact.protein,
-          carbs: updatedNutritionFact.carbs,
-          fat: updatedNutritionFact.fat,
-        }),
-      });
-
-    
-      fetchNutritionFacts();
-
-      
-      setSelectedNutritionFactId('');
-      setUpdatedNutritionFact({
-        name: '',
-        calories: '',
-        protein: '',
-        carbs: '',
-        fat: '',
-      });
-    } catch (error) {
-      console.error('Error updating nutrition fact:', error);
-    }
+    updateNutritionFact(selectedNutritionFactId, updatedNutritionFact, fetchNutritionFacts, setSelectedNutritionFactId, setUpdatedNutritionFact);
   };
 
   const handleDeleteNutritionFact = async (nutritionFactId) => {
-    try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/api/deleteNutritionFact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ nutritionFactId }),
-      });
-
-      
-      fetchNutritionFacts();
-    } catch (error) {
-      console.error('Error deleting nutrition fact:', error);
-    }
+    deleteNutritionFact(nutritionFactId, fetchNutritionFacts);
   };
 
   return (

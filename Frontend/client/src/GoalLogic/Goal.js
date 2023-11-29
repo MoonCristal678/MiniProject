@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import '../App.css';
+import addGoal from './addGoal';
+import selectGoal from './selectGoal';
+import updateGoal from './updateGoal';
+import deleteGoal from './deleteGoal';
 
-function Goals() {
+const API_ENDPOINT = 'https://miniproject8-backend.onrender.com/v1/api';
+
+const Goals = () => {
   const [goals, setGoals] = useState([]);
   const [newGoal, setNewGoal] = useState({
     name: '',
@@ -15,7 +21,7 @@ function Goals() {
 
   const fetchGoals = async () => {
     try {
-      const response = await fetch('https://miniproject8-backend.onrender.com/v1/api/goals');
+      const response = await fetch(`${API_ENDPOINT}/goals`);
       const data = await response.json();
       setGoals(data);
     } catch (error) {
@@ -36,81 +42,19 @@ function Goals() {
   };
 
   const handleAddGoal = async () => {
-    try {
-      await fetch('https://miniproject8-backend.onrender.com/v1/api/goals', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newGoal),
-      });
-
-      
-      fetchGoals();
-
-    
-      setNewGoal({
-        name: '',
-        target: '',
-      });
-    } catch (error) {
-      console.error('Error adding goal:', error);
-    }
+    addGoal(newGoal, fetchGoals, setNewGoal);
   };
 
   const handleSelectGoal = (e) => {
-    const selectedId = e.target.value;
-    setSelectedGoalId(selectedId);
-
-    const selectedGoal = goals.find((goal) => goal._id === selectedId);
-
-    
-    setUpdatedGoal(selectedGoal || { name: '', target: '' });
+    selectGoal(e, setSelectedGoalId, goals, setUpdatedGoal);
   };
 
   const handleUpdateGoal = async () => {
-    try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/api/updateGoal`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          goalId: selectedGoalId,
-          name: updatedGoal.name,
-          target: updatedGoal.target,
-        }),
-      });
-
-      
-      fetchGoals();
-
-    
-      setSelectedGoalId('');
-      setUpdatedGoal({
-        name: '',
-        target: '',
-      });
-    } catch (error) {
-      console.error('Error updating goal:', error);
-    }
+    updateGoal(selectedGoalId, updatedGoal, fetchGoals, setSelectedGoalId, setUpdatedGoal);
   };
 
   const handleDeleteGoal = async (goalId) => {
-    try {
-      await fetch(`https://miniproject8-backend.onrender.com/v1/api/deleteGoal`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ goalId }),
-      });
-
-      
-      fetchGoals();
-    } catch (error) {
-      console.error('Error deleting goal:', error);
-    }
+    deleteGoal(goalId, fetchGoals);
   };
 
   return (
@@ -145,7 +89,6 @@ function Goals() {
         </button>
       </div>
 
-      
       <div className="app-section">
         <h3>Update Goal</h3>
         <label>
@@ -185,7 +128,6 @@ function Goals() {
         </button>
       </div>
 
-    
       <div className="app-section">
         <h3>Goal List</h3>
         <ul className="app-file-list">
@@ -201,6 +143,6 @@ function Goals() {
       </div>
     </div>
   );
-}
+};
 
 export default Goals;

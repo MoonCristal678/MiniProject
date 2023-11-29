@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import Workout from './Workout';
-import Nutrition from './Nutrition';
-import Goal from './Goal';
+import Workout from './WorkoutLogic/Workout';
+import Nutrition from './NutritionLogic/Nutrition';
+import Goal from './GoalLogic/Goal';
 
 function FileOperations() {
   const [fileName, setFileName] = useState('');
