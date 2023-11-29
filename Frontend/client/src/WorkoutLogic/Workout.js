@@ -22,7 +22,7 @@ const Workout = () => {
 
   const fetchWorkouts = async () => {
     try {
-      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/workouts');
+      const response = await fetch('https://miniproject8-backend.onrender.com/v1/api/workouts');
       const data = await response.json();
       setWorkouts(data);
     } catch (error) {

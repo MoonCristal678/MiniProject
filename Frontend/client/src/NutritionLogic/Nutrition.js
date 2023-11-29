@@ -5,7 +5,7 @@ import selectNutritionFact from './selectNutritionFact';
 import updateNutritionFact from './updateNutritionFact';
 import deleteNutritionFact from './deleteNutritionFact';
 
-const API_ENDPOINT = 'https://miniproject9-backend.onrender.com/v1/api';
+const API_ENDPOINT = 'https://miniproject8-backend.onrender.com/v1/api';
 
 const Nutrition = () => {
   const [nutritionFacts, setNutritionFacts] = useState([]);

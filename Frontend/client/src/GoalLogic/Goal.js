@@ -5,7 +5,7 @@ import selectGoal from './selectGoal';
 import updateGoal from './updateGoal';
 import deleteGoal from './deleteGoal';
 
-const API_ENDPOINT = 'https://miniproject9-backend.onrender.com/v1/api';
+const API_ENDPOINT = 'https://miniproject8-backend.onrender.com/v1/api';
 
 const Goals = () => {
   const [goals, setGoals] = useState([]);

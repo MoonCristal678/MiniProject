@@ -13,7 +13,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://miniproject9-backend.onrender.com/auth/logout', {
+      const response = await fetch('https://miniproject8-backend.onrender.com/auth/logout', {
         method: 'POST', 
       });
 

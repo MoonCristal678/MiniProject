@@ -1,7 +1,7 @@
 // addWorkout.js
 const addWorkout = async (newWorkout, fetchWorkouts, setNewWorkout) => {
     try {
-      await fetch('https://miniproject9-backend.onrender.com/v1/api/workouts', {
+      await fetch('https://miniproject8-backend.onrender.com/v1/api/workouts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
