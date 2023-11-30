@@ -1,13 +1,13 @@
+// components/App.js
+
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { handleReadFile } from './readFile';
-import { handleCreateFile } from './writeFile';
-import { handleDeleteFile } from './deleteFile';
+import ReadFileForm from '../Forms/ReadFileForm';
+import WriteFileForm from '../Forms/WriteFileForm';
+import DeleteFileForm from '../Forms/DeleteFileForm';
+import { fetchData } from '../utils/apiUtils';
 
 function App() {
-  const [fileName, setFileName] = useState('');
-  const [fileContent, setFileContent] = useState('');
-  const [readFileName, setReadFileName] = useState('');
   const [readContent, setReadContent] = useState('');
   const [createdFiles, setCreatedFiles] = useState({});
   const [jsonData, setJsonData] = useState([]);
@@ -29,53 +29,13 @@ function App() {
     fetchJsonData();
   }, []);
 
-  const renderFileInputs = (placeholder, onClickHandler) => (
-    <>
-      <input
-        type="text"
-        name="fileName"
-        value={fileName}
-        onChange={(e) => setFileName(e.target.value)}
-        placeholder="Enter file name"
-      />
-      <textarea
-        name="fileContent"
-        value={fileContent}
-        onChange={(e) => setFileContent(e.target.value)}
-        placeholder={placeholder}
-      />
-      <button className="app-button" onClick={onClickHandler}>
-        {placeholder}
-      </button>
-    </>
-  );
-
   return (
     <div className="app-container">
       <h1 className="app-title">Welcome to the File Operations Page</h1>
 
-      <div className="app-section">
-        <h2>Create File</h2>
-        {renderFileInputs('Enter file content', () => handleCreateFile(fileName, fileContent, setCreatedFiles, setFileName, setFileContent))}
-      </div>
-
-      <div className="app-section">
-        <h2>Read File</h2>
-        <input
-          type="text"
-          name="readFileName"
-          value={readFileName}
-          onChange={(e) => setReadFileName(e.target.value)}
-          placeholder="Enter file name"
-        />
-        <button className="app-button" onClick={() => handleReadFile(readFileName, setReadContent)}>
-          Read File
-        </button>
-        <div>
-          {readContent && <pre className="app-file-content">{readContent}</pre>}
-          {!readContent && <p className="app-file-not-found">File not found.</p>}
-        </div>
-      </div>
+      <ReadFileForm setReadContent={setReadContent} />
+      <WriteFileForm setCreatedFiles={setCreatedFiles} />
+      <DeleteFileForm setCreatedFiles={setCreatedFiles} />
 
       <div className="app-section">
         <h2>Created Files</h2>
@@ -83,17 +43,12 @@ function App() {
           {Object.keys(createdFiles).map((fileName) => (
             <li key={fileName}>
               {fileName}
-              <button className="app-delete-button" onClick={() => handleDeleteFile(fileName, setCreatedFiles)}>
+              <button className="app-delete-button" onClick={() => handleDeleteFile(fileName)}>
                 Delete
               </button>
             </li>
           ))}
         </ul>
-      </div>
-
-      <div className="app-section">
-        <h2>Delete File</h2>
-        {renderFileInputs('Enter file name', () => handleDeleteFile(fileName, setCreatedFiles))}
       </div>
 
       <div className="app-section">
@@ -112,7 +67,7 @@ function App() {
           onChange={(e) => setNewAge(e.target.value)}
           placeholder="Enter age"
         />
-        <button className="app-button" onClick={() => handleAddUser()}>
+        <button className="app-button" onClick={handleAddUser}>
           Add User
         </button>
       </div>
@@ -130,7 +85,5 @@ function App() {
     </div>
   );
 }
-
-
 
 export default App;
