@@ -1,10 +1,11 @@
 import express from 'express';
 import methodOverride from 'method-override';
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import cors from 'cors';
+
 const app = express();
 const port = 3000;
-app.use(cors()); 
+app.use(cors());
 app.use(express.urlencoded());
 app.use(express.json());
 app.set('view engine', 'ejs');
@@ -23,6 +24,7 @@ let db;
         console.error('Error occurred while connecting to MongoDB:', err);
     }
 })();
+
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.url}`);
     next();
@@ -30,15 +32,25 @@ app.use((req, res, next) => {
 
 // Render home page with links to file and user operations
 app.get('/', (req, res) => {
-    res.send(`<button ><a href="/v1/read"> Read a File </a> </button> 
-              <button ><a href="/v1/write"> Write to a File </a> </button>
-              <button ><a href="/v1/delete"> Delete a File </a> </button>
-              <button ><a href="/v1/api/users"> Display JSON Data </a> </button>
-              <button ><a href="/v1/add"> Add User </a> </button>`);
+    res.send(`
+        <button><a href="/v1/read"> Read a File </a></button>
+        <button><a href="/v1/write"> Write to a File </a></button>
+        <button><a href="/v1/delete"> Delete a File </a></button>
+        <button><a href="/v1/api/users"> Display JSON Data </a></button>
+        <button><a href="/v1/add"> Add User </a></button>
+    `);
 });
 
 // API Version 1
 const v1Router = express.Router();
+
+// Function to get file names
+const getFileNames = async (res, template) => {
+    const collection = db.collection('files');
+    const files = await collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
+    const fileNames = files.map(file => file.name);
+    res.render(template, { fileNames });
+};
 
 // Render form to add a new user
 v1Router.get('/add', (req, res) => {
@@ -49,10 +61,7 @@ v1Router.get('/add', (req, res) => {
 v1Router.post('/api/users', async (req, res) => {
     const { name, age } = req.body;
 
-    const newUser = {
-        name,
-        age
-    };
+    const newUser = { name, age };
 
     const collection = db.collection('users');
     await collection.insertOne(newUser);
@@ -69,27 +78,22 @@ v1Router.get('/api/users', async (req, res) => {
 
 // Render form to read a file
 v1Router.get('/read', async (req, res) => {
-    const collection = db.collection('files');
-    const files = await collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
-    const fileNames = files.map(file => file.name);
-    res.render('readFile.ejs', { fileNames });
+    getFileNames(res, 'readFile.ejs');
 });
 
-// Using async/await for read route
 // Using async/await for read route
 v1Router.post('/read', async (req, res) => {
-  const fileName = req.body.fileName;
+    const fileName = req.body.fileName;
 
-  const collection = db.collection('files');
-  const fileContent = await collection.findOne({ name: fileName });
+    const collection = db.collection('files');
+    const fileContent = await collection.findOne({ name: fileName });
 
-  if (fileContent) {
-      res.send(`<h2>File Content of '${fileName}':</h2><pre>${fileContent.content}</pre>`);
-  } else {
-      res.render('readFile.ejs', { readError: 'File not found.' });
-  }
+    if (fileContent) {
+        res.send(`<h2>File Content of '${fileName}':</h2><pre>${fileContent.content}</pre>`);
+    } else {
+        getFileNames(res, 'readFile.ejs', { readError: 'File not found.' });
+    }
 });
-
 
 // Render form to write to a file
 v1Router.get('/write', (req, res) => {
@@ -113,10 +117,7 @@ v1Router.post('/write', async (req, res) => {
 
 // Render form to delete a file
 v1Router.get('/delete', async (req, res) => {
-    const collection = db.collection('files');
-    const files = await collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
-    const fileNames = files.map(file => file.name);
-    res.render('deleteFile.ejs', { fileNames });
+    getFileNames(res, 'deleteFile.ejs');
 });
 
 // Using async/await for delete route
