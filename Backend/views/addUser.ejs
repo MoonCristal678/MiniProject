@@ -1,39 +1,28 @@
-<!-- views/addUser.ejs -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Title for the web page -->
   <title>Add User</title>
-  <link rel="stylesheet" href="path/to/jquery-ui.min.css">
-  <script src="path/to/jquery.min.js"></script>
-  <script src="path/to/jquery-ui.min.js"></script>
-  <script>
-    $(function () {
-      // Enable datepicker for the birthdate input field
-      $("#birthdate").datepicker();
-    });
-  </script>
 </head>
 <body>
+  <!-- Heading for the add user section -->
   <h1>Add User</h1>
   
+  <!-- Form for submitting data to the server to add a user -->
   <form action="/v1/api/users" method="post">
+    <!-- Label for the name input field -->
     <label for="name">Name:</label>
+    
+    <!-- Input field for entering the user's name -->
     <input type="text" id="name" name="name" required><br>
-
+    
+    <!-- Label for the age input field -->
     <label for="age">Age:</label>
+    
+    <!-- Input field for entering the user's age -->
     <input type="number" id="age" name="age" required><br>
-
-    <label for="bloodType">Blood Type:</label>
-    <input type="text" id="bloodType" name="bloodType" required><br>
-
-    <label for="birthdate">Birthdate (Format: YYYY-MM-DD):</label>
-    <input type="text" id="birthdate" name="birthdate" required><br>
-
-    <label for="countryOfBirth">Country of Birth:</label>
-    <input type="text" id="countryOfBirth" name="countryOfBirth" required><br>
-
+    
+    <!-- Button to submit the form and add the user -->
     <button type="submit">Add User</button>
   </form>
 </body>

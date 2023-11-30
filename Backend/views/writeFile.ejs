@@ -4,23 +4,24 @@
   <title>Write to a File</title>
 </head>
 <body>
-  
+  <!-- This is the heading of the page -->
   <h1>Write Content to a File</h1>
   
-  
+  <!-- This is a form for submitting data to the server -->
   <form method="POST" action="/v1/write">
-   
+    <!-- Label for the file name input field -->
     <label for="fileName">Enter the file name:</label>
-    
+    <!-- Input field for entering the file name -->
     <input type="text" id="fileName" name="fileName" required>
     <br>
     
-
+    <!-- Label for the file content input field -->
     <label for="fileContent">Enter content for the file:</label>
-   
+    <!-- Textarea for entering the content -->
     <textarea id="fileContent" name="fileContent" rows="4" cols="50" required></textarea>
     <br>
     
+    <!-- Button to submit the form -->
     <button type="submit">Write to File</button>
   </form>
 </body>
