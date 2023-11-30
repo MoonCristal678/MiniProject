@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { handleReadFile } from './readFile';
+import { handleCreateFile } from './writeFile';
+import { handleDeleteFile } from './deleteFile';
 
 function App() {
   const [fileName, setFileName] = useState('');
@@ -25,108 +28,6 @@ function App() {
 
     fetchJsonData();
   }, []);
-
-  const handleFetch = async (url, method, body, successCallback, errorCallback) => {
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-      const data = await response.json();
-      successCallback(data);
-    } catch (error) {
-      console.error(error);
-      errorCallback(error);
-    }
-  };
-
-  const handleCreateFile = async () => {
-    if (!fileName || !fileContent) {
-      alert('Please enter both a file name and content.');
-      return;
-    }
-
-    handleFetch(
-      'https://backend-j7qq.onrender.com/v1/write',
-      'POST',
-      { fileName, fileContent },
-      (data) => {
-        setCreatedFiles((prevFiles) => ({
-          ...prevFiles,
-          [fileName]: fileContent,
-        }));
-        setFileName('');
-        setFileContent('');
-      },
-      (error) => {
-        console.error('Error creating file:', error);
-      }
-    );
-  };
-
-  const handleReadFile = async () => {
-    if (!readFileName) {
-      alert('Please enter a file name.');
-      return;
-    }
-
-    handleFetch(
-      'https://backend-j7qq.onrender.com/v1/read',
-      'POST',
-      { fileName: readFileName },
-      (data) => {
-        setReadContent(data.replace(/<\/?[^>]+(>|$)/g, ''));
-      },
-      (error) => {
-        console.error('Error reading file:', error);
-      }
-    );
-  };
-
-  const handleDeleteFile = async (fileName) => {
-    handleFetch(
-      'https://backend-j7qq.onrender.com/v1/delete',
-      'POST',
-      { fileName },
-      () => {
-        const updatedFiles = { ...createdFiles };
-        delete updatedFiles[fileName];
-        setCreatedFiles(updatedFiles);
-      },
-      (error) => {
-        console.error('Error deleting file:', error);
-      }
-    );
-  };
-
-  const handleAddUser = async () => {
-    if (!newName || !newAge) {
-      alert('Please enter both a name and age.');
-      return;
-    }
-
-    const newUser = {
-      name: newName,
-      age: newAge,
-    };
-
-    handleFetch(
-      'https://backend-j7qq.onrender.com/v1/api/users',
-      'POST',
-      newUser,
-      (data) => {
-        setJsonData((prevData) => [...prevData, newUser]);
-        setNewName('');
-        setNewAge('');
-      },
-      (error) => {
-        console.error('Error adding user:', error);
-      }
-    );
-  };
 
   const renderFileInputs = (placeholder, onClickHandler) => (
     <>
@@ -155,7 +56,7 @@ function App() {
 
       <div className="app-section">
         <h2>Create File</h2>
-        {renderFileInputs('Enter file content', handleCreateFile)}
+        {renderFileInputs('Enter file content', () => handleCreateFile(fileName, fileContent, setCreatedFiles, setFileName, setFileContent))}
       </div>
 
       <div className="app-section">
@@ -167,7 +68,7 @@ function App() {
           onChange={(e) => setReadFileName(e.target.value)}
           placeholder="Enter file name"
         />
-        <button className="app-button" onClick={handleReadFile}>
+        <button className="app-button" onClick={() => handleReadFile(readFileName, setReadContent)}>
           Read File
         </button>
         <div>
@@ -182,12 +83,17 @@ function App() {
           {Object.keys(createdFiles).map((fileName) => (
             <li key={fileName}>
               {fileName}
-              <button className="app-delete-button" onClick={() => handleDeleteFile(fileName)}>
+              <button className="app-delete-button" onClick={() => handleDeleteFile(fileName, setCreatedFiles)}>
                 Delete
               </button>
             </li>
           ))}
         </ul>
+      </div>
+
+      <div className="app-section">
+        <h2>Delete File</h2>
+        {renderFileInputs('Enter file name', () => handleDeleteFile(fileName, setCreatedFiles))}
       </div>
 
       <div className="app-section">
@@ -206,7 +112,7 @@ function App() {
           onChange={(e) => setNewAge(e.target.value)}
           placeholder="Enter age"
         />
-        <button className="app-button" onClick={handleAddUser}>
+        <button className="app-button" onClick={() => handleAddUser()}>
           Add User
         </button>
       </div>
@@ -224,5 +130,7 @@ function App() {
     </div>
   );
 }
+
+
 
 export default App;
