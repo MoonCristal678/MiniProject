@@ -1,51 +1,49 @@
-// forms/ReadFileForm.js
+// ReadFileForm.js
 
-import React, { useState, useEffect } from 'react';
-import { handleReadFile, getFileNames } from '../utils/apiUtils';
+import React, { useState } from 'react';
 
 const ReadFileForm = ({ setReadContent }) => {
-    const [readFileName, setReadFileName] = useState('');
-    const [fileNames, setFileNames] = useState([]);
+  const [readFileName, setReadFileName] = useState('');
 
-    useEffect(() => {
-        // Fetch file names when the component mounts
-        getFileNames(setFileNames);
-    }, []);
+  const handleReadFile = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/v1/read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fileName: readFileName }),
+      });
 
-    const handleRead = async () => {
-        if (!readFileName) {
-            alert('Please select a file.');
-            return;
-        }
+      const data = await response.json();
 
-        // Use handleReadFile function to read content
-        handleReadFile(readFileName, setReadContent);
-    };
+      if (response.ok) {
+        setReadContent(data.content.replace(/<\/?[^>]+(>|$)/g, ''));
+      } else {
+        console.error('Error reading file:', data.message);
+        setReadContent('');
+      }
+    } catch (error) {
+      console.error('Error reading file:', error);
+      setReadContent('');
+    }
+  };
 
-    return (
-        <div className="app-section">
-            <h2>Read File</h2>
-            <select
-                name="readFileName"
-                value={readFileName}
-                onChange={(e) => setReadFileName(e.target.value)}
-            >
-                <option value="" disabled>Select a file</option>
-                {fileNames.map((fileName) => (
-                    <option key={fileName} value={fileName}>
-                        {fileName}
-                    </option>
-                ))}
-            </select>
-            <button className="app-button" onClick={handleRead}>
-                Read File
-            </button>
-            <div>
-                {readContent && <pre className="app-file-content">{readContent}</pre>}
-                {!readContent && <p className="app-file-not-found">File not found.</p>}
-            </div>
-        </div>
-    );
+  return (
+    <div className="app-section">
+      <h2>Read File</h2>
+      <input
+        type="text"
+        name="readFileName"
+        value={readFileName}
+        onChange={(e) => setReadFileName(e.target.value)}
+        placeholder="Enter file name"
+      />
+      <button className="app-button" onClick={handleReadFile}>
+        Read File
+      </button>
+    </div>
+  );
 };
 
 export default ReadFileForm;

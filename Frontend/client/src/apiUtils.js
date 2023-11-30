@@ -1,19 +1,28 @@
 // apiUtils.js
 
-export const fetchData = async (url, method, body, successCallback, errorCallback) => {
+const handleReadFile = async (fileName, setReadContent) => {
     try {
-      const response = await fetch(url, {
-        method,
+      const response = await fetch(`https://your-api-endpoint/v1/read`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ fileName }),
       });
+  
       const data = await response.json();
-      successCallback(data);
+  
+      if (response.ok) {
+        setReadContent(data.content.replace(/<\/?[^>]+(>|$)/g, ''));
+      } else {
+        console.error('Error reading file:', data.message);
+        setReadContent('');
+      }
     } catch (error) {
-      console.error(error);
-      errorCallback(error);
+      console.error('Error reading file:', error);
+      setReadContent('');
     }
   };
+  
+  export { handleReadFile };
   

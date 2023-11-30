@@ -1,19 +1,39 @@
-// forms/WriteFileForm.js
+// WriteFileForm.js
 
 import React, { useState } from 'react';
-import { handleCreateFile } from '../utils/apiUtils';
 
-const WriteFileForm = ({ setCreatedFiles, setFileName, setFileContent }) => {
+const WriteFileForm = () => {
   const [fileName, setFileName] = useState('');
   const [fileContent, setFileContent] = useState('');
 
-  const handleCreate = async () => {
+  const handleWriteFile = async () => {
     if (!fileName || !fileContent) {
       alert('Please enter both a file name and content.');
       return;
     }
 
-    handleCreateFile(fileName, fileContent, setCreatedFiles, setFileName, setFileContent);
+    try {
+      const response = await fetch('http://localhost:3001/v1/write', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fileName, fileContent }),
+      });
+
+      if (response.ok) {
+        alert(`File '${fileName}' created with the provided content.`);
+        setFileName('');
+        setFileContent('');
+
+        // Reload the page to update the file list
+        window.location.reload();
+      } else {
+        console.error('Error creating file:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error creating file:', error);
+    }
   };
 
   return (
@@ -32,7 +52,7 @@ const WriteFileForm = ({ setCreatedFiles, setFileName, setFileContent }) => {
         onChange={(e) => setFileContent(e.target.value)}
         placeholder="Enter file content"
       />
-      <button className="app-button" onClick={handleCreate}>
+      <button className="app-button" onClick={handleWriteFile}>
         Create File
       </button>
     </div>

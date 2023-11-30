@@ -1,5 +1,3 @@
-// backend/server.js
-
 import express from 'express';
 import methodOverride from 'method-override';
 import { MongoClient } from 'mongodb';
@@ -40,6 +38,7 @@ app.get('/', (req, res) => {
         <button><a href="/v1/delete"> Delete a File </a></button>
         <button><a href="/v1/api/users"> Display JSON Data </a></button>
         <button><a href="/v1/add"> Add User </a></button>
+        <button><a href="/v1/files"> Dsiplay files </a></button>
     `);
 });
 
@@ -116,7 +115,11 @@ v1Router.post('/write', async (req, res) => {
 
     res.send(`File '${fileName}' created with the provided content.`);
 });
-
+v1Router.get('/files', async (req, res) => {
+  const collection = db.collection('files');
+  const files = await collection.find({}, { projection: { _id: 1, name: 1, content: 1 } }).toArray();
+  res.json(files);
+});
 // Render form to delete a file
 v1Router.get('/delete', async (req, res) => {
     getFileNames(res, 'deleteFile.ejs');
