@@ -1,22 +1,10 @@
-// DisplayUsers.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useFetchData } from './sharedFunction';
 
 const DisplayUsers = () => {
   const [jsonData, setJsonData] = useState([]);
 
-  useEffect(() => {
-    async function fetchJsonData() {
-      try {
-        const response = await fetch('http://localhost:3001/v1/api/users');
-        const data = await response.json();
-        setJsonData(data);
-      } catch (error) {
-        console.error('Error fetching JSON data:', error);
-      }
-    }
-
-    fetchJsonData();
-  }, []); // Empty dependency array to run the effect only once
+  useFetchData('http://localhost:3001/v1/api/users', setJsonData);
 
   return (
     <div className="app-json-section">

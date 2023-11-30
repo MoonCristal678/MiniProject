@@ -1,25 +1,16 @@
 // FileList.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import DeleteFileButton from './DeleteFileButton';
-
+import { useFetchData } from './sharedFunction';
 const FileList = () => {
-  const [files, setFiles] = useState([]);
-
-  useEffect(() => {
-    // Fetch the file list from the server
-    const fetchFiles = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/v1/files');
-        const data = await response.json();
-        setFiles(data);
-      } catch (error) {
-        console.error('Error fetching file list:', error);
-      }
-    };
-
-    fetchFiles();
-  }, []);
+    
+    
+  
+      const [files, setFiles] = useState([]);
+    
+      useFetchData('http://localhost:3001/v1/files', setFiles);
+    
 
   const handleDeleteFile = (deletedFileName) => {
     // Update the file list after deleting a file
