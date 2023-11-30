@@ -5,7 +5,7 @@ import React from 'react';
 const DeleteFileButton = ({ fileName, onDelete }) => {
   const handleDelete = async () => {
     try {
-      const response = await fetch('http://localhost:3001/v1/delete', {
+      const response = await fetch('https://backend-j7qq.onrender.com/v1/delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

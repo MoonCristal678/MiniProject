@@ -1,63 +1,63 @@
-ReadMe: Frontend Components - Login.js, Register.js, and App.js
-Login.js
+React File Operations App (App.js)
 Overview
-The Login.js component is responsible for rendering a login form, handling user authentication, and providing a link to the registration page.
+The App.js file serves as the main entry point for the React application. This application allows users to interact with file and user data operations, leveraging a Node.js backend with Express and MongoDB for server-side functionalities.
 
-Usage
-State Management:
+Features
+Display JSON Data:
 
-useState hooks manage the username, password, errorMessage, and redirectToRegister state variables.
-Authentication:
+Upon loading, the app fetches user data from the server and displays it in a section titled "JSON Data."
+User data includes information such as ID, name, age, blood type, country of birth, and date of birth.
+Write to a File:
 
-The handleLogin function sends a POST request to the server for user authentication.
-Displays an error message if authentication fails.
-Navigation:
+The app provides a form (WriteFileForm) allowing users to write content to a file.
+Users can enter a file name and its content, and upon submission, the content is written to the specified file on the server.
+Read a File:
 
-Includes a link to redirect users to the registration page.
-Conditional Rendering:
+Users can input a file name in a text field and click a "Read File" button to fetch and display the content of the specified file.
+If the file is not found, an error message is displayed.
+Display File Contents:
 
-Redirects to the registration page if the redirectToRegister state is true.
+The content of the file, when successfully read, is displayed in a separate section.
+File List:
+
+A list of available files is displayed in a separate section, showing users the existing files on the server.
+Users can delete files directly from this list.
+Error Handling:
+
+The app incorporates error handling, such as displaying an error message if a file is not found or if there's an issue with reading or writing.
+File Deletion:
+
+Users can delete a file by selecting it from the file list.
+The deletion updates the file list and removes the file from the server.
+User-Friendly UI:
+
+The app features a user-friendly interface with sections for JSON data, file operations, and error messages.
+Separation of Components:
+
+The code is structured with modular components such as WriteFileForm, ReadFileForm, and FileList to enhance readability and maintainability.
 Styling:
 
-Basic styling using CSS-in-JS for a responsive and user-friendly interface.
-Register.js
-Overview
-The Register.js component renders a registration form, handles user registration, and provides a link to the login page.
-
+The app includes basic styling to improve the visual presentation and provide a better user experience.
 Usage
-State Management:
+Installation:
 
-useState hooks manage the username, password, email, and errorMessage state variables.
-Registration:
+Clone the repository to your local machine.
+Run npm install to install dependencies.
+Run the App:
 
-The handleRegister function sends a POST request to the server for user registration.
-Displays an error message if registration fails.
-Styling:
+Start the Node.js server by navigating to the server directory and running npm start.
+Start the React app by navigating to the client directory and running npm start.
+Access the App:
 
-Basic styling using CSS-in-JS for a responsive and user-friendly interface.
-Navigation:
+Open a web browser and navigate to http://localhost:3000 to access the React app.
+Interact with the App:
 
-Includes a link to redirect users to the login page.
-App.js
-Overview
-The App.js component serves as the main entry point for the application, managing user authentication and rendering either the login page or the main application page based on the user's login status.
+Explore different sections to perform file and user data operations.
+Follow the prompts and form submissions to read, write, and delete files, as well as interact with JSON data.
+Technologies Used
+React.js
+Node.js
+Express.js
+MongoDB
 
-Usage
-State Management:
-
-useState hooks manage the isLoggedIn state variable.
-Authentication:
-
-The handleLogin function sets the isLoggedIn state to true upon successful login.
-The handleLogout function sends a POST request to the server for user logout.
-Conditional Rendering:
-
-Renders either the Login component or the main application content based on the user's login status.
-Styling:
-
-Basic styling using CSS-in-JS for a responsive and user-friendly interface.
-Running the Frontend
-Ensure the backend server is running.
-Install dependencies: npm install.
-Run the frontend: npm start.
-Access the application at http://localhost:3000/.
+RUNS ON RENDER.COM CHANGE LINKS IN FETCH CALLS FOR localhost

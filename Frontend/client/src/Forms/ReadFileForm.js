@@ -13,7 +13,7 @@ const ReadFileForm = ({ setReadContent }) => {
     }
 
     try {
-        const response = await fetch(`http://localhost:3001/v1/read`, {
+        const response = await fetch(`https://backend-j7qq.onrender.com/v1/read`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
