@@ -1,3 +1,5 @@
+// backend/server.js
+
 import express from 'express';
 import methodOverride from 'method-override';
 import { MongoClient } from 'mongodb';
@@ -59,9 +61,9 @@ v1Router.get('/add', (req, res) => {
 
 // Add a new user
 v1Router.post('/api/users', async (req, res) => {
-    const { name, age } = req.body;
+    const { name, age, bloodType, birthdate, countryOfBirth } = req.body;
 
-    const newUser = { name, age };
+    const newUser = { name, age, bloodType, birthdate, countryOfBirth };
 
     const collection = db.collection('users');
     await collection.insertOne(newUser);
