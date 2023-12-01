@@ -16,10 +16,12 @@
     <button type="submit">Read File</button>
   </form>
   
-  <h2>File Content:</h2>
-  <pre id="fileContentPlaceholder"></pre>
-  
-  <p id="readErrorPlaceholder"></p>
+  <% if (typeof readError !== 'undefined') { %>
+    <p id="readErrorPlaceholder"><%= readError %></p>
+  <% } else { %>
+    
+    <pre id="fileContentPlaceholder"></pre>
+  <% } %>
 
   <script>
     const fileContentPlaceholder = document.getElementById('fileContentPlaceholder');

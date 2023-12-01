@@ -1,19 +1,11 @@
-<!-- views/addUser.ejs -->
+<!-- addUser.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add User</title>
-  <link rel="stylesheet" href="path/to/jquery-ui.min.css">
-  <script src="path/to/jquery.min.js"></script>
-  <script src="path/to/jquery-ui.min.js"></script>
-  <script>
-    $(function () {
-      // Enable datepicker for the birthdate input field
-      $("#birthdate").datepicker();
-    });
-  </script>
 </head>
 <body>
   <h1>Add User</h1>
@@ -21,15 +13,15 @@
   <form action="/v1/api/users" method="post">
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required><br>
-
+    
     <label for="age">Age:</label>
     <input type="number" id="age" name="age" required><br>
 
     <label for="bloodType">Blood Type:</label>
     <input type="text" id="bloodType" name="bloodType" required><br>
 
-    <label for="birthdate">Birthdate (Format: YYYY-MM-DD):</label>
-    <input type="text" id="birthdate" name="birthdate" required><br>
+    <label for="birthdate">Birthdate:</label>
+    <input type="date" id="birthdate" name="birthdate" required><br>
 
     <label for="countryOfBirth">Country of Birth:</label>
     <input type="text" id="countryOfBirth" name="countryOfBirth" required><br>

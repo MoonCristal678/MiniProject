@@ -1,22 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Delete User</title>
 </head>
 <body>
-
-  <h1>Delete User</h1>
-  
-  
-  <form action="/v1/deleteUser" method="post">
-  
-    <label for="userId">User ID:</label>
-    
-    <input type="text" id="userId" name="userId" required><br>
-    
- 
+  <h2>Delete User</h2>
+  <form action="/v1/deleteUser" method="POST">
+    <label for="userId">Select User:</label>
+    <select name="userId" id="userId" required>
+      <% users.forEach(user => { %>
+        <option value="<%= user._id %>"><%= user.name %> (ID: <%= user._id %>)</option>
+      <% }); %>
+    </select>
     <button type="submit">Delete User</button>
   </form>
 </body>

@@ -1,135 +1,148 @@
-File and User Operations API
-Overview
-This project consists of two versions of an Express.js-based API for file and user operations. Both versions provide endpoints for reading, writing, and deleting files, as well as managing user data. The primary difference between the two versions lies in their database handling approach.
+CODE CLIMATE GRADE: B
 
-Version 1
-Version 1 of the API uses the MongoDB native driver for database interaction. It connects to a MongoDB database hosted on MongoDB Atlas using the MongoClient. This version demonstrates basic CRUD operations on users and files.
+1. File Schema (fileSchema.js):
+Purpose:
 
-Features:
-File Operations: Supports reading, writing, and deleting files.
-User Operations: Allows adding users with minimal information (name and age), fetching all users, and rendering forms for user-related actions.
-Technologies Used:
-Express.js for handling HTTP requests.
-MongoDB for data storage.
-EJS for rendering views.
+Defines the Mongoose schema for files.
+Each file has a unique name and content.
+Details:
+
+name: Represents the file name and is a required field.
+content: Represents the content of the file and is a required field.
 Usage:
-Clone the repository.
-Install dependencies using npm install.
-Set up a MongoDB Atlas cluster and replace the uri variable in app.js with your MongoDB URI.
-Run the application using npm start.
-Access the API at http://localhost:3000/v1.
-Version 2
-Version 2 of the API employs Mongoose, an ODM (Object Data Modeling) library for MongoDB and Node.js. This version enhances user data by introducing a Mongoose schema, providing better structure and validation for user objects. It adds features for updating and deleting user records.
 
-Features:
-Extended User Information: Captures additional user details such as blood type, birthdate, and country of birth.
-User Operations: Introduces user validation using Mongoose schema, allowing for more robust data handling.
-Extended File Operations: Retains file operations from Version 1.
-Technologies Used:
-Express.js for handling HTTP requests.
-MongoDB with Mongoose for data storage and modeling.
-EJS for rendering views.
+Exported as the File model for use in other parts of the application.
+2. File Updater (fileUpdater.js):
+Purpose:
+
+Provides functionality to update files.
+Functions:
+
+renderUpdateFileForm(req, res): Renders the form to update a file.
+updateFile(req, res): Updates a file based on user input.
+Details:
+
+Utilizes the File model for database interactions.
+Handles errors and server responses.
+Exported:
+
+Functions exported for use in other files.
+3. File Reader (fileReader.js):
+Purpose:
+
+Provides functionality to read files.
+Functions:
+
+renderReadFileForm(req, res): Renders the form to read a file.
+readFile(req, res): Reads a file based on the selected file name.
+Details:
+
+Utilizes the File model for database interactions.
+Handles errors and server responses.
+Exported:
+
+Functions exported for use in other files.
+4. File Deleter (fileDeleter.js):
+Purpose:
+
+Provides functionality to delete files.
+Functions:
+
+renderDeleteFileForm(req, res): Renders the form to delete a file.
+deleteFile(req, res): Deletes a file based on the selected file name.
+Details:
+
+Utilizes the File model for database interactions.
+Handles errors and server responses.
+Exported:
+
+Functions exported for use in other files.
+5. File Operations (fileOperations.js):
+Middleware and Setup:
+
+Sets up an Express app with middleware (body parsing, method override, CORS).
+Connects to MongoDB using Mongoose.
+Routes:
+
+Defines routes for file operations and user-related operations.
+Each operation has its route and corresponding functions.
+Error Handling:
+
+Utilizes an error handler middleware for catching and logging errors.
+Home Page:
+
+Renders a home page with links to various file and user operations.
+Helper Functions:
+
+Includes helper functions for rendering user forms and handling server errors.
+6. How to Run:
+Requirements:
+
+Node.js and npm installed.
+MongoDB running with correct connection details.
+Steps:
+
+Clone the repository and navigate to the project directory.
+Install dependencies: npm install.
+Start the server: npm start.
+Access:
+
+Open a web browser and go to http://localhost:3000.
 Usage:
-Clone the repository.
-Install dependencies using npm install.
-Set up a MongoDB Atlas cluster and replace the connection string in mongoose.connect with your MongoDB URI.
-Run the application using npm start/nodemon fileOperations.js.
-Access the API at http://localhost:3000/v1.
-API Endpoints
-Common Endpoints
-Read a File: /v1/read
-Write to a File: /v1/write
-Delete a File: /v1/delete
-Version 1 Exclusive Endpoints
-Display JSON Data: /v1/api/users
-Add User: /v1/api/users
-Form to Add a New User: /v1/add
-Version 2 Exclusive Endpoints
-Update User: /v1/updateUser
-Delete User: /v1/deleteUser
-Form to Update a User: /v1/updateUser
-Form to Delete a User: /v1/deleteUser
-Error Handling
-Both versions include a generic error handler to catch and log any unexpected errors, returning a 500 status and a corresponding error message. Additionally, specific error handling is implemented for validation errors in Version 2, responding with a 400 status and an array of validation errors.
 
-Workout, Nutrition Fact, and Goal Management API
-Overview
-This project is an Express.js API designed to manage workout information, nutrition facts, and fitness goals. It employs MongoDB as its database and Mongoose as an ODM (Object Data Modeling) library. The API supports CRUD (Create, Read, Update, Delete) operations for workouts, nutrition facts, and goals. Additionally, it incorporates EJS for rendering HTML templates.
+Click on the provided links to perform file and user operations.
 
-Schemas
-The API defines three schemas for data modeling:
 
-Workout Schema
-Fields:
-name (String): The name of the workout.
-duration (Number): Duration of the workout in minutes.
-intensity (String): Intensity level of the workout.
-Nutrition Fact Schema
-Fields:
-name (String): Name of the nutrition fact.
-calories (Number): Number of calories.
-protein (Number): Protein content.
-carbs (Number): Carbohydrate content.
-fat (Number): Fat content.
-Goal Schema
-Fields:
-name (String): Name of the fitness goal.
-target (Number): Target value associated with the goal (e.g., target weight).
-API Endpoints
-Workouts
-Add Workout:
+Validation Middleware (validateUserInput and validateFileInput):
+1. Purpose:
+validateUserInput:
+Validates user input before adding a new user.
+validateFileInput:
+Validates file input before creating a new file.
+2. Implementation:
+Middleware (express-validator):
+Utilizes the express-validator library for input validation.
+3. Functions:
+validateUserInput(req, res, next):
 
-GET /addWorkout: Render the form to add a new workout.
-POST /api/workouts: Add a new workout to the database.
-View Workouts:
+Validates the input fields for adding a new user.
+Checks the following:
+name: Not empty, trimmed, and escaped.
+age: Must be a non-negative integer.
+bloodType: Not empty, trimmed, and escaped.
+birthdate: Must be a valid ISO8601 date.
+countryOfBirth: Not empty, trimmed, and escaped.
+validateFileInput(req, res, next):
 
-GET /api/workouts: Retrieve all workouts from the database.
-Update Workout:
+Validates the input fields for creating a new file.
+Checks the following:
+fileName: Not empty, trimmed, and escaped.
+fileContent: Not empty, trimmed, and escaped.
+4. Usage:
+Middleware Integration:
+Integrated into the respective routes for adding new users and creating new files.
+Applied using app.use in the main fileOperations.js file.
+javascript
+Copy code
+// Example usage in fileOperations.js
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(methodOverride('_method'));
 
-GET /updateWorkout: Render the form to update a workout.
-POST /api/updateWorkout: Update an existing workout in the database.
-Delete Workout:
+// ...
 
-GET /deleteWorkout: Render the form to delete a workout.
-POST /api/deleteWorkout: Delete a workout from the database.
-Nutrition Facts
-Add Nutrition Fact:
+// Middleware for validating user input
+v1Router.post('/api/users', validateUserInput, addUser);
 
-GET /addNutritionFact: Render the form to add a new nutrition fact.
-POST /api/nutrition-facts: Add a new nutrition fact to the database.
-View Nutrition Facts:
+// Middleware for validating file input
+v1Router.post('/write', validateFileInput, writeFile);
+5. Result:
+If validation fails, an array of errors is provided in the response.
+The middleware ensures that the input adheres to specified rules before proceeding to user creation or file writing.
 
-GET /api/nutrition-facts: Retrieve all nutrition facts from the database.
-Update Nutrition Fact:
 
-GET /updateNutritionFact: Render the form to update a nutrition fact.
-POST /api/updateNutritionFact: Update an existing nutrition fact in the database.
-Delete Nutrition Fact:
+RUN:
 
-GET /deleteNutritionFact: Render the form to delete a nutrition fact.
-POST /api/deleteNutritionFact: Delete a nutrition fact from the database.
-Goals
-Add Goal:
+NPM INSTALL
 
-GET /addGoal: Render the form to add a new fitness goal.
-POST /api/goals: Add a new fitness goal to the database.
-View Goals:
-
-GET /api/goals: Retrieve all fitness goals from the database.
-Update Goal:
-
-GET /updateGoal: Render the form to update a fitness goal.
-POST /api/updateGoal: Update an existing fitness goal in the database.
-Delete Goal:
-
-GET /deleteGoal: Render the form to delete a fitness goal.
-POST /api/deleteGoal: Delete a fitness goal from the database.
-Error Handling
-The API includes error handling for potential issues such as validation errors, database connection errors, and internal server errors. Specific error messages and status codes are provided to aid in debugging.
-
-Getting Started
-Clone the repository.
-Install dependencies using npm install.
-Set up a MongoDB Atlas cluster and replace the connection strings in the code with your MongoDB URI.
-Run the application using nodemon fileOperations.js as they are connected.
-Access the API at http://localhost:3000/v1.
+NODE FILEOPERATONS.JS

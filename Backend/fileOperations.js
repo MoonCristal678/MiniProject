@@ -3,9 +3,15 @@ import methodOverride from 'method-override';
 import mongoose from 'mongoose';
 import { body, validationResult } from 'express-validator';
 import cors from 'cors';
-import v1Router from './schemas.js'
+import File from './fileSchema.js';
+import { renderReadFileForm, readFile } from './fileFunctions/fileReader.js';
+import { renderDeleteFileForm, deleteFile } from './fileFunctions/fileDeleter.js';
+import { renderUpdateFileForm, updateFile } from './fileFunctions/fileUpdater.js';
+const v1Router = express.Router();
 const app = express();
 const port = 3000;
+
+// Middleware
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -19,192 +25,186 @@ mongoose.connect("mongodb+srv://blackkrystal438:DemonSlayer1@fileanduserdata.3yn
 });
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  age: {
-    type: Number,
-    required: true,
-  },
-  bloodType: {
-    type: String,
-    required: true,
-  },
-  birthdate: {
-    type: Date,
-    required: true,
-  },
-  countryOfBirth: {
-    type: String,
-    required: true,
-  },
+  name: { type: String, required: true },
+  age: { type: Number, required: true },
+  bloodType: { type: String, required: true },
+  birthdate: { type: Date, required: true },
+  countryOfBirth: { type: String, required: true },
 });
 
-// Create a Mongoose model for users
 const User = mongoose.model('User', userSchema);
 
+// Middleware for logging requests
 app.use((req, res, next) => {
   console.log(`${req.method} request for ${req.url}`);
   next();
 });
 
-// Render home page with links to file and user operations
+// Home page route
 app.get('/', (req, res) => {
-  res.send(`<button ><a href="/v1/read"> Read a File </a> </button> 
-              <button ><a href="/v1/write"> Write to a File </a> </button>
-              <button ><a href="/v1/delete"> Delete a File </a> </button>
-              <button ><a href="/v1/api/users"> Display JSON Data </a> </button>
-              <button ><a href="/v1/add"> Add User </a> </button>
-              <button ><a href="/v1/updateUser"> Update User </a> </button>
-              <button ><a href="/v1/deleteUser"> Delete User </a> </button>
-              <br>
-              <h2> Workout Functions </h2>
-              <button><a href="/v1/addWorkout"> Add Workout </a></button>
-              <button><a href="/v1/addNutritionFact"> Add Nutrition Fact </a></button>
-              <button><a href="/v1/addGoal"> Add Goal </a></button>
-              <button><a href="/v1/api/workouts"> Display Workouts </a></button>
-              <button><a href="/v1/api/nutrition-facts"> Display Nutrition Facts </a></button>
-              <button><a href="/v1/api/goals"> Display Goals </a></button>
-`);
+  res.send(`
+    <h1>File Functionality</h1>
+    <button><a href="/v1/read"> Read a File </a></button>
+    <button><a href="/v1/write"> Write to a File </a></button>
+    <button><a href="/v1/delete"> Delete a File </a></button>
+    <button><a href="/v1/updateFile"> Update a File </a></button>
+    <button><a href="/v1/files"> View Files </a></button>
+    <br>
+    <h1>User Functionality</h1>
+    <button><a href="/v1/api/users"> Display JSON Data </a></button>
+    <button><a href="/v1/add"> Add User </a></button>
+    <button><a href="/v1/updateUser"> Update User </a></button>
+    <button><a href="/v1/deleteUser"> Delete User </a></button>
+  `);
 });
 
+// User routes
+v1Router.get('/add', renderAddUserForm);
+v1Router.post('/api/users', validateUserInput, addUser);
+v1Router.get('/api/users', getAllUsers);
 
+// File routes
+v1Router.get('/read', renderReadFileForm);
+v1Router.post('/read', readFile);
+v1Router.get('/write', renderWriteFileForm);
+v1Router.post('/write', validateFileInput, writeFile);
+v1Router.get('/files', viewFiles);
+v1Router.get('/delete', renderDeleteFileForm);
+v1Router.post('/delete', deleteFile);
+v1Router.get('/updateUser', renderUpdateUserForm);
+v1Router.post('/updateUser', updateUser);
+v1Router.get('/deleteUser', renderDeleteUserForm);
+v1Router.post('/deleteUser', deleteUser);
+v1Router.get('/updateFile', renderUpdateFileForm);
+v1Router.post('/updateFile', updateFile);
 
-// Render form to add a new user
-v1Router.get('/add', (req, res) => {
+// API versioning
+app.use('/v1', v1Router);
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
+});
+
+// Server start
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
+
+// Helper functions
+
+function renderAddUserForm(req, res) {
   res.render('addUser.ejs');
-});
+}
 
-// Add a new user with validation
-// Modify the user creation route
-v1Router.post(
-  '/api/users',
-  [
+function validateUserInput(req, res, next) {
+  const validationRules = [
     body('name').notEmpty().trim().escape(),
     body('age').isInt({ min: 0 }),
     body('bloodType').notEmpty().trim().escape(),
     body('birthdate').isISO8601().toDate(),
     body('countryOfBirth').notEmpty().trim().escape(),
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
+  ];
 
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+  validationResult(req);
+  next();
+}
 
-    const { name, age, bloodType, birthdate, countryOfBirth } = req.body;
+async function addUser(req, res) {
+  const errors = validationResult(req);
 
-    const newUser = new User({
-      name,
-      age,
-      bloodType,
-      birthdate,
-      countryOfBirth,
-    });
-
-    try {
-      await newUser.save();
-      res.json({ message: 'User added successfully', user: newUser });
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
-    }
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-);
 
-
-// Get all users
-v1Router.get('/api/users', async (req, res) => {
-  console.log('Backend responded');
-  const users = await User.find({});
-  res.json(users);
-});
-
-// Render form to read a file
-v1Router.get('/read', async (req, res) => {
-  const collection = mongoose.connection.db.collection('files');
-  const files = await collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
-  const fileNames = files.map(file => file.name);
-  res.render('readFile.ejs', { fileNames });
-});
-
-// Using async/await for read route
-v1Router.post('/read', async (req, res) => {
-  const fileName = req.body.fileName;
-
-  const collection = mongoose.connection.db.collection('files'); // Access the 'files' collection directly
+  const { name, age, bloodType, birthdate, countryOfBirth } = req.body;
+  const newUser = new User({ name, age, bloodType, birthdate, countryOfBirth });
 
   try {
-    const fileContent = await collection.findOne({ name: fileName });
+    await newUser.save();
+    res.json({ message: 'User added successfully', user: newUser });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+async function getAllData(req, res, model) {
+  try {
+    const data = await model.find({});
+    res.json(data);
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
 
-    if (fileContent) {
-      res.send(`<h2>File Content of '${fileName}':</h2><pre>${fileContent.content}</pre>`);
-    } else {
-      res.render('readFile.ejs', { readError: 'File not found.' });
-    }
+async function getAllUsers(req, res) {
+  await getAllData(req, res, User);
+}
+
+
+async function renderWriteFileForm(req, res) {
+  try {
+    const files = await File.find({});
+    res.render('writeFile.ejs', { files });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
-});
+}
 
-// Render form to write to a file
-v1Router.get('/write', (req, res) => {
-  res.render('writeFile.ejs');
-});
+function validateFileInput(req, res, next) {
+  const validationRules = [
+    body('fileName').notEmpty().trim().escape(),
+    body('fileContent').notEmpty().trim().escape(),
+  ];
 
-// Using async/await for write route
-v1Router.post('/write', async (req, res) => {
-  const fileName = req.body.fileName;
-  const fileContent = req.body.fileContent;
+  validationResult(req);
+  next();
+}
 
-  const collection = mongoose.connection.db.collection('files');
-  await collection.updateOne(
-    { name: fileName },
-    { $set: { content: fileContent } },
-    { upsert: true }
-  );
+async function writeFile(req, res) {
+  const errors = validationResult(req);
 
-  res.send(`File '${fileName}' created with the provided content.`);
-});
-
-// Render form to delete a file
-v1Router.get('/delete', async (req, res) => {
-  const collection = mongoose.connection.db.collection('files');
-  const files = await collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
-  const fileNames = files.map(file => file.name);
-  res.render('deleteFile.ejs', { fileNames });
-});
-
-// Using async/await for delete route
-v1Router.post('/delete', async (req, res) => {
-  const fileName = req.body.fileName;
-
-  const collection = mongoose.connection.db.collection('files');
-  const result = await collection.deleteOne({ name: fileName });
-
-  if (result.deletedCount > 0) {
-    res.send(`File '${fileName}' deleted.`);
-  } else {
-    res.status(404).send('File not found.');
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-});
 
-// Other routes remain the same...
-v1Router.get('/updateUser', async (req, res) => {
-  res.render('updateUser.ejs');
-});
+  const { fileName, fileContent } = req.body;
+  const newFile = new File({ name: fileName, content: fileContent });
 
-// Using async/await for update route
-v1Router.post('/updateUser', async (req, res) => {
-  const userId = req.body.userId; 
+  try {
+    await newFile.save();
+    res.json({ message: 'File created successfully', file: newFile });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+
+async function viewFiles(req, res) {
+  await getAllData(req, res, File);
+}
+
+async function renderUserForm(req, res, formType) {
+  try {
+    const users = await User.find({});
+    const template =
+      formType === 'update' ? 'updateUser.ejs' : formType === 'delete' ? 'deleteUser.ejs' : 'addUser.ejs';
+    res.render(template, { users });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+async function renderUpdateUserForm(req, res) {
+  renderUserForm(req, res, 'update');
+}
+
+async function updateUser(req, res) {
+  const userId = req.body.userId;
+
   try {
     const user = await User.findById(userId);
 
     if (user) {
-      // Update the user fields as needed
       user.name = req.body.name;
       user.age = req.body.age;
       user.bloodType = req.body.bloodType;
@@ -217,19 +217,16 @@ v1Router.post('/updateUser', async (req, res) => {
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+    handleServerError(res, error);
   }
-});
+}
 
-// Render form to delete a user
-v1Router.get('/deleteUser', (req, res) => {
-  res.render('deleteUser.ejs');
-});
+async function renderDeleteUserForm(req, res) {
+  renderUserForm(req, res, 'delete');
+}
+async function deleteUser(req, res) {
+  const userId = req.body.userId;
 
-// Using async/await for delete route
-v1Router.post('/deleteUser', async (req, res) => {
-  const userId = req.body.userId; 
   try {
     const result = await User.deleteOne({ _id: userId });
 
@@ -239,20 +236,13 @@ v1Router.post('/deleteUser', async (req, res) => {
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+    handleServerError(res, error);
   }
-});
-// Use API versioning
-app.use('/v1', v1Router);
+}
 
-// Define error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something went wrong!');
-});
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
+
+function handleServerError(res, error) {
+  console.error(error);
+  res.status(500).send('Internal Server Error');
+}

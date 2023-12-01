@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add File</title>
+</head>
+
+<body>
+    <h1>Add File</h1>
+
+    <form action="/v1/addFile" method="post">
+        <label for="fileName">File Name:</label>
+        <input type="text" id="fileName" name="name" required>
+
+        <label for="fileContent">File Content:</label>
+        <textarea id="fileContent" name="content" rows="4" required></textarea>
+
+        <button type="submit">Add File</button>
+    </form>
+</body>
+
+</html>
