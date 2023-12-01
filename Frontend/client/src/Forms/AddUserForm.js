@@ -1,5 +1,5 @@
-// AddUserForm.js
 import React, { useState } from 'react';
+import { fetchUserData, addUser } from '../api';
 
 const AddUserForm = ({ onAddUser }) => {
   const [newUser, setNewUser] = useState({
@@ -12,13 +12,7 @@ const AddUserForm = ({ onAddUser }) => {
 
   const handleAddUser = async () => {
     try {
-      const response = await fetch('http://localhost:3000/v1/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newUser),
-      });
+      const response = await addUser(newUser);
 
       if (response.ok) {
         // Reload the page after adding the user

@@ -1,5 +1,5 @@
-// UpdateFileForm.js
 import React, { useState, useEffect } from 'react';
+import { fetchFileData, updateFile } from '../api';
 
 const UpdateFileForm = () => {
   const [selectedFileId, setSelectedFileId] = useState('');
@@ -8,18 +8,15 @@ const UpdateFileForm = () => {
     content: '',
   });
 
-  // Assuming jsonData is your array of files, make sure to replace it with your actual file data source
   const [jsonData, setJsonData] = useState([]);
 
   useEffect(() => {
-    // Call your function to fetch file data
     fetchJsonData();
   }, []);
 
   const fetchJsonData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/v1/files');
-      const data = await response.json();
+      const data = await fetchFileData();
       setJsonData(data);
     } catch (error) {
       console.error('Error fetching file data:', error);
@@ -39,30 +36,10 @@ const UpdateFileForm = () => {
     e.preventDefault();
 
     try {
-      await fetch('http://localhost:3000/v1/updateFile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fileId: selectedFileId,
-          name: updatedFile.name,
-          content: updatedFile.content,
-        }),
-      });
+      await updateFile(selectedFileId, updatedFile);
 
       // Reload the page after updating the file
       window.location.reload();
-
-      // The following lines will not be executed after the page is reloaded,
-      // so you may remove them if you want
-      fetchJsonData();
-
-      setSelectedFileId('');
-      setUpdatedFile({
-        name: '',
-        content: '',
-      });
     } catch (error) {
       console.error('Error updating file:', error);
     }
@@ -81,7 +58,7 @@ const UpdateFileForm = () => {
             </option>
           ))}
         </select>
-            <br></br>
+        <br />
         <label htmlFor="name">Name:</label>
         <input
           type="text"

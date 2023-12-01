@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUserData, updateUser } from './api'; 
-import { handleSelectUser } from './helpers'; 
+import { fetchUserData, updateUser } from '../api';
+import { handleSelectUser } from './helpers';
 
 const UpdateUserForm = () => {
   const [selectedUserId, setSelectedUserId] = useState('');
