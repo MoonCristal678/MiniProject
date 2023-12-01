@@ -9,7 +9,7 @@ const FileList = () => {
   
       const [files, setFiles] = useState([]);
     
-      useFetchData('https://backend-j7qq.onrender.com/v1/files', setFiles);
+      useFetchData('http://localhost:3000/v1/files', setFiles);
     
 
   const handleDeleteFile = (deletedFileName) => {

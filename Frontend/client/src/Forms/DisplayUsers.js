@@ -4,7 +4,7 @@ import { useFetchData } from './sharedFunction';
 const DisplayUsers = () => {
   const [jsonData, setJsonData] = useState([]);
 
-  useFetchData('https://backend-j7qq.onrender.com/v1/api/users', setJsonData);
+  useFetchData('http://localhost:3000/v1/api/users', setJsonData);
 
   return (
     <div className="app-json-section">

@@ -1,11 +1,9 @@
-// DeleteFileButton.js
-
 import React from 'react';
 
 const DeleteFileButton = ({ fileName, onDelete }) => {
   const handleDelete = async () => {
     try {
-      const response = await fetch('https://backend-j7qq.onrender.com/v1/delete', {
+      const response = await fetch('http://localhost:3000/v1/delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -14,7 +12,8 @@ const DeleteFileButton = ({ fileName, onDelete }) => {
       });
 
       if (response.ok) {
-        onDelete(fileName); // Callback to update the file list
+        // Callback to update the file list in FileList.js
+        onDelete(fileName);
       } else {
         console.error('Error deleting file:', response.statusText);
       }
