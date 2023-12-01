@@ -5,7 +5,7 @@ import FileList from './Forms/fileList';
 import WriteFileForm from './Forms/WriteFileForm';
 import ReadFileForm from './Forms/ReadFileForm';
 import DisplayUsers from './Forms/DisplayUsers';
-import UpdateUserForm from './Forms/UpdateUserForm';
+import UpdateUserForm from './UserFunctionality/UpdateUserForm';
 import UpdateFileForm from './Forms/updateFileForm';
 import AddUserForm from './Forms/AddUserForm';
 function App() {

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { fetchUserData, updateUser } from './api'; 
+import { handleSelectUser } from './helpers'; 
 
 const UpdateUserForm = () => {
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -10,80 +12,53 @@ const UpdateUserForm = () => {
     countryOfBirth: '',
   });
 
-  // Assuming jsonData is your array of users, make sure to replace it with your actual user data source
   const [jsonData, setJsonData] = useState([]);
 
   useEffect(() => {
-    // Call your function to fetch user data
     fetchJsonData();
   }, []);
 
   const fetchJsonData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/v1/api/users');
-      const data = await response.json();
+      const data = await fetchUserData();
       setJsonData(data);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
   };
 
-  const handleSelectUser = (e) => {
-    const selectedId = e.target.value;
-    setSelectedUserId(selectedId);
-
-    const selectedUser = jsonData.find((user) => user._id === selectedId);
-
-    setUpdatedUser(selectedUser || { name: '', age: '', bloodType: '', birthdate: '', countryOfBirth: '' });
-  };
-
   const handleUpdateUser = async (e) => {
     e.preventDefault();
 
     try {
-      if (
-        updatedUser.name === '' &&
-        updatedUser.age === '' &&
-        updatedUser.bloodType === '' &&
-        updatedUser.birthdate === '' &&
-        updatedUser.countryOfBirth === ''
-      ) {
-        // If all fields are empty, delete the user
-        await fetch(`http://localhost:3000/v1/deleteUser/${selectedUserId}`, {
-          method: 'POST',
-        });
+      if (isAllFieldsEmpty(updatedUser)) {
+        await updateUser(selectedUserId, { delete: true });
       } else {
-        // If fields are not empty, update the user
-        await fetch('http://localhost:3000/v1/updateUser', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: selectedUserId,
-            name: updatedUser.name,
-            age: updatedUser.age,
-            bloodType: updatedUser.bloodType,
-            birthdate: updatedUser.birthdate,
-            countryOfBirth: updatedUser.countryOfBirth,
-          }),
-        });
+        await updateUser(selectedUserId, updatedUser);
       }
 
       window.location.reload();
       fetchJsonData();
 
-      setSelectedUserId('');
-      setUpdatedUser({
-        name: '',
-        age: '',
-        bloodType: '',
-        birthdate: '',
-        countryOfBirth: '',
-      });
+      clearForm();
     } catch (error) {
       console.error('Error updating/deleting user:', error);
     }
+  };
+
+  const isAllFieldsEmpty = (user) => {
+    return Object.values(user).every((value) => value === '');
+  };
+
+  const clearForm = () => {
+    setSelectedUserId('');
+    setUpdatedUser({
+      name: '',
+      age: '',
+      bloodType: '',
+      birthdate: '',
+      countryOfBirth: '',
+    });
   };
 
   return (
@@ -91,8 +66,15 @@ const UpdateUserForm = () => {
       <h2>Update User</h2>
       <form onSubmit={handleUpdateUser}>
         <label htmlFor="userId">Select User:</label>
-        <select id="userId" value={selectedUserId} onChange={handleSelectUser} required>
-          <option value="" disabled>Select user</option>
+        <select
+          id="userId"
+          value={selectedUserId}
+          onChange={(e) => handleSelectUser(e, jsonData, setSelectedUserId, setUpdatedUser)}
+          required
+        >
+          <option value="" disabled>
+            Select user
+          </option>
           {jsonData.map((user) => (
             <option key={user._id} value={user._id}>
               {user.name} (ID: {user._id})
