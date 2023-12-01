@@ -141,6 +141,7 @@ async function getAllUsers(req, res) {
 }
 
 
+
 async function renderWriteFileForm(req, res) {
   try {
     const files = await File.find({});
@@ -187,14 +188,18 @@ async function viewFiles(req, res) {
     handleServerError(res, error);
   }
 }
-
-async function renderUpdateUserForm(req, res) {
+async function renderUserForm(req, res, formType) {
   try {
     const users = await User.find({});
-    res.render('updateUser.ejs', { users });
+    const template =
+      formType === 'update' ? 'updateUser.ejs' : formType === 'delete' ? 'deleteUser.ejs' : 'addUser.ejs';
+    res.render(template, { users });
   } catch (error) {
     handleServerError(res, error);
   }
+}
+async function renderUpdateUserForm(req, res) {
+  renderUserForm(req, res, 'update');
 }
 
 async function updateUser(req, res) {
@@ -221,14 +226,8 @@ async function updateUser(req, res) {
 }
 
 async function renderDeleteUserForm(req, res) {
-  try {
-    const users = await User.find({});
-    res.render('deleteUser.ejs', { users });
-  } catch (error) {
-    handleServerError(res, error);
-  }
+  renderUserForm(req, res, 'delete');
 }
-
 async function deleteUser(req, res) {
   const userId = req.body.userId;
 
