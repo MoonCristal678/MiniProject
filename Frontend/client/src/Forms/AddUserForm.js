@@ -1,18 +1,5 @@
 import React, { useState } from 'react';
-import { fetchUserData, addUser } from '../api';
-
-const InputField = ({ label, id, type, value, onChange, required }) => (
-  <>
-    <label htmlFor={id}>{label}:</label>
-    <input
-      type={type}
-      id={id}
-      value={value}
-      onChange={(e) => onChange({ ...value, [id]: e.target.value })}
-      required={required}
-    />
-  </>
-);
+import { addUser } from '../api';
 
 const AddUserForm = ({ onAddUser }) => {
   const [newUser, setNewUser] = useState({
@@ -23,8 +10,13 @@ const AddUserForm = ({ onAddUser }) => {
     countryOfBirth: '',
   });
 
+  const handleInputChange = (field, value) => {
+    setNewUser({ ...newUser, [field]: value });
+  };
+
   const handleAddUser = async () => {
     try {
+      window.location.reload();
       const response = await addUser(newUser);
 
       if (response.ok) {
@@ -38,54 +30,28 @@ const AddUserForm = ({ onAddUser }) => {
     }
   };
 
+  const renderInput = (id, label, type = 'text') => (
+    <>
+      <label htmlFor={id}>{label}:</label>
+      <input
+        type={type}
+        id={id}
+        value={newUser[id]}
+        onChange={(e) => handleInputChange(id, e.target.value)}
+        required
+      />
+    </>
+  );
+
   return (
     <div className="app-section">
       <h2>Add User</h2>
       <form>
-        <InputField
-          label="Name"
-          id="name"
-          type="text"
-          value={newUser}
-          onChange={setNewUser}
-          required
-        />
-
-        <InputField
-          label="Age"
-          id="age"
-          type="number"
-          value={newUser}
-          onChange={setNewUser}
-          required
-        />
-
-        <InputField
-          label="Blood Type"
-          id="bloodType"
-          type="text"
-          value={newUser}
-          onChange={setNewUser}
-          required
-        />
-
-        <InputField
-          label="Birthdate"
-          id="birthdate"
-          type="date"
-          value={newUser}
-          onChange={setNewUser}
-          required
-        />
-
-        <InputField
-          label="Country of Birth"
-          id="countryOfBirth"
-          type="text"
-          value={newUser}
-          onChange={setNewUser}
-          required
-        />
+        {renderInput('name', 'Name')}
+        {renderInput('age', 'Age', 'number')}
+        {renderInput('bloodType', 'Blood Type')}
+        {renderInput('birthdate', 'Birthdate', 'date')}
+        {renderInput('countryOfBirth', 'Country of Birth')}
 
         <button type="button" onClick={handleAddUser}>
           Add User
