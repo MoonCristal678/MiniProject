@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
 import { fetchUserData, addUser } from '../api';
 
+const InputField = ({ label, id, type, value, onChange, required }) => (
+  <>
+    <label htmlFor={id}>{label}:</label>
+    <input
+      type={type}
+      id={id}
+      value={value}
+      onChange={(e) => onChange({ ...value, [id]: e.target.value })}
+      required={required}
+    />
+  </>
+);
+
 const AddUserForm = ({ onAddUser }) => {
   const [newUser, setNewUser] = useState({
     name: '',
@@ -29,48 +42,48 @@ const AddUserForm = ({ onAddUser }) => {
     <div className="app-section">
       <h2>Add User</h2>
       <form>
-        <label htmlFor="name">Name:</label>
-        <input
-          type="text"
+        <InputField
+          label="Name"
           id="name"
-          value={newUser.name}
-          onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+          type="text"
+          value={newUser}
+          onChange={setNewUser}
           required
         />
 
-        <label htmlFor="age">Age:</label>
-        <input
-          type="number"
+        <InputField
+          label="Age"
           id="age"
-          value={newUser.age}
-          onChange={(e) => setNewUser({ ...newUser, age: e.target.value })}
+          type="number"
+          value={newUser}
+          onChange={setNewUser}
           required
         />
 
-        <label htmlFor="bloodType">Blood Type:</label>
-        <input
-          type="text"
+        <InputField
+          label="Blood Type"
           id="bloodType"
-          value={newUser.bloodType}
-          onChange={(e) => setNewUser({ ...newUser, bloodType: e.target.value })}
-          required
-        />
-
-        <label htmlFor="birthdate">Birthdate:</label>
-        <input
-          type="date"
-          id="birthdate"
-          value={newUser.birthdate}
-          onChange={(e) => setNewUser({ ...newUser, birthdate: e.target.value })}
-          required
-        />
-
-        <label htmlFor="countryOfBirth">Country of Birth:</label>
-        <input
           type="text"
+          value={newUser}
+          onChange={setNewUser}
+          required
+        />
+
+        <InputField
+          label="Birthdate"
+          id="birthdate"
+          type="date"
+          value={newUser}
+          onChange={setNewUser}
+          required
+        />
+
+        <InputField
+          label="Country of Birth"
           id="countryOfBirth"
-          value={newUser.countryOfBirth}
-          onChange={(e) => setNewUser({ ...newUser, countryOfBirth: e.target.value })}
+          type="text"
+          value={newUser}
+          onChange={setNewUser}
           required
         />
 
