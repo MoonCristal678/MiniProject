@@ -1,77 +1,40 @@
 // api.js
 const apiUrl = 'http://localhost:3000/v1/';
 
-export const fetchUserData = async () => {
-  try {
-    const response = await fetch(`${apiUrl}/api/users`);
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    throw error;
-  }
-};
+const handleApiRequest = async (endpoint, method, data = {}) => {
+  const url = `${apiUrl}${endpoint}`;
 
-export const updateUser = async (userId, userData) => {
   try {
-    await fetch(`${apiUrl}/updateUser`, {
-      method: 'POST',
+    const response = await fetch(url, {
+      method,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userId, ...userData }),
-    });
-  } catch (error) {
-    console.error('Error updating user:', error);
-    throw error;
-  }
-};
-
-export const fetchFileData = async () => {
-  try {
-    const response = await fetch(`${apiUrl}/files`);
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching file data:', error);
-    throw error;
-  }
-};
-
-export const updateFile = async (fileId, fileData) => {
-  try {
-    await fetch(`${apiUrl}/updateFile`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ fileId, ...fileData }),
-    });
-  } catch (error) {
-    console.error('Error updating file:', error);
-    throw error;
-  }
-};
-
-const addUser = async (newUser) => {
-  try {
-    const response = await fetch(`${apiUrl}/api/users`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newUser),
+      body: method !== 'GET' ? JSON.stringify(data) : undefined,
     });
 
     if (response.ok) {
-      window.location.reload();
-      return true; // Indicate success
+      return await response.json();
     } else {
-      console.error('Error adding user:', response.statusText);
-      return false; // Indicate failure
+      console.error(`Error ${method} data at ${url}:`, response.statusText);
+      throw new Error(`Error ${method} data at ${url}: ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error adding user:', error);
-    throw error; // Rethrow the error to handle it in the component
+    console.error(`Error ${method} data at ${url}:`, error);
+    throw error;
   }
 };
 
-export { addUser};
+export const fetchUserData = async () => handleApiRequest('/api/users', 'GET');
+
+export const updateUser = async (userId, userData) =>
+  handleApiRequest('/updateUser', 'POST', { userId, ...userData });
+
+export const fetchFileData = async () => handleApiRequest('/files', 'GET');
+
+export const updateFile = async (fileId, fileData) =>
+  handleApiRequest('/updateFile', 'POST', { fileId, ...fileData });
+
+const addUser = async (newUser) => handleApiRequest('/api/users', 'POST', newUser);
+
+export { addUser };
