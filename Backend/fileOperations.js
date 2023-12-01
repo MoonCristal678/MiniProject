@@ -1,5 +1,3 @@
-// fileOperations.js
-
 import express from 'express';
 import methodOverride from 'method-override';
 import mongoose from 'mongoose';

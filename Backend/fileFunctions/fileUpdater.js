@@ -1,4 +1,3 @@
-// fileUpdater.js
 import File from '../fileSchema.js';
 
 async function renderUpdateFileForm(req, res) {
@@ -31,5 +30,4 @@ async function updateFile(req, res) {
   }
 }
 
-// Exporting the functions for use in other files
 export { renderUpdateFileForm, updateFile };

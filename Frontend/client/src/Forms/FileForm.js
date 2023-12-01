@@ -13,7 +13,7 @@ const FileForm = ({ type, onSubmit }) => {
 
     try {
       const endpoint = type === 'read' ? 'read' : 'write';
-      const response = await fetch(`https://backend-j7qq.onrender.com/v1/${endpoint}`, {
+      const response = await fetch(`https://miniproject8-backend.onrender.com/v1/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ const FileForm = ({ type, onSubmit }) => {
         alert(`File '${fileName}' ${type === 'read' ? 'read' : 'created'} with the provided content.`);
         setFileName('');
         setFileContent('');
-        onSubmit(); // Trigger any additional logic after write
+        onSubmit(); 
       }
 
       setError(null);

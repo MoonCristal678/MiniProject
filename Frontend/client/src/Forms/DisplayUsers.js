@@ -4,7 +4,7 @@ import { useFetchData } from './sharedFunction';
 const DisplayUsers = () => {
   const [jsonData, setJsonData] = useState([]);
 
-  useFetchData('http://localhost:3000/v1/api/users', setJsonData);
+  useFetchData('https://miniproject8-backend.onrender.com/v1/api/users', setJsonData);
 
   return (
     <div className="app-json-section">

@@ -1,5 +1,4 @@
-// api.js
-const apiUrl = 'http://localhost:3000/v1/';
+const apiUrl = 'https://miniproject8-backend.onrender.com/v1/';
 
 const handleApiRequest = async (endpoint, method, data = {}) => {
   const url = `${apiUrl}${endpoint}`;

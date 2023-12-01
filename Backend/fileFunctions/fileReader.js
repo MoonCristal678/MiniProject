@@ -1,4 +1,3 @@
-// fileReader.js
 import mongoose from 'mongoose';
 
 async function renderReadFileForm(req, res) {
@@ -27,5 +26,4 @@ async function readFile(req, res) {
   }
 }
 
-// Exporting the functions for use in other files
 export { renderReadFileForm, readFile };

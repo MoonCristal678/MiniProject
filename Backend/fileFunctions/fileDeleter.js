@@ -29,5 +29,4 @@ async function deleteFile(req, res) {
   }
 }
 
-// Exporting the functions for use in other files
 export { renderDeleteFileForm, deleteFile };

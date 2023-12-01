@@ -1,4 +1,3 @@
-// sharedFunctions.js
 import { useEffect } from 'react';
 
 export const useFetchData = (url, setData) => {
