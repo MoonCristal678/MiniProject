@@ -130,16 +130,18 @@ async function addUser(req, res) {
     handleServerError(res, error);
   }
 }
-
-async function getAllUsers(req, res) {
+async function getAllData(req, res, model) {
   try {
-    const users = await User.find({});
-    res.json(users);
+    const data = await model.find({});
+    res.json(data);
   } catch (error) {
     handleServerError(res, error);
   }
 }
 
+async function getAllUsers(req, res) {
+  await getAllData(req, res, User);
+}
 
 
 async function renderWriteFileForm(req, res) {
@@ -181,13 +183,9 @@ async function writeFile(req, res) {
 }
 
 async function viewFiles(req, res) {
-  try {
-    const files = await File.find({});
-    res.json(files);
-  } catch (error) {
-    handleServerError(res, error);
-  }
+  await getAllData(req, res, File);
 }
+
 async function renderUserForm(req, res, formType) {
   try {
     const users = await User.find({});
