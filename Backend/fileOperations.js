@@ -6,7 +6,9 @@ import mongoose from 'mongoose';
 import { body, validationResult } from 'express-validator';
 import cors from 'cors';
 import File from './fileSchema.js';
-
+import { renderReadFileForm, readFile } from './fileFunctions/fileReader.js';
+import { renderDeleteFileForm, deleteFile } from './fileFunctions/fileDeleter.js';
+import { renderUpdateFileForm, updateFile } from './fileFunctions/fileUpdater.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
@@ -138,31 +140,6 @@ async function getAllUsers(req, res) {
   }
 }
 
-async function renderReadFileForm(req, res) {
-  const collection = mongoose.connection.db.collection('files');
-  const files = await collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
-  const fileNames = files.map(file => file.name);
-  res.render('readFile.ejs', { fileNames });
-}
-
-async function readFile(req, res) {
-  const fileName = req.body.fileName;
-
-  const collection = mongoose.connection.db.collection('files');
-
-  try {
-    const fileContent = await collection.findOne({ name: fileName });
-
-    if (fileContent) {
-      res.send(`<h2>File Content of '${fileName}':</h2><pre>${fileContent.content}</pre>`);
-    } else {
-      res.render('readFile.ejs', { readError: 'File not found.' });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-}
 
 async function renderWriteFileForm(req, res) {
   try {
@@ -208,27 +185,6 @@ async function viewFiles(req, res) {
     res.json(files);
   } catch (error) {
     handleServerError(res, error);
-  }
-}
-
-async function renderDeleteFileForm(req, res) {
-  const collection = mongoose.connection.db.collection('files');
-  const files = await collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
-  const fileNames = files.map(file => file.name);
-  res.render('deleteFile.ejs', { fileNames });
-}
-
-async function deleteFile(req, res) {
-  const { fileName } = req.body;
-  console.log('Deleting file on the server:', fileName);
-
-  const collection = mongoose.connection.db.collection('files');
-  const result = await collection.deleteOne({ name: fileName });
-
-  if (result.deletedCount > 0) {
-    res.send(`File '${fileName}' deleted.`);
-  } else {
-    res.status(404).send('File not found.');
   }
 }
 
@@ -289,34 +245,7 @@ async function deleteUser(req, res) {
   }
 }
 
-async function renderUpdateFileForm(req, res) {
-  try {
-    const files = await File.find({});
-    res.render('updateFile.ejs', { files });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-}
 
-async function updateFile(req, res) {
-  const fileId = req.body.fileId;
-
-  try {
-    const file = await File.findById(fileId);
-
-    if (file) {
-      file.name = req.body.name;
-      file.content = req.body.content;
-
-      await file.save();
-      res.json({ message: 'File updated successfully', file });
-    } else {
-      res.status(404).json({ message: 'File not found' });
-    }
-  } catch (error) {
-    handleServerError(res, error);
-  }
-}
 
 function handleServerError(res, error) {
   console.error(error);
