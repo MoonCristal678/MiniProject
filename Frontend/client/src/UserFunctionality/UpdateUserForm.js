@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { fetchUserData, updateUser } from '../api';
 import { handleSelectUser } from './helpers';
 
+const initialUserState = {
+  name: '',
+  age: '',
+  bloodType: '',
+  birthdate: '',
+  countryOfBirth: '',
+};
+
 const UpdateUserForm = () => {
   const [selectedUserId, setSelectedUserId] = useState('');
-  const [updatedUser, setUpdatedUser] = useState({
-    name: '',
-    age: '',
-    bloodType: '',
-    birthdate: '',
-    countryOfBirth: '',
-  });
-
+  const [updatedUser, setUpdatedUser] = useState(initialUserState);
   const [jsonData, setJsonData] = useState([]);
 
   useEffect(() => {
@@ -31,15 +32,14 @@ const UpdateUserForm = () => {
     e.preventDefault();
 
     try {
-      if (isAllFieldsEmpty(updatedUser)) {
-        await updateUser(selectedUserId, { delete: true });
-      } else {
-        await updateUser(selectedUserId, updatedUser);
-      }
+      const updatedUserData = isAllFieldsEmpty(updatedUser)
+        ? { delete: true }
+        : updatedUser;
+
+      await updateUser(selectedUserId, updatedUserData);
 
       window.location.reload();
       fetchJsonData();
-
       clearForm();
     } catch (error) {
       console.error('Error updating/deleting user:', error);
@@ -52,13 +52,7 @@ const UpdateUserForm = () => {
 
   const clearForm = () => {
     setSelectedUserId('');
-    setUpdatedUser({
-      name: '',
-      age: '',
-      bloodType: '',
-      birthdate: '',
-      countryOfBirth: '',
-    });
+    setUpdatedUser(initialUserState);
   };
 
   return (
@@ -67,7 +61,6 @@ const UpdateUserForm = () => {
       <form onSubmit={handleUpdateUser}>
         <label htmlFor="userId">Select User:</label>
         <select
-          id="userId"
           value={selectedUserId}
           onChange={(e) => handleSelectUser(e, jsonData, setSelectedUserId, setUpdatedUser)}
           required
@@ -82,50 +75,18 @@ const UpdateUserForm = () => {
           ))}
         </select>
 
-        <label htmlFor="name">Name:</label>
-        <input
-          type="text"
-          id="name"
-          value={updatedUser.name}
-          onChange={(e) => setUpdatedUser({ ...updatedUser, name: e.target.value })}
-          required
-        />
-
-        <label htmlFor="age">Age:</label>
-        <input
-          type="number"
-          id="age"
-          value={updatedUser.age}
-          onChange={(e) => setUpdatedUser({ ...updatedUser, age: e.target.value })}
-          required
-        />
-
-        <label htmlFor="bloodType">Blood Type:</label>
-        <input
-          type="text"
-          id="bloodType"
-          value={updatedUser.bloodType}
-          onChange={(e) => setUpdatedUser({ ...updatedUser, bloodType: e.target.value })}
-          required
-        />
-
-        <label htmlFor="birthdate">Birthdate:</label>
-        <input
-          type="date"
-          id="birthdate"
-          value={updatedUser.birthdate}
-          onChange={(e) => setUpdatedUser({ ...updatedUser, birthdate: e.target.value })}
-          required
-        />
-
-        <label htmlFor="countryOfBirth">Country of Birth:</label>
-        <input
-          type="text"
-          id="countryOfBirth"
-          value={updatedUser.countryOfBirth}
-          onChange={(e) => setUpdatedUser({ ...updatedUser, countryOfBirth: e.target.value })}
-          required
-        />
+        {['name', 'age', 'bloodType', 'birthdate', 'countryOfBirth'].map((field) => (
+          <React.Fragment key={field}>
+            <label htmlFor={field}>{field.charAt(0).toUpperCase() + field.slice(1)}:</label>
+            <input
+              type={field === 'age' ? 'number' : 'text'}
+              id={field}
+              value={updatedUser[field]}
+              onChange={(e) => setUpdatedUser({ ...updatedUser, [field]: e.target.value })}
+              required
+            />
+          </React.Fragment>
+        ))}
 
         <button type="submit">Update User</button>
       </form>

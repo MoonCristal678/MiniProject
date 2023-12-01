@@ -7,6 +7,7 @@ import { body, validationResult } from 'express-validator';
 import cors from 'cors';
 import File from './fileSchema.js';
 import { renderReadFileForm, readFile } from './fileFunctions/fileReader.js';
+import { renderDeleteFileForm, deleteFile } from './fileFunctions/fileDeleter.js';
 import { renderUpdateFileForm, updateFile } from './fileFunctions/fileUpdater.js';
 const v1Router = express.Router();
 const app = express();
@@ -47,6 +48,7 @@ app.get('/', (req, res) => {
     <h1>File Functionality</h1>
     <button><a href="/v1/read"> Read a File </a></button>
     <button><a href="/v1/write"> Write to a File </a></button>
+    <button><a href="/v1/delete"> Delete a File </a></button>
     <button><a href="/v1/updateFile"> Update a File </a></button>
     <button><a href="/v1/files"> View Files </a></button>
     <br>
@@ -59,18 +61,22 @@ app.get('/', (req, res) => {
 });
 
 // User routes
-v1Router.get('/add', (req, res) => renderUserForm(res, 'addUser.ejs'));
-v1Router.get('/updateUser', (req, res) => renderUserForm(res, 'updateUser.ejs'));
-v1Router.get('/deleteUser', (req, res) => renderUserForm(res, 'deleteUser.ejs'));
-v1Router.post('/api/users', handleValidationResult, validateUserInput, addUser);
+v1Router.get('/add', renderAddUserForm);
+v1Router.post('/api/users', validateUserInput, addUser);
 v1Router.get('/api/users', getAllUsers);
 
 // File routes
 v1Router.get('/read', renderReadFileForm);
 v1Router.post('/read', readFile);
-v1Router.get('/write', (req, res) => renderFileForm(res, 'writeFile.ejs'));
-v1Router.post('/write', handleValidationResult, validateFileInput, (req, res) => createFileAndRespond(req, res, createFile));
-v1Router.get('/files', (req, res) => createFileAndRespond(req, res, viewFiles));
+v1Router.get('/write', renderWriteFileForm);
+v1Router.post('/write', validateFileInput, writeFile);
+v1Router.get('/files', viewFiles);
+v1Router.get('/delete', renderDeleteFileForm);
+v1Router.post('/delete', deleteFile);
+v1Router.get('/updateUser', renderUpdateUserForm);
+v1Router.post('/updateUser', updateUser);
+v1Router.get('/deleteUser', renderDeleteUserForm);
+v1Router.post('/deleteUser', deleteUser);
 v1Router.get('/updateFile', renderUpdateFileForm);
 v1Router.post('/updateFile', updateFile);
 
@@ -90,42 +96,8 @@ app.listen(port, () => {
 
 // Helper functions
 
-async function renderUserForm(res, view) {
-  try {
-    const users = await User.find({});
-    res.render(view, { users });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-}
-
-function handleValidationResult(req, res, next) {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  next();
-}
-
-async function createFileAndRespond(req, res, creationFunction) {
-  try {
-    const result = await creationFunction(req.body);
-    res.json(result);
-  } catch (error) {
-    handleServerError(res, error);
-  }
-}
-
-async function renderFileForm(res, view) {
-  try {
-    const files = await File.find({});
-    res.render(view, { files });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
+function renderAddUserForm(req, res) {
+  res.render('addUser.ejs');
 }
 
 function validateUserInput(req, res, next) {
@@ -168,6 +140,17 @@ async function getAllUsers(req, res) {
   }
 }
 
+
+async function renderWriteFileForm(req, res) {
+  try {
+    const files = await File.find({});
+    res.render('writeFile.ejs', { files });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
 function validateFileInput(req, res, next) {
   const validationRules = [
     body('fileName').notEmpty().trim().escape(),
@@ -178,6 +161,24 @@ function validateFileInput(req, res, next) {
   next();
 }
 
+async function writeFile(req, res) {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { fileName, fileContent } = req.body;
+  const newFile = new File({ name: fileName, content: fileContent });
+
+  try {
+    await newFile.save();
+    res.json({ message: 'File created successfully', file: newFile });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+
 async function viewFiles(req, res) {
   try {
     const files = await File.find({});
@@ -186,6 +187,65 @@ async function viewFiles(req, res) {
     handleServerError(res, error);
   }
 }
+
+async function renderUpdateUserForm(req, res) {
+  try {
+    const users = await User.find({});
+    res.render('updateUser.ejs', { users });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+
+async function updateUser(req, res) {
+  const userId = req.body.userId;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (user) {
+      user.name = req.body.name;
+      user.age = req.body.age;
+      user.bloodType = req.body.bloodType;
+      user.birthdate = req.body.birthdate;
+      user.countryOfBirth = req.body.countryOfBirth;
+
+      await user.save();
+      res.json({ message: 'User updated successfully', user });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+
+async function renderDeleteUserForm(req, res) {
+  try {
+    const users = await User.find({});
+    res.render('deleteUser.ejs', { users });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+
+async function deleteUser(req, res) {
+  const userId = req.body.userId;
+
+  try {
+    const result = await User.deleteOne({ _id: userId });
+
+    if (result.deletedCount > 0) {
+      res.json({ message: 'User deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+
+
 
 function handleServerError(res, error) {
   console.error(error);
