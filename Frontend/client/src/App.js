@@ -6,6 +6,7 @@ import WriteFileForm from './Forms/WriteFileForm';
 import ReadFileForm from './Forms/ReadFileForm';
 import DisplayUsers from './Forms/DisplayUsers';
 
+
 import AddUserForm from './Forms/AddUserForm';
 import { UpdateFileForm, UpdateUserForm } from './Forms/ReusableForm';
 function App() {
@@ -27,16 +28,20 @@ function App() {
       <WriteFileForm />
 
       <ReadFileForm setReadContent={setReadContent} />
-      <UpdateFileForm />
-      <div className="app-section">
-        <h2>Display File Content</h2>
-        {readContent && <pre className="app-file-content">{readContent}</pre>}
-        {!readContent && <p className="app-file-not-found">File not found.</p>}
-      </div>
-
+     
+      {readContent && (
+        <div className="app-section">
+          <h2>Read Content</h2>
+          <p>{readContent}</p>
+        </div>
+      )}
       <div>
         <FileList />
       </div>
+      <UpdateFileForm />
+     
+
+      
      
     </div>
   );
