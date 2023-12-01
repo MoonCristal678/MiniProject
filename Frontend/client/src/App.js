@@ -5,9 +5,9 @@ import FileList from './Forms/fileList';
 import WriteFileForm from './Forms/WriteFileForm';
 import ReadFileForm from './Forms/ReadFileForm';
 import DisplayUsers from './Forms/DisplayUsers';
-import UpdateUserForm from './UserFunctionality/UpdateUserForm';
-import UpdateFileForm from './Forms/updateFileForm';
+
 import AddUserForm from './Forms/AddUserForm';
+import { UpdateFileForm, UpdateUserForm } from './Forms/ReusableForm';
 function App() {
   const [readContent, setReadContent] = useState('');
   const handleDeleteUser = (deletedUserId) => {
