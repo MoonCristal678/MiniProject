@@ -1,0 +1,39 @@
+<!-- login.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ... (head content) ... -->
+  <style>
+    .error-message {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Login</h1>
+    <% if (errorMessage) { %>
+      <p class="error-message"><%= errorMessage %></p>
+    <% } %>
+
+    <form action="/auth/login" method="post">
+      <!-- Your form fields for username and password -->
+      <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+
+      <!-- Submit button -->
+      <button type="submit">Log In</button>
+    </form>
+
+    <!-- Button to access the registration page -->
+    <p>Don't have an account? <a href="/auth/register">Register</a></p>
+  </div>
+</body>
+</html>

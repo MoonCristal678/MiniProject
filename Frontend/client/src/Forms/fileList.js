@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DeleteFileButton from './DeleteFileButton';
-import { useFetchData } from './sharedFunction';
+
 const FileList = () => {
-
-
-
   const [files, setFiles] = useState([]);
 
-  useFetchData('https://miniproject8-backend.onrender.com/v1/files', setFiles);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/v1/files', {
+          credentials: 'include', // Include credentials (session cookie)
+        });
+        const data = await response.json();
+        setFiles(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
 
+    fetchData();
+  }, []);
 
   const handleDeleteFile = (deletedFileName) => {
-
     setFiles((prevFiles) => prevFiles.filter((file) => file.name !== deletedFileName));
   };
 

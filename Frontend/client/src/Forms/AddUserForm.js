@@ -16,11 +16,21 @@ const AddUserForm = ({ onAddUser }) => {
 
   const handleAddUser = async () => {
     try {
-      window.location.reload();
       const response = await addUser(newUser);
-
+  
       if (response.ok) {
-        // Reload the page after adding the user
+        const addedUser = await response.json();
+        // Update local state with the new user
+        onAddUser(addedUser);
+        // Clear the form
+        setNewUser({
+          name: '',
+          age: '',
+          bloodType: '',
+          birthdate: '',
+          countryOfBirth: '',
+        });
+        // Reload the page
         window.location.reload();
       } else {
         console.error('Error adding user:', response.statusText);
@@ -29,7 +39,6 @@ const AddUserForm = ({ onAddUser }) => {
       console.error('Error adding user:', error);
     }
   };
-
   const renderInput = (id, label, type = 'text') => (
     <>
       <label htmlFor={id}>{label}:</label>

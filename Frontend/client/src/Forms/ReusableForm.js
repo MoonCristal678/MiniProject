@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchFileData, updateFile } from '../api';
 import { fetchUserData, updateUser } from '../api';
-import { handleSelectUser } from '../UserFunctionality/helpers';
+import { handleSelectUser } from '../UserFunctionality/selector';
 
 const initialFileState = {
     name: '',
@@ -76,7 +76,7 @@ const UpdateForm = ({ type }) => {
                 </select>
                 <br />
                 {Object.keys(updatedData)
-                    .filter((field) => !['_id', '__v'].includes(field)) // Exclude specific fields
+                    .filter((field) => !['_id', '__v', 'createdBy'].includes(field)) // Exclude specific fields
                     .map((field) => (
                         <React.Fragment key={field}>
                             <label htmlFor={field}>{field.charAt(0).toUpperCase() + field.slice(1)}:</label>
@@ -97,8 +97,6 @@ const UpdateForm = ({ type }) => {
                                 />
                             )}
                         </React.Fragment>
-
-
                     ))}
                 <button type="submit">Update {type.charAt(0).toUpperCase() + type.slice(1)}</button>
             </form>

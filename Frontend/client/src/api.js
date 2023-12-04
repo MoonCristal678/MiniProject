@@ -1,4 +1,4 @@
-const apiUrl = 'https://miniproject8-backend.onrender.com/v1/';
+const apiUrl = 'http://localhost:3000';
 
 const handleApiRequest = async (endpoint, method, data = {}) => {
   const url = `${apiUrl}${endpoint}`;
@@ -6,6 +6,7 @@ const handleApiRequest = async (endpoint, method, data = {}) => {
   try {
     const response = await fetch(url, {
       method,
+      credentials: 'include',  // Include credentials (session cookie)
       headers: {
         'Content-Type': 'application/json',
       },
@@ -24,16 +25,57 @@ const handleApiRequest = async (endpoint, method, data = {}) => {
   }
 };
 
-export const fetchUserData = async () => handleApiRequest('/api/users', 'GET');
+
+export const loginUser = async (loginData) => {
+  const url = `${apiUrl}/auth/login`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      credentials: 'include', // Include credentials (session cookie)
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginData),
+   
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Error during login:', error);
+    throw error;
+  }
+};
+
+export const registerUser = async (registrationData) => {
+  const url = `${apiUrl}/auth/register`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(registrationData),
+      credentials: 'include', // Include credentials (cookies)
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Error during user registration:', error);
+    throw error;
+  }
+};
+export const fetchUserData = async () => handleApiRequest('/v1/api/users', 'GET');
 
 export const updateUser = async (userId, userData) =>
-  handleApiRequest('/updateUser', 'POST', { userId, ...userData });
+  handleApiRequest('/v1/updateUser', 'POST', { userId, ...userData });
 
-export const fetchFileData = async () => handleApiRequest('/files', 'GET');
+export const fetchFileData = async () => handleApiRequest('/v1/files', 'GET');
 
 export const updateFile = async (fileId, fileData) =>
-  handleApiRequest('/updateFile', 'POST', { fileId, ...fileData });
+  handleApiRequest('/v1/updateFile', 'POST', { fileId, ...fileData });
 
-const addUser = async (newUser) => handleApiRequest('/api/users', 'POST', newUser);
+const addUser = async (newUser) => handleApiRequest('/v1/api/users', 'POST', newUser);
 
 export { addUser };

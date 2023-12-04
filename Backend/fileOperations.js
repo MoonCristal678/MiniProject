@@ -3,20 +3,41 @@ import methodOverride from 'method-override';
 import mongoose from 'mongoose';
 import { body, validationResult } from 'express-validator';
 import cors from 'cors';
+import session from 'express-session';
 import File from './fileSchema.js';
 import { renderReadFileForm, readFile } from './fileFunctions/fileReader.js';
-import { renderDeleteFileForm, deleteFile } from './fileFunctions/fileDeleter.js';
+import { renderDeleteFileForm, deleteFile} from './fileFunctions/fileDeleter.js';
 import { renderUpdateFileForm, updateFile } from './fileFunctions/fileUpdater.js';
+import { userAuthRouter } from './userAuth.js'; // Adjust the path
+import { passport } from './passport.js';
+
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
 
+
 // Middleware
-app.use(cors());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 30 * 60 * 1000,
+   
+  },
+  credentials: true,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(cors({
+  origin: 'http://localhost:3001', // Replace with your React app's origin
+  credentials: true,
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
+app.use('/auth', userAuthRouter);
 
 // Connect to MongoDB using Mongoose
 mongoose.connect("mongodb+srv://blackkrystal438:DemonSlayer1@fileanduserdata.3ynz8zm.mongodb.net/fileAndUserData", {
@@ -30,9 +51,17 @@ const userSchema = new mongoose.Schema({
   bloodType: { type: String, required: true },
   birthdate: { type: Date, required: true },
   countryOfBirth: { type: String, required: true },
+   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
 });
 
 const User = mongoose.model('User', userSchema);
+// Middleware for checking authentication
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/auth/login');
+}
 
 // Middleware for logging requests
 app.use((req, res, next) => {
@@ -41,7 +70,7 @@ app.use((req, res, next) => {
 });
 
 // Home page route
-app.get('/', (req, res) => {
+app.get('/', isAuthenticated, (req, res) => {
   res.send(`
     <h1>File Functionality</h1>
     <button><a href="/v1/read"> Read a File </a></button>
@@ -55,28 +84,132 @@ app.get('/', (req, res) => {
     <button><a href="/v1/add"> Add User </a></button>
     <button><a href="/v1/updateUser"> Update User </a></button>
     <button><a href="/v1/deleteUser"> Delete User </a></button>
+    <form action="/auth/logout" method="post" style="display: inline;">
+    <button type="submit"> Logout </button>
+  </form>
   `);
 });
 
 // User routes
-v1Router.get('/add', renderAddUserForm);
-v1Router.post('/api/users', validateUserInput, addUser);
-v1Router.get('/api/users', getAllUsers);
+//Add and view users
+v1Router.get('/add', isAuthenticated, renderAddUserForm);
+v1Router.post('/api/users',isAuthenticated, validateUserInput, addUser);
+v1Router.get('/api/users', isAuthenticated, getAllUsers);
 
-// File routes
-v1Router.get('/read', renderReadFileForm);
-v1Router.post('/read', readFile);
-v1Router.get('/write', renderWriteFileForm);
-v1Router.post('/write', validateFileInput, writeFile);
-v1Router.get('/files', viewFiles);
-v1Router.get('/delete', renderDeleteFileForm);
-v1Router.post('/delete', deleteFile);
-v1Router.get('/updateUser', renderUpdateUserForm);
-v1Router.post('/updateUser', updateUser);
-v1Router.get('/deleteUser', renderDeleteUserForm);
-v1Router.post('/deleteUser', deleteUser);
-v1Router.get('/updateFile', renderUpdateFileForm);
-v1Router.post('/updateFile', updateFile);
+//Update and Delete User
+v1Router.get('/updateUser', isAuthenticated, renderUpdateUserForm);
+v1Router.post('/updateUser', isAuthenticated, updateUser);
+v1Router.get('/deleteUser', isAuthenticated, renderDeleteUserForm);
+v1Router.post('/deleteUser', isAuthenticated, deleteUser);
+
+//File Routes
+//Read
+v1Router.get('/read', isAuthenticated, async (req, res) => {
+  try {
+    const userFiles = await File.find({ createdBy: req.user._id });
+    res.render('readFile.ejs', { fileNames: userFiles.map(file => file.name) });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+});
+
+v1Router.post('/read', isAuthenticated, async (req, res) => {
+  const fileName = req.body.fileName;
+
+  try {
+    const file = await File.findOne({ name: fileName, createdBy: req.user._id });
+
+    if (file) {
+      res.render('readFileContent.ejs', { fileName: file.name, fileContent: file.content });
+    } else {
+      res.status(404).json({ message: 'File not found' });
+    }
+  } catch (error) {
+    handleServerError(res, error);
+  }
+});
+//Write
+v1Router.get('/write', isAuthenticated, async (req, res) => {
+  try {
+    const userFiles = await File.find({ createdBy: req.user._id });
+    res.render('writeFile.ejs', { files: userFiles });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+});
+
+v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => {
+  const fileName = req.body.fileName;
+  const fileContent = req.body.fileContent;
+
+  try {
+    const existingFile = await File.findOne({ name: fileName, createdBy: req.user._id });
+
+    if (existingFile) {
+      res.status(400).json({ message: 'File with the same name already exists for the user' });
+    } else {
+      const newFile = new File({ name: fileName, content: fileContent, createdBy: req.user._id });
+      await newFile.save();
+      res.json({ message: 'File created successfully', file: newFile });
+    }
+  } catch (error) {
+    handleServerError(res, error);
+  }
+});
+
+//View Files
+v1Router.get('/files', isAuthenticated, async (req, res) => {
+  try {
+    const userFiles = await File.find({ createdBy: req.user._id });
+    res.json(userFiles);
+  } catch (error) {
+    handleServerError(res, error);
+  }
+});
+//Delete Files
+v1Router.get('/delete', isAuthenticated, async (req, res) => {
+  try {
+    // Only retrieve files created by the authenticated user
+    const userFiles = await File.find({ createdBy: req.user._id });
+    res.render('deleteFile.ejs', { fileNames: userFiles.map(file => file.name) });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+});
+
+v1Router.post('/delete', isAuthenticated, deleteFile);
+
+//Update Files
+v1Router.get('/updateFile', isAuthenticated, async (req, res) => {
+  try {
+    const userFiles = await File.find({ createdBy: req.user._id });
+    res.render('updateFile.ejs', { files: userFiles });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+});
+
+v1Router.post('/updateFile', isAuthenticated, async (req, res) => {
+  const fileId = req.body.fileId;
+  const newName = req.body.name;
+  const newContent = req.body.content;
+
+  try {
+    const file = await File.findOne({ _id: fileId, createdBy: req.user._id });
+
+    if (file) {
+      file.name = newName;
+      file.content = newContent;
+
+      await file.save();
+      res.json({ message: 'File updated successfully', file });
+    } else {
+      res.status(404).json({ message: 'File not found or unauthorized' });
+    }
+  } catch (error) {
+    handleServerError(res, error);
+  }
+});
 
 // API versioning
 app.use('/v1', v1Router);
@@ -93,10 +226,12 @@ app.listen(port, () => {
 });
 
 // Helper functions
-
+//Render user Form
 function renderAddUserForm(req, res) {
   res.render('addUser.ejs');
 }
+
+//Validate add user
 
 function validateUserInput(req, res, next) {
   const validationRules = [
@@ -107,8 +242,23 @@ function validateUserInput(req, res, next) {
     body('countryOfBirth').notEmpty().trim().escape(),
   ];
 
-  validationResult(req);
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   next();
+}
+
+//Render update user
+async function renderUpdateUserForm(req, res) {
+  try {
+    const users = await User.find({ createdBy: req.user._id });
+    res.render('updateUser.ejs', { users });
+  } catch (error) {
+    handleServerError(res, error);
+  }
 }
 
 async function addUser(req, res) {
@@ -119,7 +269,14 @@ async function addUser(req, res) {
   }
 
   const { name, age, bloodType, birthdate, countryOfBirth } = req.body;
-  const newUser = new User({ name, age, bloodType, birthdate, countryOfBirth });
+  const newUser = new User({
+    name,
+    age,
+    bloodType,
+    birthdate,
+    countryOfBirth,
+    createdBy: req.user._id, // Set the createdBy field to the authenticated user's ID
+  });
 
   try {
     await newUser.save();
@@ -128,76 +285,6 @@ async function addUser(req, res) {
     handleServerError(res, error);
   }
 }
-async function getAllData(req, res, model) {
-  try {
-    const data = await model.find({});
-    res.json(data);
-  } catch (error) {
-    handleServerError(res, error);
-  }
-}
-
-async function getAllUsers(req, res) {
-  await getAllData(req, res, User);
-}
-
-
-async function renderWriteFileForm(req, res) {
-  try {
-    const files = await File.find({});
-    res.render('writeFile.ejs', { files });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-}
-
-function validateFileInput(req, res, next) {
-  const validationRules = [
-    body('fileName').notEmpty().trim().escape(),
-    body('fileContent').notEmpty().trim().escape(),
-  ];
-
-  validationResult(req);
-  next();
-}
-
-async function writeFile(req, res) {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { fileName, fileContent } = req.body;
-  const newFile = new File({ name: fileName, content: fileContent });
-
-  try {
-    await newFile.save();
-    res.json({ message: 'File created successfully', file: newFile });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-}
-
-async function viewFiles(req, res) {
-  await getAllData(req, res, File);
-}
-
-async function renderUserForm(req, res, formType) {
-  try {
-    const users = await User.find({});
-    const template =
-      formType === 'update' ? 'updateUser.ejs' : formType === 'delete' ? 'deleteUser.ejs' : 'addUser.ejs';
-    res.render(template, { users });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-}
-async function renderUpdateUserForm(req, res) {
-  renderUserForm(req, res, 'update');
-}
-
 async function updateUser(req, res) {
   const userId = req.body.userId;
 
@@ -221,24 +308,61 @@ async function updateUser(req, res) {
   }
 }
 
-async function renderDeleteUserForm(req, res) {
-  renderUserForm(req, res, 'delete');
-}
-async function deleteUser(req, res) {
-  const userId = req.body.userId;
-
+async function renderUserForm(req, res, formType) {
   try {
-    const result = await User.deleteOne({ _id: userId });
+    const users = await User.find({ createdBy: req.user._id });
+    const template =
+      formType === 'update' ? 'updateUser.ejs' : formType === 'delete' ? 'deleteUser.ejs' : 'addUser.ejs';
+    res.render(template, { users });
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
 
-    if (result.deletedCount > 0) {
-      res.json({ message: 'User deleted successfully' });
+async function getAllUsers(req, res) {
+  try {
+    if (req.isAuthenticated()) {
+      const users = await User.find({ createdBy: req.user._id });
+      res.json(users);
     } else {
-      res.status(404).json({ message: 'User not found' });
+      res.status(401).json({ message: 'Unauthorized' });
     }
   } catch (error) {
     handleServerError(res, error);
   }
 }
+
+
+async function renderDeleteUserForm(req, res) {
+  const users = await User.find({ createdBy: req.user._id });
+  res.render('deleteUser.ejs', { users });
+}
+async function deleteUser(req, res) {
+  const userId = req.body.userId;
+
+  try {
+    const result = await User.deleteOne({ _id: userId, createdBy: req.user._id });
+
+    if (result.deletedCount > 0) {
+      res.json({ message: 'User deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'User not found or unauthorized' });
+    }
+  } catch (error) {
+    handleServerError(res, error);
+  }
+}
+function validateFileInput(req, res, next) {
+  const validationRules = [
+    body('fileName').notEmpty().trim().escape(),
+    body('fileContent').notEmpty().trim().escape(),
+  ];
+
+  validationResult(req);
+  next();
+}
+
+
 
 
 

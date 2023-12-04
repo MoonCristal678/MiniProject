@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Read File</title>
+</head>
+<body>
+  <h1><strong>File Content of:</strong> <%= fileName %></h1>
+  
+  <% if (typeof fileContent !== 'undefined') { %>
+    <pre><%= fileContent %></pre>
+  <% } else { %>
+    <p>No content available for this file.</p>
+  <% } %>
+</body>
+</html>

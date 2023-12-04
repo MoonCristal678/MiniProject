@@ -10,33 +10,35 @@ const FileForm = ({ type, onSubmit }) => {
       setError(`Please enter ${type === 'read' ? 'a' : 'both'} file name and content.`);
       return;
     }
-
+  
     try {
       const endpoint = type === 'read' ? 'read' : 'write';
-      const response = await fetch(`https://miniproject8-backend.onrender.com/v1/${endpoint}`, {
+      const response = await fetch(`http://localhost:3000/v1/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Add this line to include credentials
         body: JSON.stringify({ fileName, fileContent }),
       });
-
+  
       if (!response.ok) {
         const data = await response.json();
         setError(data.error || `Error ${type === 'read' ? 'reading' : 'writing'} file.`);
         return;
       }
-
+  
       if (type === 'read') {
         const data = await response.text();
         onSubmit(data.replace(/<\/?[^>]+(>|$)/g, ''));
-      } else {
+      }
+       else {
         alert(`File '${fileName}' ${type === 'read' ? 'read' : 'created'} with the provided content.`);
         setFileName('');
         setFileContent('');
         onSubmit(); 
       }
-
+  
       setError(null);
     } catch (error) {
       console.error(`Error ${type === 'read' ? 'reading' : 'writing'} file:`, error);

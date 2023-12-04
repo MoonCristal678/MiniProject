@@ -3,12 +3,13 @@ import React from 'react';
 const DeleteFileButton = ({ fileName, onDelete }) => {
   const handleDelete = async () => {
     try {
-      const response = await fetch('https://miniproject8-backend.onrender.com/v1/delete', {
+      const response = await fetch(`http://localhost:3000/v1/delete`, {
         method: 'POST',
+        credentials: 'include', // Include credentials if needed
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ fileName }),
+        body: JSON.stringify({ fileName }), // Send the fileName in the request body
       });
 
       if (response.ok) {
