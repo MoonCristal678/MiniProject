@@ -308,17 +308,6 @@ async function updateUser(req, res) {
   }
 }
 
-async function renderUserForm(req, res, formType) {
-  try {
-    const users = await User.find({ createdBy: req.user._id });
-    const template =
-      formType === 'update' ? 'updateUser.ejs' : formType === 'delete' ? 'deleteUser.ejs' : 'addUser.ejs';
-    res.render(template, { users });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-}
-
 async function getAllUsers(req, res) {
   try {
     if (req.isAuthenticated()) {

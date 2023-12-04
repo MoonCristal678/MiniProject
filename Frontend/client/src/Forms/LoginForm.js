@@ -16,7 +16,8 @@ const LoginForm = ({ onLogin }) => {
   };
 
   const handleInputChange = (field, value) => {
-    setLoginData({ ...loginData, [field]: value });
+    setLoginData((prevData) => ({ ...prevData, [field]: value }));
+    setErrorMessage('');
   };
 
   const handleLogin = async () => {
@@ -45,40 +46,31 @@ const LoginForm = ({ onLogin }) => {
     <div className="app-section">
       <h2>Login</h2>
       <form>
-        <label htmlFor="username">Username:</label>
-        <input
-          type="text"
-          id="username"
-          value={loginData.username}
-          onChange={(e) => {
-            handleInputChange('username', e.target.value);
-            setErrorMessage('');
-          }}
-          required
-        />
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          value={loginData.password}
-          onChange={(e) => {
-            handleInputChange('password', e.target.value);
-            setErrorMessage('');
-          }}
-          required
-        />
+        {renderInput('username', 'Username')}
+        {renderInput('password', 'Password', 'password')}
         <button type="button" onClick={handleLogin}>
           Login
         </button>
-
         <button type="button" onClick={redirectToRegisterPage}>
           Register
         </button>
-
         {/* Display error message */}
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       </form>
     </div>
+  );
+
+  const renderInput = (id, label, type = 'text') => (
+    <>
+      <label htmlFor={id}>{label}:</label>
+      <input
+        type={type}
+        id={id}
+        value={loginData[id]}
+        onChange={(e) => handleInputChange(id, e.target.value)}
+        required
+      />
+    </>
   );
 
   if (redirectToRegister) {

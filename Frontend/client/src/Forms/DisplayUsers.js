@@ -6,8 +6,9 @@ const DisplayUsers = () => {
 
   const fetchData = async () => {
     try {
+      // Assuming your server sets a session cookie upon login
       const response = await fetch('http://localhost:3000/v1/api/users', {
-        credentials: 'include',
+        credentials: 'include', // Include credentials (session cookie)
       });
       const data = await response.json();
       setJsonData(data);
@@ -28,17 +29,13 @@ const DisplayUsers = () => {
     <div className="app-json-section">
       <h2>JSON Data</h2>
       <ul className="app-file-list">
-        {Array.isArray(jsonData) && jsonData.length > 0 ? (
-          jsonData.map((user) => (
-            <li key={user._id}>
-              Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType},
-              Country of Birth: {user.countryOfBirth}, Date of Birth: {user.birthdate}
-              <DeleteUserButton userId={user._id} onDelete={handleDeleteUser} />
-            </li>
-          ))
-        ) : (
-          <p>No data available.</p>
-        )}
+        {jsonData.map((user) => (
+          <li key={user._id}>
+            Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType},
+            Country of Birth: {user.countryOfBirth}, Date of Birth: {user.birthdate}
+            <DeleteUserButton userId={user._id} onDelete={handleDeleteUser} />
+          </li>
+        ))}
       </ul>
     </div>
   );
