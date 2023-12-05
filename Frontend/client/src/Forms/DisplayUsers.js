@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import DeleteUserButton from './DeleteUserButton';
 
 const DisplayUsers = () => {
   const [jsonData, setJsonData] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState('');
 
   const fetchData = async () => {
     try {
-      // Assuming your server sets a session cookie upon login
       const response = await fetch('http://localhost:3000/v1/api/users', {
-        credentials: 'include', // Include credentials (session cookie)
+        credentials: 'include',
       });
       const data = await response.json();
       setJsonData(data);
@@ -21,19 +20,60 @@ const DisplayUsers = () => {
     fetchData();
   }, []);
 
-  const handleDeleteUser = (deletedUserId) => {
-    setJsonData((prevData) => prevData.filter((user) => user._id !== deletedUserId));
+  const handleDeleteUser = async () => {
+    try {
+      if (!selectedUserId) {
+        console.error('No user selected for deletion.');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3000/v1/deleteUser', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: selectedUserId }),
+      });
+
+      if (response.ok) {
+        fetchData();
+        setSelectedUserId('');
+      } else {
+        console.error(`Error deleting user:`, response.statusText);
+      }
+    } catch (error) {
+      console.error(`Error deleting user:`, error);
+    }
   };
+
 
   return (
     <div className="app-json-section">
       <h2>JSON Data</h2>
+      <select
+        value={selectedUserId}
+        onChange={(e) => setSelectedUserId(e.target.value)}
+      >
+        <option value="" disabled>Select a user to delete</option>
+        {jsonData.map((user) => (
+          <option key={user._id} value={user._id}>
+            {user.name}
+          </option>
+        ))}
+      </select>
+      <button
+        className="app-delete-button"
+        onClick={handleDeleteUser}
+        disabled={!selectedUserId}
+      >
+        Delete User
+      </button>
       <ul className="app-file-list">
         {jsonData.map((user) => (
           <li key={user._id}>
             Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType},
             Country of Birth: {user.countryOfBirth}, Date of Birth: {user.birthdate}
-            <DeleteUserButton userId={user._id} onDelete={handleDeleteUser} />
           </li>
         ))}
       </ul>
