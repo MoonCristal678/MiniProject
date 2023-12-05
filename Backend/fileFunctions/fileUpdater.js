@@ -1,29 +1,33 @@
+// updateFileRoutes.js
+
 import File from '../fileSchema.js';
+import { handleServerError } from '../commonFunctions.js'; // Assuming you have a common functions file
 
 async function renderUpdateFileForm(req, res) {
   try {
-    const files = await File.find({});
-    res.render('updateFile.ejs', { files });
+    const userFiles = await File.find({ createdBy: req.user._id });
+    res.render('updateFile.ejs', { files: userFiles });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+    handleServerError(res, error);
   }
 }
 
 async function updateFile(req, res) {
   const fileId = req.body.fileId;
+  const newName = req.body.name;
+  const newContent = req.body.content;
 
   try {
-    const file = await File.findById(fileId);
+    const file = await File.findOne({ _id: fileId, createdBy: req.user._id });
 
     if (file) {
-      file.name = req.body.name;
-      file.content = req.body.content;
+      file.name = newName;
+      file.content = newContent;
 
       await file.save();
       res.json({ message: 'File updated successfully', file });
     } else {
-      res.status(404).json({ message: 'File not found' });
+      res.status(404).json({ message: 'File not found or unauthorized' });
     }
   } catch (error) {
     handleServerError(res, error);

@@ -5,12 +5,14 @@ import { body, validationResult } from 'express-validator';
 import cors from 'cors';
 import session from 'express-session';
 import File from './fileSchema.js';
-import { renderReadFileForm, readFile } from './fileFunctions/fileReader.js';
+import { renderReadFileForm, readFile} from './fileFunctions/fileReader.js';
 import { renderDeleteFileForm, deleteFile} from './fileFunctions/fileDeleter.js';
 import { renderUpdateFileForm, updateFile } from './fileFunctions/fileUpdater.js';
+import { renderWriteFileForm, writeFile } from './fileFunctions/fileWriter.js';
+
 import { userAuthRouter } from './userAuth.js'; // Adjust the path
 import { passport } from './passport.js';
-
+import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
@@ -104,59 +106,11 @@ v1Router.post('/deleteUser', isAuthenticated, deleteUser);
 
 //File Routes
 //Read
-v1Router.get('/read', isAuthenticated, async (req, res) => {
-  try {
-    const userFiles = await File.find({ createdBy: req.user._id });
-    res.render('readFile.ejs', { fileNames: userFiles.map(file => file.name) });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-});
-
-v1Router.post('/read', isAuthenticated, async (req, res) => {
-  const fileName = req.body.fileName;
-
-  try {
-    const file = await File.findOne({ name: fileName, createdBy: req.user._id });
-
-    if (file) {
-      res.render('readFileContent.ejs', { fileName: file.name, fileContent: file.content });
-    } else {
-      res.status(404).json({ message: 'File not found' });
-    }
-  } catch (error) {
-    handleServerError(res, error);
-  }
-});
+v1Router.get('/v1/read', isAuthenticated, renderReadFileForm);
+v1Router.post('/v1/read', isAuthenticated, readFile);
 //Write
-v1Router.get('/write', isAuthenticated, async (req, res) => {
-  try {
-    const userFiles = await File.find({ createdBy: req.user._id });
-    res.render('writeFile.ejs', { files: userFiles });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-});
-
-v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => {
-  const fileName = req.body.fileName;
-  const fileContent = req.body.fileContent;
-
-  try {
-    const existingFile = await File.findOne({ name: fileName, createdBy: req.user._id });
-
-    if (existingFile) {
-      res.status(400).json({ message: 'File with the same name already exists for the user' });
-    } else {
-      const newFile = new File({ name: fileName, content: fileContent, createdBy: req.user._id });
-      await newFile.save();
-      res.json({ message: 'File created successfully', file: newFile });
-    }
-  } catch (error) {
-    handleServerError(res, error);
-  }
-});
-
+v1Router.get('/v1/write', isAuthenticated, renderWriteFileForm);
+v1Router.post('/v1/write', isAuthenticated, validateFileInput, writeFile);
 //View Files
 v1Router.get('/files', isAuthenticated, async (req, res) => {
   try {
@@ -179,37 +133,9 @@ v1Router.get('/delete', isAuthenticated, async (req, res) => {
 
 v1Router.post('/delete', isAuthenticated, deleteFile);
 
-//Update Files
-v1Router.get('/updateFile', isAuthenticated, async (req, res) => {
-  try {
-    const userFiles = await File.find({ createdBy: req.user._id });
-    res.render('updateFile.ejs', { files: userFiles });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-});
-
-v1Router.post('/updateFile', isAuthenticated, async (req, res) => {
-  const fileId = req.body.fileId;
-  const newName = req.body.name;
-  const newContent = req.body.content;
-
-  try {
-    const file = await File.findOne({ _id: fileId, createdBy: req.user._id });
-
-    if (file) {
-      file.name = newName;
-      file.content = newContent;
-
-      await file.save();
-      res.json({ message: 'File updated successfully', file });
-    } else {
-      res.status(404).json({ message: 'File not found or unauthorized' });
-    }
-  } catch (error) {
-    handleServerError(res, error);
-  }
-});
+//UpdateFile
+v1Router.get('/v1/updateFile', isAuthenticated, renderUpdateFileForm);
+v1Router.post('/v1/updateFile', isAuthenticated, updateFile);
 
 // API versioning
 app.use('/v1', v1Router);
@@ -231,25 +157,6 @@ function renderAddUserForm(req, res) {
   res.render('addUser.ejs');
 }
 
-//Validate add user
-
-function validateUserInput(req, res, next) {
-  const validationRules = [
-    body('name').notEmpty().trim().escape(),
-    body('age').isInt({ min: 0 }),
-    body('bloodType').notEmpty().trim().escape(),
-    body('birthdate').isISO8601().toDate(),
-    body('countryOfBirth').notEmpty().trim().escape(),
-  ];
-
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  next();
-}
 
 //Render update user
 async function renderUpdateUserForm(req, res) {
@@ -321,7 +228,6 @@ async function getAllUsers(req, res) {
   }
 }
 
-
 async function renderDeleteUserForm(req, res) {
   const users = await User.find({ createdBy: req.user._id });
   res.render('deleteUser.ejs', { users });
@@ -341,19 +247,6 @@ async function deleteUser(req, res) {
     handleServerError(res, error);
   }
 }
-function validateFileInput(req, res, next) {
-  const validationRules = [
-    body('fileName').notEmpty().trim().escape(),
-    body('fileContent').notEmpty().trim().escape(),
-  ];
-
-  validationResult(req);
-  next();
-}
-
-
-
-
 
 function handleServerError(res, error) {
   console.error(error);

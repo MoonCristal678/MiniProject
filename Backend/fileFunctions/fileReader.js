@@ -1,28 +1,30 @@
-import mongoose from 'mongoose';
+// readFileRoutes.js
+
+import File from '../fileSchema.js';
+import { handleServerError } from '../commonFunctions.js'; // Assuming you have a common functions file
 
 async function renderReadFileForm(req, res) {
-  const collection = mongoose.connection.db.collection('files');
-  const files = await collection.find({}, { projection: { _id: 0, name: 1 } }).toArray();
-  const fileNames = files.map(file => file.name);
-  res.render('readFile.ejs', { fileNames });
+  try {
+    const userFiles = await File.find({ createdBy: req.user._id });
+    res.render('readFile.ejs', { fileNames: userFiles.map(file => file.name) });
+  } catch (error) {
+    handleServerError(res, error);
+  }
 }
 
 async function readFile(req, res) {
   const fileName = req.body.fileName;
 
-  const collection = mongoose.connection.db.collection('files');
-
   try {
-    const fileContent = await collection.findOne({ name: fileName });
+    const file = await File.findOne({ name: fileName, createdBy: req.user._id });
 
-    if (fileContent) {
-      res.send(`<h2>File Content of '${fileName}':</h2><pre>${fileContent.content}</pre>`);
+    if (file) {
+      res.render('readFileContent.ejs', { fileName: file.name, fileContent: file.content });
     } else {
-      res.render('readFile.ejs', { readError: 'File not found.' });
+      res.status(404).json({ message: 'File not found' });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+    handleServerError(res, error);
   }
 }
 
