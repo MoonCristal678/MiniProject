@@ -6,15 +6,26 @@ const DisplayUsers = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
-        credentials: 'include',
-      });
-      const data = await response.json();
-      setJsonData(data);
+      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users');
+      
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+      }
+  
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        console.log('Data:', data);
+        // Handle your JSON data here
+      } else {
+        throw new Error(`Unexpected response type: ${contentType}`);
+      }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error(error);
+      // Handle the error or display a user-friendly message
     }
   };
+  
 
   useEffect(() => {
     fetchData();
