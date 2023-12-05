@@ -137,16 +137,24 @@ v1Router.get('/delete', isAuthenticated, async (req, res) => {
 v1Router.get('/read', isAuthenticated, async (req, res) => {
   await handleUserFilesRender(req, res, 'readFile.ejs');
 });
-
-//Write
-v1Router.get('/write', isAuthenticated, async (req, res) => {
+const handleUserFilesRenderWithFiles = async (req, res, viewName) => {
   try {
+    // Only retrieve files created by the authenticated user
     const userFiles = await File.find({ createdBy: req.user._id });
-    res.render('writeFile.ejs', { files: userFiles });
+    res.render(viewName, { files: userFiles });
   } catch (error) {
     handleServerError(res, error);
   }
+};
+
+v1Router.get('/write', isAuthenticated, async (req, res) => {
+  await handleUserFilesRenderWithFiles(req, res, 'writeFile.ejs');
 });
+
+v1Router.get('/updateFile', isAuthenticated, async (req, res) => {
+  await handleUserFilesRenderWithFiles(req, res, 'updateFile.ejs');
+});
+
 
 v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => {
   const fileName = req.body.fileName;
@@ -181,15 +189,6 @@ v1Router.get('/files', isAuthenticated, async (req, res) => {
 
 v1Router.post('/delete', isAuthenticated, deleteFile);
 
-//Update Files
-v1Router.get('/updateFile', isAuthenticated, async (req, res) => {
-  try {
-    const userFiles = await File.find({ createdBy: req.user._id });
-    res.render('updateFile.ejs', { files: userFiles });
-  } catch (error) {
-    handleServerError(res, error);
-  }
-});
 
 v1Router.post('/updateFile', isAuthenticated, async (req, res) => {
   const fileId = req.body.fileId;
