@@ -7,7 +7,7 @@ import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
 
-import { userAuthRouter } from './userAuth.js'; 
+import { userAuthRouter } from './userAuth.js'; // Adjust the path
 import { passport } from './passport.js';
 import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
@@ -29,7 +29,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({
-  origin: 'https://miniproject9-frontend.onrender.com', // Replace with your React app's origin
+  origin: 'http://localhost:3001', // Replace with your React app's origin
   credentials: true,
 }));
 app.use(express.urlencoded({ extended: true }));
@@ -231,6 +231,7 @@ app.listen(port, () => {
 function renderAddUserForm(req, res) {
   res.render('addUser.ejs');
 }
+
 
 //Render update user
 async function renderUpdateUserForm(req, res) {
