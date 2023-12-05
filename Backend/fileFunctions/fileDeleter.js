@@ -15,4 +15,4 @@ import File from '../fileSchema.js';
       handleServerError(res, error);
     }
   }
-export { renderDeleteFileForm, deleteFile };
+export {deleteFile };

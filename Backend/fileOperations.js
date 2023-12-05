@@ -1,3 +1,4 @@
+// fileOperations.js
 import express from 'express';
 import methodOverride from 'method-override';
 import mongoose from 'mongoose';
@@ -5,15 +6,18 @@ import { body, validationResult } from 'express-validator';
 import cors from 'cors';
 import session from 'express-session';
 import File from './fileSchema.js';
-import { renderDeleteFileForm, deleteFile} from './fileFunctions/fileDeleter.js';
-
-import { userAuthRouter } from './userAuth.js'; // Adjust the path
+import { renderDeleteFileForm, deleteFile } from './fileFunctions/fileDeleter.js';
+import { userAuthRouter } from './userAuth.js';
 import { passport } from './passport.js';
 import { validateUserInput, validateFileInput } from './validators.js';
+
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
 
+// Constants
+const FILE_CREATED_BY_FIELD = 'createdBy';
+const USER_ID_FIELD = '_id';
 
 // Middleware
 app.use(session({
@@ -22,14 +26,13 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 30 * 60 * 1000,
-   
   },
   credentials: true,
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({
-  origin: 'http://localhost:3001', // Replace with your React app's origin
+  origin: 'http://localhost:3001',
   credentials: true,
 }));
 app.use(express.urlencoded({ extended: true }));
@@ -44,16 +47,18 @@ mongoose.connect("mongodb+srv://blackkrystal438:DemonSlayer1@fileanduserdata.3yn
   useUnifiedTopology: true,
 });
 
+// User schema and model
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   age: { type: Number, required: true },
   bloodType: { type: String, required: true },
   birthdate: { type: Date, required: true },
   countryOfBirth: { type: String, required: true },
-   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
 const User = mongoose.model('User', userSchema);
+
 // Middleware for checking authentication
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
@@ -68,7 +73,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Home page route
 app.get('/', isAuthenticated, (req, res) => {
   res.send(`
     <h1>File Functionality</h1>
@@ -84,28 +88,28 @@ app.get('/', isAuthenticated, (req, res) => {
     <button><a href="/v1/updateUser"> Update User </a></button>
     <button><a href="/v1/deleteUser"> Delete User </a></button>
     <form action="/auth/logout" method="post" style="display: inline;">
-    <button type="submit"> Logout </button>
-  </form>
+      <button type="submit"> Logout </button>
+    </form>
   `);
 });
 
 // User routes
-//Add and view users
+// Add and view users
 v1Router.get('/add', isAuthenticated, renderAddUserForm);
-v1Router.post('/api/users',isAuthenticated, validateUserInput, addUser);
+v1Router.post('/api/users', isAuthenticated, validateUserInput, addUser);
 v1Router.get('/api/users', isAuthenticated, getAllUsers);
 
-//Update and Delete User
+// Update and Delete User
 v1Router.get('/updateUser', isAuthenticated, renderUpdateUserForm);
 v1Router.post('/updateUser', isAuthenticated, updateUser);
 v1Router.get('/deleteUser', isAuthenticated, renderDeleteUserForm);
 v1Router.post('/deleteUser', isAuthenticated, deleteUser);
 
-//File Routes
-//Read
+// File Routes
+// Read
 v1Router.get('/read', isAuthenticated, async (req, res) => {
   try {
-    const userFiles = await File.find({ createdBy: req.user._id });
+    const userFiles = await File.find({ [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     res.render('readFile.ejs', { fileNames: userFiles.map(file => file.name) });
   } catch (error) {
     handleServerError(res, error);
@@ -114,10 +118,8 @@ v1Router.get('/read', isAuthenticated, async (req, res) => {
 
 v1Router.post('/read', isAuthenticated, async (req, res) => {
   const fileName = req.body.fileName;
-
   try {
-    const file = await File.findOne({ name: fileName, createdBy: req.user._id });
-
+    const file = await File.findOne({ name: fileName, [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     if (file) {
       res.render('readFileContent.ejs', { fileName: file.name, fileContent: file.content });
     } else {
@@ -127,10 +129,11 @@ v1Router.post('/read', isAuthenticated, async (req, res) => {
     handleServerError(res, error);
   }
 });
-//Write
+
+// Write
 v1Router.get('/write', isAuthenticated, async (req, res) => {
   try {
-    const userFiles = await File.find({ createdBy: req.user._id });
+    const userFiles = await File.find({ [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     res.render('writeFile.ejs', { files: userFiles });
   } catch (error) {
     handleServerError(res, error);
@@ -140,14 +143,12 @@ v1Router.get('/write', isAuthenticated, async (req, res) => {
 v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => {
   const fileName = req.body.fileName;
   const fileContent = req.body.fileContent;
-
   try {
-    const existingFile = await File.findOne({ name: fileName, createdBy: req.user._id });
-
+    const existingFile = await File.findOne({ name: fileName, [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     if (existingFile) {
       res.status(400).json({ message: 'File with the same name already exists for the user' });
     } else {
-      const newFile = new File({ name: fileName, content: fileContent, createdBy: req.user._id });
+      const newFile = new File({ name: fileName, content: fileContent, [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
       await newFile.save();
       res.json({ message: 'File created successfully', file: newFile });
     }
@@ -156,20 +157,20 @@ v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => 
   }
 });
 
-//View Files
+// View Files
 v1Router.get('/files', isAuthenticated, async (req, res) => {
   try {
-    const userFiles = await File.find({ createdBy: req.user._id });
+    const userFiles = await File.find({ [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     res.json(userFiles);
   } catch (error) {
     handleServerError(res, error);
   }
 });
-//Delete Files
+
+// Delete Files
 v1Router.get('/delete', isAuthenticated, async (req, res) => {
   try {
-    // Only retrieve files created by the authenticated user
-    const userFiles = await File.find({ createdBy: req.user._id });
+    const userFiles = await File.find({ [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     res.render('deleteFile.ejs', { fileNames: userFiles.map(file => file.name) });
   } catch (error) {
     handleServerError(res, error);
@@ -178,10 +179,10 @@ v1Router.get('/delete', isAuthenticated, async (req, res) => {
 
 v1Router.post('/delete', isAuthenticated, deleteFile);
 
-//Update Files
+// Update Files
 v1Router.get('/updateFile', isAuthenticated, async (req, res) => {
   try {
-    const userFiles = await File.find({ createdBy: req.user._id });
+    const userFiles = await File.find({ [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     res.render('updateFile.ejs', { files: userFiles });
   } catch (error) {
     handleServerError(res, error);
@@ -192,14 +193,11 @@ v1Router.post('/updateFile', isAuthenticated, async (req, res) => {
   const fileId = req.body.fileId;
   const newName = req.body.name;
   const newContent = req.body.content;
-
   try {
-    const file = await File.findOne({ _id: fileId, createdBy: req.user._id });
-
+    const file = await File.findOne({ _id: fileId, [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     if (file) {
       file.name = newName;
       file.content = newContent;
-
       await file.save();
       res.json({ message: 'File updated successfully', file });
     } else {
@@ -225,16 +223,13 @@ app.listen(port, () => {
 });
 
 // Helper functions
-//Render user Form
 function renderAddUserForm(req, res) {
   res.render('addUser.ejs');
 }
 
-
-//Render update user
 async function renderUpdateUserForm(req, res) {
   try {
-    const users = await User.find({ createdBy: req.user._id });
+    const users = await User.find({ [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     res.render('updateUser.ejs', { users });
   } catch (error) {
     handleServerError(res, error);
@@ -243,7 +238,6 @@ async function renderUpdateUserForm(req, res) {
 
 async function addUser(req, res) {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -255,7 +249,7 @@ async function addUser(req, res) {
     bloodType,
     birthdate,
     countryOfBirth,
-    createdBy: req.user._id, // Set the createdBy field to the authenticated user's ID
+    [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD],
   });
 
   try {
@@ -265,19 +259,17 @@ async function addUser(req, res) {
     handleServerError(res, error);
   }
 }
+
 async function updateUser(req, res) {
   const userId = req.body.userId;
-
   try {
     const user = await User.findById(userId);
-
     if (user) {
       user.name = req.body.name;
       user.age = req.body.age;
       user.bloodType = req.body.bloodType;
       user.birthdate = req.body.birthdate;
       user.countryOfBirth = req.body.countryOfBirth;
-
       await user.save();
       res.json({ message: 'User updated successfully', user });
     } else {
@@ -291,7 +283,7 @@ async function updateUser(req, res) {
 async function getAllUsers(req, res) {
   try {
     if (req.isAuthenticated()) {
-      const users = await User.find({ createdBy: req.user._id });
+      const users = await User.find({ [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
       res.json(users);
     } else {
       res.status(401).json({ message: 'Unauthorized' });
@@ -301,17 +293,15 @@ async function getAllUsers(req, res) {
   }
 }
 
-
 async function renderDeleteUserForm(req, res) {
-  const users = await User.find({ createdBy: req.user._id });
+  const users = await User.find({ [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
   res.render('deleteUser.ejs', { users });
 }
+
 async function deleteUser(req, res) {
   const userId = req.body.userId;
-
   try {
-    const result = await User.deleteOne({ _id: userId, createdBy: req.user._id });
-
+    const result = await User.deleteOne({ _id: userId, [FILE_CREATED_BY_FIELD]: req.user[USER_ID_FIELD] });
     if (result.deletedCount > 0) {
       res.json({ message: 'User deleted successfully' });
     } else {
