@@ -16,15 +16,18 @@ const DisplayUsers = () => {
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
         console.log('Data:', data);
-        // Handle your JSON data here
+        setJsonData(data); // Update the state with the fetched JSON data
       } else {
-        throw new Error(`Unexpected response type: ${contentType}`);
+        const textData = await response.text();
+        console.warn(`Unexpected response type: ${contentType}. Raw response text:`, textData);
+        // Handle the textData as needed
       }
     } catch (error) {
       console.error(error);
       // Handle the error or display a user-friendly message
     }
   };
+  
   
 
   useEffect(() => {
