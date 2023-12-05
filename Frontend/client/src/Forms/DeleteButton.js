@@ -3,7 +3,7 @@ import React from 'react';
 const DeleteButton = ({ url, data, onDelete, buttonText }) => {
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/v1/${url}`, {
+      const response = await fetch(`https://miniproject9-backend.onrender.com/v1/${url}`, {
         method: 'POST',
         credentials: 'include', // Include credentials if needed
         headers: {

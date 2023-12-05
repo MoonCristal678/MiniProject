@@ -6,7 +6,7 @@ const DisplayUsers = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/v1/api/users', {
+      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
         credentials: 'include',
       });
       const data = await response.json();
@@ -27,7 +27,7 @@ const DisplayUsers = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/v1/deleteUser', {
+      const response = await fetch('https://miniproject9-backend.onrender.com/v1/deleteUser', {
         method: 'POST',
         credentials: 'include',
         headers: {

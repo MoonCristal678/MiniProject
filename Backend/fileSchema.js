@@ -12,7 +12,7 @@ const fileSchema = new mongoose.Schema({
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserAuth', // Assuming 'UserAuth' is your user schema/model name
+    ref: 'UserAuth', 
     required: true,
   },
 });

@@ -7,7 +7,7 @@ const FileList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/v1/files', {
+        const response = await fetch('https://miniproject9-backend.onrender.com/v1/files', {
           credentials: 'include', // Include credentials (session cookie)
         });
         const data = await response.json();

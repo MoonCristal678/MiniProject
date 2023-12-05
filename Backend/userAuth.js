@@ -1,12 +1,11 @@
 
-
 import express from 'express';
 import session from 'express-session';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { passport } from './passport.js';
-import flash from 'express-flash'; // Import express-flash
+import flash from 'express-flash'; 
 
 const userAuthRouter = express.Router();
 

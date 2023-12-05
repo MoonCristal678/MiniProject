@@ -1,148 +1,77 @@
-CODE CLIMATE GRADE: B
+CODE CLIMATE GRADE: C BUT TO BE FAIR THEY WERE FLAGGING SINGLE LINES OF CODE THAT WERE SLIGHTLY SIMILAR
+README: Express Authentication and File Management
+This README provides an overview of the authentication system implemented using Express, Passport, and session management, along with the file management functionality in a Node.js application.
 
-1. File Schema (fileSchema.js):
-Purpose:
+Authentication:
+User Model:
 
-Defines the Mongoose schema for files.
-Each file has a unique name and content.
-Details:
+The application uses Mongoose to define a UserAuth model with fields for username, password, and email.
+The userAuthRouter is an Express router that handles authentication routes.
+Session Management:
 
-name: Represents the file name and is a required field.
-content: Represents the content of the file and is a required field.
-Usage:
+Express session middleware is used for managing user sessions.
+The session middleware is configured with a secret, resave, and saveUninitialized options, and a cookie with a specified maxAge.
+Passport Configuration:
 
-Exported as the File model for use in other parts of the application.
-2. File Updater (fileUpdater.js):
-Purpose:
+Passport is configured with a LocalStrategy for authenticating users based on username and password.
+Serialization and deserialization methods are implemented to store and retrieve user information in sessions.
+Login Route:
 
-Provides functionality to update files.
-Functions:
+The /login route renders a login page (login.ejs) and handles POST requests for user authentication.
+Passport's authenticate method is used for local authentication.
+Logout Route:
 
-renderUpdateFileForm(req, res): Renders the form to update a file.
-updateFile(req, res): Updates a file based on user input.
-Details:
+The /logout route logs out the user, destroys the session, and redirects to the login page.
+Registration Route:
 
-Utilizes the File model for database interactions.
-Handles errors and server responses.
-Exported:
+The /register route renders a registration page (register.ejs) and handles POST requests to register new users.
+User input is validated using express-validator.
+Passwords are hashed using bcrypt before being stored in the database.
+File Management:
+File Model:
 
-Functions exported for use in other files.
-3. File Reader (fileReader.js):
-Purpose:
+Mongoose is used to define a File model with fields for name, content, and createdBy (user association).
+Middleware and Server Setup:
 
-Provides functionality to read files.
-Functions:
-
-renderReadFileForm(req, res): Renders the form to read a file.
-readFile(req, res): Reads a file based on the selected file name.
-Details:
-
-Utilizes the File model for database interactions.
-Handles errors and server responses.
-Exported:
-
-Functions exported for use in other files.
-4. File Deleter (fileDeleter.js):
-Purpose:
-
-Provides functionality to delete files.
-Functions:
-
-renderDeleteFileForm(req, res): Renders the form to delete a file.
-deleteFile(req, res): Deletes a file based on the selected file name.
-Details:
-
-Utilizes the File model for database interactions.
-Handles errors and server responses.
-Exported:
-
-Functions exported for use in other files.
-5. File Operations (fileOperations.js):
-Middleware and Setup:
-
-Sets up an Express app with middleware (body parsing, method override, CORS).
-Connects to MongoDB using Mongoose.
+Middleware includes session setup, Passport initialization, CORS configuration, and other necessary middleware for file operations.
+The server is set up with Express, listening on a specified port.
 Routes:
 
-Defines routes for file operations and user-related operations.
-Each operation has its route and corresponding functions.
+The application has various routes for file operations:
+/read: Read the content of a file.
+/write: Write a new file.
+/delete: Delete a file.
+/updateFile: Update the content of a file.
+/files: View files associated with the authenticated user.
+File Operations:
+
+File routes are protected using the isAuthenticated middleware, ensuring that only authenticated users can perform file operations.
+File operations involve interacting with the File model, ensuring that actions are limited to files associated with the authenticated user.
 Error Handling:
 
-Utilizes an error handler middleware for catching and logging errors.
-Home Page:
+The application includes error handling for various scenarios, with error messages logged and appropriate responses sent.
+User Management:
+User Model:
 
-Renders a home page with links to various file and user operations.
+Another Mongoose model, User, is used to store additional user data like name, age, bloodType, birthdate, and countryOfBirth.
+User Routes:
+
+Routes are provided for adding, updating, deleting, and viewing users.
+Routes are protected to ensure that only authenticated users can perform these operations.
+User Operations:
+
+User operations involve interacting with the User model, and input validation is done using express-validator.
+API Versioning:
+
+Routes related to user and file operations are grouped under the /v1 namespace for API versioning.
 Helper Functions:
 
-Includes helper functions for rendering user forms and handling server errors.
-6. How to Run:
-Requirements:
-
-Node.js and npm installed.
-MongoDB running with correct connection details.
-Steps:
-
+Helper functions are implemented for rendering user forms and handling common server errors.
+Running the Server:
 Clone the repository and navigate to the project directory.
-Install dependencies: npm install.
-Start the server: npm start.
-Access:
-
-Open a web browser and go to http://localhost:3000.
-Usage:
-
-Click on the provided links to perform file and user operations.
-
-
-Validation Middleware (validateUserInput and validateFileInput):
-1. Purpose:
-validateUserInput:
-Validates user input before adding a new user.
-validateFileInput:
-Validates file input before creating a new file.
-2. Implementation:
-Middleware (express-validator):
-Utilizes the express-validator library for input validation.
-3. Functions:
-validateUserInput(req, res, next):
-
-Validates the input fields for adding a new user.
-Checks the following:
-name: Not empty, trimmed, and escaped.
-age: Must be a non-negative integer.
-bloodType: Not empty, trimmed, and escaped.
-birthdate: Must be a valid ISO8601 date.
-countryOfBirth: Not empty, trimmed, and escaped.
-validateFileInput(req, res, next):
-
-Validates the input fields for creating a new file.
-Checks the following:
-fileName: Not empty, trimmed, and escaped.
-fileContent: Not empty, trimmed, and escaped.
-4. Usage:
-Middleware Integration:
-Integrated into the respective routes for adding new users and creating new files.
-Applied using app.use in the main fileOperations.js file.
-javascript
-Copy code
-// Example usage in fileOperations.js
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(methodOverride('_method'));
-
-// ...
-
-// Middleware for validating user input
-v1Router.post('/api/users', validateUserInput, addUser);
-
-// Middleware for validating file input
-v1Router.post('/write', validateFileInput, writeFile);
-5. Result:
-If validation fails, an array of errors is provided in the response.
-The middleware ensures that the input adheres to specified rules before proceeding to user creation or file writing.
-
-
-RUN:
-
-NPM INSTALL
-
-NODE FILEOPERATONS.JS
+Install dependencies using npm install.
+Set up a MongoDB database and update the connection string in the mongoose.connect call.
+Create a .env file and set a value for SESSION_SECRET.
+Run the server using npm start.
+Access the application at http://localhost:3000 in your browser.
+Feel free to explore the provided routes and functionality in the application.

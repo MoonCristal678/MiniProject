@@ -1,5 +1,3 @@
-// validators.js
-
 import { body, validationResult } from 'express-validator';
 
 export function validateUserInput(req, res, next) {

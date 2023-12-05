@@ -1,8 +1,7 @@
-// passport-config.js
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import bcrypt from 'bcryptjs';
-import { UserAuth } from './userAuth.js'; // Adjust the path
+import { UserAuth } from './userAuth.js'; 
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
