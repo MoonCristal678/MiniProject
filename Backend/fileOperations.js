@@ -6,6 +6,7 @@ import cors from 'cors';
 import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
+import bodyParser from 'body-parser';
 
 import { userAuthRouter } from './userAuth.js'; // Adjust the path
 import { passport } from './passport.js';
@@ -33,7 +34,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(bodyParser.json()); // Add this line for JSON parsing
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
 app.use('/auth', userAuthRouter);
