@@ -24,6 +24,9 @@ const DisplayUsers = () => {
         console.warn(`Unexpected response type: ${contentType}. Raw response text:`, textData);
         // Handle the textData as needed
       }
+
+      // Log the JSON response here
+      return response.json();
     } catch (error) {
       console.error(error);
       // Handle the error or display a user-friendly message
@@ -31,8 +34,11 @@ const DisplayUsers = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData()
+      .then(response => response.json())
+      .then(console.log);
   }, []);
+
 
   const handleDeleteUser = async () => {
     try {
