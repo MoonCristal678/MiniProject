@@ -6,12 +6,14 @@ const DisplayUsers = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users');
-      
+      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users')
+        .then(response => response.json())
+        .then(console.log);
+
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.statusText}`);
       }
-  
+
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
@@ -27,8 +29,6 @@ const DisplayUsers = () => {
       // Handle the error or display a user-friendly message
     }
   };
-  
-  
 
   useEffect(() => {
     fetchData();
@@ -60,7 +60,6 @@ const DisplayUsers = () => {
       console.error(`Error deleting user:`, error);
     }
   };
-
 
   return (
     <div className="app-json-section">
