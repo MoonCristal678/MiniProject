@@ -1,20 +1,14 @@
-<!-- login.ejs -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <!-- ... (head content) ... -->
-  <style>
-    .error-message {
-      color: red;
-    }
-  </style>
+  <meta charset="utf-8">
+  <title>Login</title>
 </head>
+
 <body>
   <div>
     <h1>Login</h1>
-    <% if (errorMessage) { %>
-      <p class="error-message"><%= errorMessage %></p>
-    <% } %>
 
     <form action="/auth/login" method="post">
       <!-- Your form fields for username and password -->
@@ -36,4 +30,5 @@
     <p>Don't have an account? <a href="/auth/register">Register</a></p>
   </div>
 </body>
+
 </html>
