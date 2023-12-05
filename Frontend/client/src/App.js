@@ -25,7 +25,7 @@ function App() {
 
       if (response.ok) {
         setIsAuthenticated(false);
-       
+        // You can add additional logic here, such as clearing user data or redirecting to a login page.
       } else {
         console.error('Logout failed:', response.statusText);
       }

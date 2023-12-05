@@ -9,16 +9,36 @@ const DisplayUsers = () => {
       const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
         credentials: 'include',
       });
-      const data = await response.json();
-      setJsonData(data);
+
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        console.log('Data:', data);
+        setJsonData(data); // Update the state with the fetched JSON data
+      } else {
+        const textData = await response.text();
+        console.warn(`Unexpected response type: ${contentType}. Raw response text:`, textData);
+        // Handle the textData as needed
+      }
+
+      // Log the JSON response here
+      return response.json();
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error(error);
+      // Handle the error or display a user-friendly message
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData()
+      .then(response => response.json())
+      .then(console.log);
   }, []);
+
 
   const handleDeleteUser = async () => {
     try {
@@ -46,7 +66,6 @@ const DisplayUsers = () => {
       console.error(`Error deleting user:`, error);
     }
   };
-
 
   return (
     <div className="app-json-section">
