@@ -6,9 +6,9 @@ const DisplayUsers = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users')
-        .then(response => response.json())
-        .then(console.log);
+      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
+        credentials: 'include',
+      });
 
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.statusText}`);
