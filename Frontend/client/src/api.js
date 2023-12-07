@@ -4,14 +4,19 @@ const handleApiRequest = async (endpoint, method, data = {}) => {
   const url = `${apiUrl}${endpoint}`;
 
   try {
-    const response = await fetch(url, {
+    const requestOptions = {
       method,
-      credentials: 'include',  // Include credentials (session cookie)
+      credentials: 'include', // Include credentials (session cookie)
       headers: {
         'Content-Type': 'application/json',
       },
-      body: method !== 'GET' ? JSON.stringify(data) : undefined,
-    });
+    };
+
+    if (method !== 'GET') {
+      requestOptions.body = JSON.stringify(data);
+    }
+
+    const response = await fetch(url, requestOptions);
 
     if (response.ok) {
       return await response.json();
@@ -24,7 +29,6 @@ const handleApiRequest = async (endpoint, method, data = {}) => {
     throw error;
   }
 };
-
 
 export const loginUser = async (loginData) => {
   const url = `${apiUrl}/auth/login`;
@@ -67,7 +71,7 @@ export const registerUser = async (registrationData) => {
     throw error;
   }
 };
-export const fetchUserData = async () => handleApiRequest('/v1/api/users', 'GET');
+export const fetchUserData = async () => handleApiRequest('/v1/api/users', 'GET', {});
 
 export const updateUser = async (userId, userData) =>
   handleApiRequest('/v1/updateUser', 'POST', { userId, ...userData });
