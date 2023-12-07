@@ -22,13 +22,15 @@ const LoginForm = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
+      console.log('Login Data:', loginData);
+  
       const response = await fetch('https://miniproject9-backend.onrender.com/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ username, password }), // Include user credentials in the request body
+        body: JSON.stringify({ username: loginData.username, password: loginData.password }),
       });
   
       if (response.ok) {
@@ -42,6 +44,7 @@ const LoginForm = ({ onLogin }) => {
       console.error('Login Error:', error);
     }
   };
+  
   
   const renderLoginForm = () => (
     <div className="app-section">
