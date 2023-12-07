@@ -9,30 +9,31 @@ const DisplayUsers = () => {
       const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
         credentials: 'include',
       });
-
+  
       if (!response.ok) {
         throw new Error(`Error fetching data: ${response.statusText}`);
       }
-
+  
       const contentType = response.headers.get('content-type');
+  
+      // Handle JSON response
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
         console.log('Data:', data);
         setJsonData(data); // Update the state with the fetched JSON data
       } else {
-        const textData = await response.text();
-        console.warn(`Unexpected response type: ${contentType}. Raw response text:`, textData);
-        // Handle the textData as needed
+        // Handle other content types or response types
+        console.warn(`Unexpected response type: ${contentType}.`);
       }
-
-      // Log the JSON response here
-      return response.json();
+  
+      // Return the response object (if needed)
+      return response;
     } catch (error) {
       console.error(error);
       // Handle the error or display a user-friendly message
     }
   };
-
+  
   useEffect(() => {
     fetchData()
       .then(response => response.json())

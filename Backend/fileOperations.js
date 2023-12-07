@@ -104,7 +104,7 @@ v1Router.post('/deleteUser', ensureAuthenticated, deleteUser);
 //File Routes
 //Read
 
-v1Router.post('/read', async (req, res) => {
+v1Router.post('/read',  ensureAuthenticated, async (req, res) => {
   const fileName = req.body.fileName;
 
   try {
@@ -130,11 +130,11 @@ const handleUserFilesRender = async (req, res, viewName) => {
   }
 };
 
-v1Router.get('/delete', async (req, res) => {
+v1Router.get('/delete',  ensureAuthenticated, async (req, res) => {
   await handleUserFilesRender(req, res, 'deleteFile.ejs');
 });
 
-v1Router.get('/read', async (req, res) => {
+v1Router.get('/read',  ensureAuthenticated, async (req, res) => {
   await handleUserFilesRender(req, res, 'readFile.ejs');
 });
 const handleUserFilesRenderWithFiles = async (req, res, viewName) => {
@@ -147,7 +147,7 @@ const handleUserFilesRenderWithFiles = async (req, res, viewName) => {
   }
 };
 
-v1Router.get('/write', async (req, res) => {
+v1Router.get('/write',  ensureAuthenticated, async (req, res) => {
   await handleUserFilesRenderWithFiles(req, res, 'writeFile.ejs');
 });
 
@@ -156,7 +156,7 @@ v1Router.get('/updateFile', async (req, res) => {
 });
 
 
-v1Router.post('/write', validateFileInput, async (req, res) => {
+v1Router.post('/write',  ensureAuthenticated, validateFileInput, async (req, res) => {
   const fileName = req.body.fileName;
   const fileContent = req.body.fileContent;
 
@@ -176,7 +176,7 @@ v1Router.post('/write', validateFileInput, async (req, res) => {
 });
 
 //View Files
-v1Router.get('/files', async (req, res) => {
+v1Router.get('/files',  ensureAuthenticated, async (req, res) => {
   try {
     const userFiles = await File.find({ createdBy: req.user._id });
     res.json(userFiles);
@@ -187,10 +187,10 @@ v1Router.get('/files', async (req, res) => {
 //Delete Files
 
 
-v1Router.post('/delete', deleteFile);
+v1Router.post('/delete',  ensureAuthenticated, deleteFile);
 
 
-v1Router.post('/updateFile', async (req, res) => {
+v1Router.post('/updateFile',  ensureAuthenticated, async (req, res) => {
   const fileId = req.body.fileId;
   const newName = req.body.name;
   const newContent = req.body.content;
