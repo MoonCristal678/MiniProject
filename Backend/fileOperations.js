@@ -55,13 +55,6 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
-// Middleware for checking authentication
-function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect('/auth/login');
-}
 
 // Middleware for logging requests
 app.use((req, res, next) => {
@@ -70,7 +63,7 @@ app.use((req, res, next) => {
 });
 
 // Home page route
-app.get('/', isAuthenticated, (req, res) => {
+app.get('/', (req, res) => {
   res.send(`
     <h1>File Functionality</h1>
     <button><a href="/v1/read"> Read a File </a></button>
@@ -89,23 +82,29 @@ app.get('/', isAuthenticated, (req, res) => {
   </form>
   `);
 });
-
+function ensureAuthenticated(req, res, next) {
+  if (!req.user) {
+    // Redirect to the login page
+    return res.redirect('/auth/login');
+  }
+  next(); // Continue to the next handler
+}
 // User routes
 //Add and view users
-v1Router.get('/add', isAuthenticated, renderAddUserForm);
-v1Router.post('/api/users',isAuthenticated, validateUserInput, addUser);
-v1Router.get('/api/users', isAuthenticated, getAllUsers);
+v1Router.get('/add', ensureAuthenticated, renderAddUserForm);
+v1Router.post('/api/users', ensureAuthenticated, validateUserInput, addUser);
+v1Router.get('/api/users', ensureAuthenticated, getAllUsers);
 
-//Update and Delete User
-v1Router.get('/updateUser', isAuthenticated, renderUpdateUserForm);
-v1Router.post('/updateUser', isAuthenticated, updateUser);
-v1Router.get('/deleteUser', isAuthenticated, renderDeleteUserForm);
-v1Router.post('/deleteUser', isAuthenticated, deleteUser);
+// Update and Delete User
+v1Router.get('/updateUser', ensureAuthenticated, renderUpdateUserForm);
+v1Router.post('/updateUser', ensureAuthenticated, updateUser);
+v1Router.get('/deleteUser', ensureAuthenticated, renderDeleteUserForm);
+v1Router.post('/deleteUser', ensureAuthenticated, deleteUser);
 
 //File Routes
 //Read
 
-v1Router.post('/read', isAuthenticated, async (req, res) => {
+v1Router.post('/read', async (req, res) => {
   const fileName = req.body.fileName;
 
   try {
@@ -131,11 +130,11 @@ const handleUserFilesRender = async (req, res, viewName) => {
   }
 };
 
-v1Router.get('/delete', isAuthenticated, async (req, res) => {
+v1Router.get('/delete', async (req, res) => {
   await handleUserFilesRender(req, res, 'deleteFile.ejs');
 });
 
-v1Router.get('/read', isAuthenticated, async (req, res) => {
+v1Router.get('/read', async (req, res) => {
   await handleUserFilesRender(req, res, 'readFile.ejs');
 });
 const handleUserFilesRenderWithFiles = async (req, res, viewName) => {
@@ -148,16 +147,16 @@ const handleUserFilesRenderWithFiles = async (req, res, viewName) => {
   }
 };
 
-v1Router.get('/write', isAuthenticated, async (req, res) => {
+v1Router.get('/write', async (req, res) => {
   await handleUserFilesRenderWithFiles(req, res, 'writeFile.ejs');
 });
 
-v1Router.get('/updateFile', isAuthenticated, async (req, res) => {
+v1Router.get('/updateFile', async (req, res) => {
   await handleUserFilesRenderWithFiles(req, res, 'updateFile.ejs');
 });
 
 
-v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => {
+v1Router.post('/write', validateFileInput, async (req, res) => {
   const fileName = req.body.fileName;
   const fileContent = req.body.fileContent;
 
@@ -177,7 +176,7 @@ v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => 
 });
 
 //View Files
-v1Router.get('/files', isAuthenticated, async (req, res) => {
+v1Router.get('/files', async (req, res) => {
   try {
     const userFiles = await File.find({ createdBy: req.user._id });
     res.json(userFiles);
@@ -188,10 +187,10 @@ v1Router.get('/files', isAuthenticated, async (req, res) => {
 //Delete Files
 
 
-v1Router.post('/delete', isAuthenticated, deleteFile);
+v1Router.post('/delete', deleteFile);
 
 
-v1Router.post('/updateFile', isAuthenticated, async (req, res) => {
+v1Router.post('/updateFile', async (req, res) => {
   const fileId = req.body.fileId;
   const newName = req.body.name;
   const newContent = req.body.content;
@@ -291,14 +290,11 @@ async function updateUser(req, res) {
   }
 }
 
+// Updated getAllUsers function
 async function getAllUsers(req, res) {
   try {
-    if (req.isAuthenticated()) {
-      const users = await User.find({ createdBy: req.user._id });
-      res.json(users);
-    } else {
-      res.status(401).json({ message: 'Unauthorized' });
-    }
+    const users = await User.find({ createdBy: req.user._id });
+    res.json(users);
   } catch (error) {
     handleServerError(res, error);
   }
