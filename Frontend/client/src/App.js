@@ -1,5 +1,4 @@
-// Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import FileList from './Forms/fileList';
 import WriteFileForm from './Forms/WriteFileForm';
@@ -8,35 +7,15 @@ import DisplayUsers from './Forms/DisplayUsers';
 import AddUserForm from './Forms/AddUserForm';
 import { UpdateFileForm, UpdateUserForm } from './Forms/ReusableForm';
 import LoginForm from './Forms/LoginForm';
-import { fetchUserData } from './api'; // Import the fetchUserData function
 
 function App() {
   const [readContent, setReadContent] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authenticatedUserData, setAuthenticatedUserData] = useState(null);
 
-  const handleLogin = async () => {
-    try {
-      // Fetch user data after successful login
-      const userDataResponse = await fetchUserData();
-      const userData = await userDataResponse.json();
-
-      // Check if user data contains information about the authenticated user
-      if (userData._id) {
-        // Call the parent component's login callback with user data
-        setIsAuthenticated(true);
-        setAuthenticatedUserData(userData);
-        console.log('Authenticated User Data:', userData);
-        // Perform any additional actions, such as updating the UI, etc.
-      } else {
-        console.error('Login failed. Unable to fetch user data.');
-        setIsAuthenticated(false);
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
-      setIsAuthenticated(false);
-    }
+  const handleLogin = () => {
+    setIsAuthenticated(true);
   };
+
   const handleLogout = async () => {
     try {
       const response = await fetch('https://miniproject9-backend.onrender.com/auth/logout', {
@@ -46,7 +25,6 @@ function App() {
 
       if (response.ok) {
         setIsAuthenticated(false);
-        setAuthenticatedUserData(null);
         // You can add additional logic here, such as clearing user data or redirecting to a login page.
       } else {
         console.error('Logout failed:', response.statusText);
@@ -66,19 +44,19 @@ function App() {
         <>
           <h1 className="app-title">User Data and File Contents</h1>
           <button onClick={handleLogout}>Logout</button>
-          <DisplayUsers onDeleteUser={handleDeleteUser} authenticatedUserData={authenticatedUserData} />
-          <AddUserForm authenticatedUserData={authenticatedUserData} />
-          <UpdateUserForm authenticatedUserData={authenticatedUserData} />
-          <WriteFileForm authenticatedUserData={authenticatedUserData} />
-          <ReadFileForm setReadContent={setReadContent} authenticatedUserData={authenticatedUserData} />
+          <DisplayUsers onDeleteUser={handleDeleteUser} />
+          <AddUserForm />
+          <UpdateUserForm />
+          <WriteFileForm />
+          <ReadFileForm setReadContent={setReadContent} />
           {readContent && (
             <div className="app-section">
               <h2>Read Content</h2>
               <p>{readContent}</p>
             </div>
           )}
-          <FileList authenticatedUserData={authenticatedUserData} />
-          <UpdateFileForm authenticatedUserData={authenticatedUserData} />
+          <FileList />
+          <UpdateFileForm />
         </>
       ) : (
         <LoginForm onLogin={handleLogin} />
