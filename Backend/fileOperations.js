@@ -113,8 +113,8 @@ function ensureAuthenticated(req, res, next) {
 //Add and view users
 v1Router.post('/api/users', validateUserInput, addUser);
 
-v1Router.post('/api/users',  validateUserInput, addUser);
-v1Router.get('/api/users', getAllUsers);
+v1Router.post('/api/users',  ensureAuthenticated, validateUserInput, addUser);
+v1Router.get('/api/users', ensureAuthenticated, getAllUsers);
 
 // Update and Delete User
 v1Router.get('/updateUser', ensureAuthenticated, renderUpdateUserForm);
@@ -317,8 +317,7 @@ async function updateUser(req, res) {
 // Updated getAllUsers function
 async function getAllUsers(req, res) {
   try {
-    const query = req.user ? { createdBy: req.user._id } : {};
-    const users = await User.find(query);
+    const users = await User.find({ createdBy: req.user._id });
     res.json(users);
   } catch (error) {
     handleServerError(res, error);
