@@ -25,16 +25,15 @@ const LoginForm = ({ onLogin }) => {
       setErrorMessage('Please enter both username and password.');
       return;
     }
-
+  
     try {
       const response = await loginUser(loginData);
-
+  
       if (response.ok) {
         // Call the parent component's login callback
         onLogin();
-        
-        // Call the successful login callback provided as a prop
-        onSuccessfulLogin();
+  
+        // No need to call onSuccessfulLogin here since it's handled in the parent component
       } else {
         // Handle login failure and set error message
         const responseBody = await response.json();
@@ -44,6 +43,7 @@ const LoginForm = ({ onLogin }) => {
       console.error('Error during login:', error);
     }
   };
+  
 
   const renderLoginForm = () => (
     <div className="app-section">

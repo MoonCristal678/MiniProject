@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// Import necessary dependencies
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import FileList from './Forms/fileList';
 import WriteFileForm from './Forms/WriteFileForm';
@@ -7,6 +8,7 @@ import DisplayUsers from './Forms/DisplayUsers';
 import AddUserForm from './Forms/AddUserForm';
 import { UpdateFileForm, UpdateUserForm } from './Forms/ReusableForm';
 import LoginForm from './Forms/LoginForm';
+import { fetchUserData } from './api'; // Import the fetchUserData function
 
 function App() {
   const [readContent, setReadContent] = useState('');
@@ -35,7 +37,6 @@ function App() {
       setIsAuthenticated(false);
     }
   };
-
   const handleLogout = async () => {
     try {
       const response = await fetch('https://miniproject9-backend.onrender.com/auth/logout', {
