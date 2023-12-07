@@ -29,7 +29,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({
-  origin: 'http://localhost:3001', // Replace with your React app's origin
+  origin: 'https://miniproject10-frontend.onrender.com', // Replace with your React app's origin
   credentials: true,
 }));
 app.use(express.urlencoded({ extended: true }));
