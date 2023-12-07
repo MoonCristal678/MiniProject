@@ -5,7 +5,7 @@ import { UserAuth } from './userAuth.js';
 
 passport.use(new LocalStrategy(async (username, password, done) => {
   try {
-    const user = await User.findOne({ username });
+    const user = await UseraUTH.findOne({ username });
 
     if (!user) {
       return done(null, false, { message: 'Incorrect username.' });
@@ -27,7 +27,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id);
+    const user = await UserAuth.findById(id);
     done(null, user);
   } catch (error) {
     done(error);
