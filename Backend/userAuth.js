@@ -49,8 +49,12 @@ userAuthRouter.get('/login', (req, res) => {
   res.render('login.ejs', { errorMessage });
 });
 
-userAuthRouter.post('/login', passport.authenticate('local'), (req, res) => {
-  res.json({ message: 'Login successful' });
+userAuthRouter.post('/login', passport.authenticate('local', {
+  failureRedirect: '/auth/login?error=Invalid credentials',
+  failureFlash: true
+}), (req, res) => {
+  // If authentication is successful, redirect to the home page
+  res.redirect('/');
 });
 
 // Logout route

@@ -87,7 +87,7 @@ app.get('/', (req, res) => {
     // If not authenticated, render the login form
     const errorMessage = req.query.error; 
     res.render('login.ejs', { errorMessage });
-  } else {
+  } else if(req.isAuthenticated()) {
   res.send(`
   
     <h1>File Functionality</h1>
