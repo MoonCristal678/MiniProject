@@ -47,37 +47,9 @@ userAuthRouter.get('/login', (req, res) => {
   res.render('login.ejs', { errorMessage });
 });
 
-userAuthRouter.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) {
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
-    if (!user) {
-      // If the request is an API request, send JSON response
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
-      
-      // If it's a regular browser request, redirect to the login page with an error query parameter
-      return res.redirect('/auth/login?error=Invalid credentials');
-    }
-
-    req.logIn(user, (err) => {
-      if (err) {
-        return res.status(500).json({ message: 'Internal Server Error' });
-      }
-
-      // If the request is an API request, send a success JSON response
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.json({ message: 'Login successful' });
-      }
-
-      // If it's a regular browser request, redirect to the root URL
-      return res.redirect('/');
-    });
-  })(req, res, next);
+userAuthRouter.post('/login', passport.authenticate('local'), (req, res) => {
+  res.json({ message: 'Login successful' });
 });
-
 
 // Logout route
 userAuthRouter.post('/logout', (req, res) => {

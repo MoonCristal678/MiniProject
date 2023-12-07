@@ -21,27 +21,28 @@ const LoginForm = ({ onLogin }) => {
   };
 
   const handleLogin = async () => {
-    if (!loginData.username || !loginData.password) {
-      setErrorMessage('Please enter both username and password.');
-      return;
-    }
-
     try {
-      const response = await loginUser(loginData);
-
+      const response = await fetch('https://miniproject9-backend.onrender.com/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ username, password }), // Include user credentials in the request body
+      });
+  
       if (response.ok) {
-        // Call the parent component's login callback
-        onLogin();
+        // Handle successful login
+        fetchData(); // Call a function to fetch data or perform actions after successful login
       } else {
-        // Handle login failure and set error message
-        const responseBody = await response.json();
-        setErrorMessage(responseBody.message || 'Login failed');
+        // Handle login failure
+        console.error(`Error: ${response.status} - ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      console.error('Login Error:', error);
     }
   };
-
+  
   const renderLoginForm = () => (
     <div className="app-section">
       <h2>Login</h2>
