@@ -15,10 +15,19 @@ function App() {
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
-
   const handleLogout = async () => {
     try {
-      // Your logout logic
+      const response = await fetch('https://miniproject9-backend.onrender.com/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // Include credentials (cookies) in the request
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(false);
+        // You can add additional logic here, such as clearing user data or redirecting to a login page.
+      } else {
+        console.error('Logout failed:', response.statusText);
+      }
     } catch (error) {
       console.error('Error during logout:', error);
     }
