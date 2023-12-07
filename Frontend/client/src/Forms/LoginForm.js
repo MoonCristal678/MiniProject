@@ -32,6 +32,9 @@ const LoginForm = ({ onLogin }) => {
       if (response.ok) {
         // Call the parent component's login callback
         onLogin();
+        
+        // Call the successful login callback provided as a prop
+        onSuccessfulLogin();
       } else {
         // Handle login failure and set error message
         const responseBody = await response.json();
