@@ -29,12 +29,10 @@ const DisplayUsers = () => {
       console.error('Fetch Error:', error);
     }
   };
-  useEffect(() => {
-    fetchData()
-      .then(response => response.json())
-      .then(console.log);
-  }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, []); // Empty dependency array ensures the effect runs once on mount
 
   const handleDeleteUser = async () => {
     try {
