@@ -13,14 +13,6 @@ import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.set('view engine', 'ejs');
-app.use(methodOverride('_method'));
-app.use('/auth', userAuthRouter);
 
 // Middleware
 app.use(session({
@@ -34,6 +26,16 @@ app.use(session({
   },
   credentials: true,
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.set('view engine', 'ejs');
+app.use(methodOverride('_method'));
+app.use('/auth', userAuthRouter);
+
 
 
 app.all('*', function(req, res, next) {
