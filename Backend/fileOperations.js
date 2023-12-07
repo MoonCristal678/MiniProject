@@ -38,12 +38,20 @@ app.use('/auth', userAuthRouter);
 
 
 
+const allowedOrigins = [
+  'https://miniproject9-frontend.onrender.com',
+  // Add other allowed origins if needed
+];
+
 app.all('*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Credentials", true); // Add this line
   next();
 });
-
 
 
 // Connect to MongoDB using Mongoose
