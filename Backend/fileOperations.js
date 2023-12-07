@@ -29,7 +29,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({
-  origin: 'https://miniproject9-frontend.onrender.com', // Replace with your React app's origin
+  origin: 'http://localhost:3001', // Replace with your React app's origin
   credentials: true,
 }));
 app.use(express.urlencoded({ extended: true }));
@@ -88,18 +88,34 @@ app.get('/', isAuthenticated, (req, res) => {
   </form>
   `);
 });
+// Middleware for verifying JWT token
+function verifyToken(req, res, next) {
+  const token = req.header('Authorization');
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+}
 
 // User routes
 //Add and view users
-v1Router.get('/add', isAuthenticated, renderAddUserForm);
-v1Router.post('/api/users',isAuthenticated, validateUserInput, addUser);
-v1Router.get('/api/users', isAuthenticated, getAllUsers);
+v1Router.get('/add', isAuthenticated, verifyToken, renderAddUserForm);
+v1Router.post('/api/users',isAuthenticated, verifyToken, validateUserInput, addUser, );
+v1Router.get('/api/users', isAuthenticated,verifyToken, getAllUsers, );
 
 //Update and Delete User
-v1Router.get('/updateUser', isAuthenticated, renderUpdateUserForm);
-v1Router.post('/updateUser', isAuthenticated, updateUser);
-v1Router.get('/deleteUser', isAuthenticated, renderDeleteUserForm);
-v1Router.post('/deleteUser', isAuthenticated, deleteUser);
+v1Router.get('/updateUser', isAuthenticated,verifyToken, renderUpdateUserForm, );
+v1Router.post('/updateUser', isAuthenticated,verifyToken, updateUser,);
+v1Router.get('/deleteUser', isAuthenticated,verifyToken, renderDeleteUserForm);
+v1Router.post('/deleteUser', isAuthenticated, verifyToken, deleteUser, );
 
 //File Routes
 //Read
