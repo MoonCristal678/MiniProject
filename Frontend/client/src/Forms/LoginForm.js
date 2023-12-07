@@ -19,26 +19,24 @@ const LoginForm = ({ onLogin }) => {
     setLoginData((prevData) => ({ ...prevData, [field]: value }));
     setErrorMessage('');
   };
-  const fetchData = () => {
-    // Implement your fetchData logic here
-    console.log('Fetching data...');
-  };
+  
   const handleLogin = async () => {
     try {
-      console.log('Login Data:', loginData);
-  
       const response = await fetch('https://miniproject9-backend.onrender.com/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ username: loginData.username, password: loginData.password }),
+        body: JSON.stringify({ username, password }), // Include user credentials in the request body
       });
   
       if (response.ok) {
-        // Handle successful login
-        fetchData(); // Call a function to fetch data or perform actions after successful login
+        // Perform additional actions after a successful login
+        // ...
+  
+        // Call the parent component's login callback
+        onLogin();
       } else {
         // Handle login failure
         console.error(`Error: ${response.status} - ${response.statusText}`);
@@ -47,6 +45,7 @@ const LoginForm = ({ onLogin }) => {
       console.error('Login Error:', error);
     }
   };
+  
   
   
   const renderLoginForm = () => (
