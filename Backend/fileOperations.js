@@ -43,7 +43,7 @@ const allowedOrigins = [
   // Add other allowed origins if needed
 ];
 
-app.all('*', function(req, res, next) {
+app.all(['/v1', '/auth'], function(req, res, next) {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
