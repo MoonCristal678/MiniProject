@@ -7,7 +7,7 @@ const DisplayUsers = () => {
   const fetchData = async () => {
     try {
       const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
-        credentials: 'include',
+      
       });
   
       if (!response.ok) {
