@@ -6,9 +6,13 @@ const DisplayUsers = () => {
 
   const fetchData = async () => {
     try {
+      const credentialsOption = document.cookie.includes('connect.sid')
+        ? 'include'
+        : 'same-origin';
+  
       const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
         method: 'GET',
-        credentials: 'include',
+        credentials: credentialsOption,
         redirect: 'manual',
       });
   
@@ -29,6 +33,7 @@ const DisplayUsers = () => {
       console.error('Fetch Error:', error);
     }
   };
+  
 
   useEffect(() => {
     fetchData();
