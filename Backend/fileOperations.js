@@ -96,7 +96,8 @@ app.get('/', (req, res) => {
     <button><a href="/v1/add"> Add User </a></button>
     <button><a href="/v1/updateUser"> Update User </a></button>
     <button><a href="/v1/deleteUser"> Delete User </a></button>
-    <button><a href="/auth/login"> Delete User </a></button>
+    <br>
+    <button><a href="/auth/login"> Login </a></button>
     <form action="/auth/logout" method="post" style="display: inline;">
     <button type="submit"> Logout </button>
   </form>
@@ -113,7 +114,7 @@ function ensureAuthenticated(req, res, next) {
 //Add and view users
 v1Router.post('/api/users', validateUserInput, addUser);
 
-v1Router.post('/api/users', ensureAuthenticated, validateUserInput, addUser);
+v1Router.post('/api/users', validateUserInput, addUser);
 v1Router.get('/api/users', ensureAuthenticated, getAllUsers);
 
 // Update and Delete User
