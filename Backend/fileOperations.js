@@ -317,7 +317,8 @@ async function updateUser(req, res) {
 // Updated getAllUsers function
 async function getAllUsers(req, res) {
   try {
-    const users = await User.find({ createdBy: req.user._id });
+    const query = req.user ? { createdBy: req.user._id } : {};
+    const users = await User.find(query);
     res.json(users);
   } catch (error) {
     handleServerError(res, error);
