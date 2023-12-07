@@ -24,7 +24,7 @@ app.use(session({
     
    
   },
-  credentials: true,
+ 
 }));
 
 app.use(passport.initialize());
