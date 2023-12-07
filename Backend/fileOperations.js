@@ -96,7 +96,6 @@ app.get('/', (req, res) => {
     <button><a href="/v1/add"> Add User </a></button>
     <button><a href="/v1/updateUser"> Update User </a></button>
     <button><a href="/v1/deleteUser"> Delete User </a></button>
-    <br>
     <button><a href="/auth/login"> Login </a></button>
     <form action="/auth/logout" method="post" style="display: inline;">
     <button type="submit"> Logout </button>
@@ -105,16 +104,16 @@ app.get('/', (req, res) => {
 });
 function ensureAuthenticated(req, res, next) {
   if (!req.user) {
-    // Redirect to the login page
-    return res.redirect('/auth/login');
+    // Return an error response if not authenticated
+    return res.status(401).json({ error: 'Authentication required' });
   }
   next(); // Continue to the next handler
 }
 // User routes
 //Add and view users
-v1Router.post('/api/users', validateUserInput, addUser);
+v1Router.post('/api/users',  ensureAuthenticated, validateUserInput, addUser);
 
-v1Router.post('/api/users', validateUserInput, addUser);
+v1Router.post('/api/users',  ensureAuthenticated, validateUserInput, addUser);
 v1Router.get('/api/users', ensureAuthenticated, getAllUsers);
 
 // Update and Delete User
