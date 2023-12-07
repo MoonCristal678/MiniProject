@@ -119,10 +119,10 @@ function ensureAuthenticated(req, res, next) {
 
 //Add and view users
 
-v1Router.get('/add',  ensureAuthenticated, renderAddUserForm);
+v1Router.get('/add',  renderAddUserForm);
 
-v1Router.post('/api/users',  ensureAuthenticated, validateUserInput, addUser);
-v1Router.get('/api/users', ensureAuthenticated, getAllUsers);
+v1Router.post('/api/users', validateUserInput, addUser);
+v1Router.get('/api/users',  getAllUsers);
 
 // Update and Delete User
 v1Router.get('/updateUser', ensureAuthenticated, renderUpdateUserForm);
