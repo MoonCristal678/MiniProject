@@ -109,12 +109,12 @@ function ensureAuthenticated(req, res, next) {
   }
   next(); // Continue to the next handler
 }
-// User routes
-//Add and view users
-v1Router.post('/api/users', validateUserInput, addUser);
 
-v1Router.post('/api/users',  validateUserInput, addUser);
-v1Router.get('/api/users',  getAllUsers);
+//Add and view users
+v1Router.post('/add',  ensureAuthenticated, validateUserInput, addUser);
+
+v1Router.post('/api/users',  ensureAuthenticated, validateUserInput, addUser);
+v1Router.get('/api/users', ensureAuthenticated, getAllUsers);
 
 // Update and Delete User
 v1Router.get('/updateUser', ensureAuthenticated, renderUpdateUserForm);
