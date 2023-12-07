@@ -18,17 +18,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://miniproject9-backend.onrender.com/auth/logout', {
-        method: 'POST',
-        credentials: 'include', // Include credentials (cookies) in the request
-      });
-
-      if (response.ok) {
-        setIsAuthenticated(false);
-        // You can add additional logic here, such as clearing user data or redirecting to a login page.
-      } else {
-        console.error('Logout failed:', response.statusText);
-      }
+      // Your logout logic
     } catch (error) {
       console.error('Error during logout:', error);
     }
@@ -36,6 +26,11 @@ function App() {
 
   const handleDeleteUser = (deletedUserId) => {
     console.log(`User '${deletedUserId}' deleted. Update user list logic here.`);
+  };
+
+  const fetchData = () => {
+    // Implement your fetchData logic here
+    console.log('Fetching data...');
   };
 
   return (
@@ -59,7 +54,7 @@ function App() {
           <UpdateFileForm />
         </>
       ) : (
-        <LoginForm onLogin={handleLogin} />
+        <LoginForm onLogin={handleLogin} fetchData={fetchData} />
       )}
     </div>
   );

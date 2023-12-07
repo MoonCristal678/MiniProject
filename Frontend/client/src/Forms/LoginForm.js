@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { loginUser } from '../api';
 import RegistrationForm from './RegistrationForm';
 
-const LoginForm = ({ onLogin }) => {
+const LoginForm = ({ onLogin, fetchData }) => {
   const [loginData, setLoginData] = useState({
     username: '',
     password: '',
@@ -19,7 +19,7 @@ const LoginForm = ({ onLogin }) => {
     setLoginData((prevData) => ({ ...prevData, [field]: value }));
     setErrorMessage('');
   };
-  
+
   const handleLogin = async () => {
     try {
       const response = await fetch('https://miniproject9-backend.onrender.com/auth/login', {
@@ -28,26 +28,23 @@ const LoginForm = ({ onLogin }) => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ username, password }), // Include user credentials in the request body
+        body: JSON.stringify({ username: loginData.username, password: loginData.password }),
       });
-  
+
       if (response.ok) {
-        // Perform additional actions after a successful login
-        // ...
-  
-        // Call the parent component's login callback
-        onLogin();
+        // Handle successful login
+        fetchData(); // Call the function passed as a prop to fetch data or perform actions after successful login
+        onLogin(); // Call the parent component's login callback
       } else {
         // Handle login failure
-        console.error(`Error: ${response.status} - ${response.statusText}`);
+        const responseBody = await response.json();
+        setErrorMessage(responseBody.message || 'Login failed');
       }
     } catch (error) {
       console.error('Login Error:', error);
     }
   };
-  
-  
-  
+
   const renderLoginForm = () => (
     <div className="app-section">
       <h2>Login</h2>
