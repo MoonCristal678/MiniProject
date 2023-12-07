@@ -80,13 +80,16 @@ app.use((req, res, next) => {
   console.log(`${req.method} request for ${req.url}`);
   next();
 });
-userAuthRouter.get('/login', (req, res) => {
-  const errorMessage = req.query.error; 
-  res.render('login.ejs', { errorMessage });
-});
+
 // Home page route
 app.get('/', (req, res) => {
+  if (!req.isAuthenticated()) {
+    // If not authenticated, render the login form
+    const errorMessage = req.query.error; 
+    res.render('login.ejs', { errorMessage });
+  } else {
   res.send(`
+  
     <h1>File Functionality</h1>
     <button><a href="/v1/read"> Read a File </a></button>
     <button><a href="/v1/write"> Write to a File </a></button>
@@ -104,6 +107,7 @@ app.get('/', (req, res) => {
     <button type="submit"> Logout </button>
   </form>
   `);
+  }
 });
 function ensureAuthenticated(req, res, next) {
   if (!req.user) {

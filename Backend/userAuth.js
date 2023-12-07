@@ -44,7 +44,10 @@ userAuthRouter.use(session({
 userAuthRouter.use(passport.initialize());
 userAuthRouter.use(passport.session());
 
-
+userAuthRouter.get('/login', (req, res) => {
+  const errorMessage = req.query.error; 
+  res.render('login.ejs', { errorMessage });
+});
 
 userAuthRouter.post('/login', passport.authenticate('local'), (req, res) => {
   res.json({ message: 'Login successful' });
