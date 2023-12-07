@@ -96,6 +96,7 @@ app.get('/', (req, res) => {
     <button><a href="/v1/add"> Add User </a></button>
     <button><a href="/v1/updateUser"> Update User </a></button>
     <button><a href="/v1/deleteUser"> Delete User </a></button>
+    <button><a href="/auth/login"> Delete User </a></button>
     <form action="/auth/logout" method="post" style="display: inline;">
     <button type="submit"> Logout </button>
   </form>
@@ -110,7 +111,8 @@ function ensureAuthenticated(req, res, next) {
 }
 // User routes
 //Add and view users
-v1Router.get('/add', ensureAuthenticated, renderAddUserForm);
+v1Router.post('/api/users', validateUserInput, addUser);
+
 v1Router.post('/api/users', ensureAuthenticated, validateUserInput, addUser);
 v1Router.get('/api/users', ensureAuthenticated, getAllUsers);
 
@@ -264,7 +266,10 @@ async function renderUpdateUserForm(req, res) {
 
 async function addUser(req, res) {
   const errors = validationResult(req);
-
+  if (!req.user) {
+    // Return an error response if not authenticated
+    return res.status(401).json({ error: 'Authentication required' });
+  }
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }

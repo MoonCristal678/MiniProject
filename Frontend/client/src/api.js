@@ -53,11 +53,12 @@ export const registerUser = async (registrationData) => {
   try {
     const response = await fetch(url, {
       method: 'POST',
+      credentials: 'include', // Include credentials (session cookie)
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(registrationData),
-      credentials: 'include', // Include credentials (cookies)
+     
     });
 
     return response;
