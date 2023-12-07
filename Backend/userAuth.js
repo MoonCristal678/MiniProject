@@ -25,7 +25,9 @@ const userAuthSchema = new mongoose.Schema({
     unique: true,
   },
 })
-
+UserAuthSchema.methods.verifyPassword = async function (password) {
+  return bcrypt.compare(password, this.password);
+};
 const UserAuth = mongoose.model('UserAuth', userAuthSchema);
 
 
