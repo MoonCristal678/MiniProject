@@ -19,7 +19,10 @@ const LoginForm = ({ onLogin }) => {
     setLoginData((prevData) => ({ ...prevData, [field]: value }));
     setErrorMessage('');
   };
-
+  const fetchData = () => {
+    // Implement your fetchData logic here
+    console.log('Fetching data...');
+  };
   const handleLogin = async () => {
     try {
       console.log('Login Data:', loginData);
