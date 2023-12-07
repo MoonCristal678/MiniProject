@@ -7,33 +7,28 @@ const DisplayUsers = () => {
   const fetchData = async () => {
     try {
       const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
-      
+        method: 'GET',
+        credentials: 'include',
+        redirect: 'manual',  // Disable automatic following of redirects
       });
   
-      if (!response.ok) {
-        throw new Error(`Error fetching data: ${response.statusText}`);
-      }
-  
-      const contentType = response.headers.get('content-type');
-  
-      // Handle JSON response
-      if (contentType && contentType.includes('application/json')) {
+      if (response.status === 200) {
+        // Handle the successful response (possibly JSON data)
         const data = await response.json();
         console.log('Data:', data);
-        setJsonData(data); // Update the state with the fetched JSON data
+        setJsonData(data);
+      } else if (response.status === 302) {
+        // Handle the redirection if needed
+        console.log('Redirected to:', response.headers.get('location'));
       } else {
-        // Handle other content types or response types
-        console.warn(`Unexpected response type: ${contentType}.`);
+        // Handle other cases where the response is not OK
+        console.error(`Error: ${response.status} - ${response.statusText}`);
       }
-  
-      // Return the response object (if needed)
-      return response;
     } catch (error) {
       console.error(error);
       // Handle the error or display a user-friendly message
     }
   };
-  
   useEffect(() => {
     fetchData()
       .then(response => response.json())
