@@ -80,7 +80,10 @@ app.use((req, res, next) => {
   console.log(`${req.method} request for ${req.url}`);
   next();
 });
-
+userAuthRouter.get('/login', (req, res) => {
+  const errorMessage = req.query.error; 
+  res.render('login.ejs', { errorMessage });
+});
 // Home page route
 app.get('/', (req, res) => {
   res.send(`
