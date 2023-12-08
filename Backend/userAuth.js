@@ -142,6 +142,7 @@ userAuthRouter.post(
       username,
       password: hashedPassword,
       email,
+      addedBy: req.user ? req.user._id : null, // Set addedBy to the current user's ObjectId if authenticated
     });
 
     try {
@@ -153,6 +154,9 @@ userAuthRouter.post(
     }
   }
 );
+
+
+
 
 
 export { UserAuth, userAuthRouter };

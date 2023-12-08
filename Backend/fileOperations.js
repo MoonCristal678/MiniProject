@@ -6,6 +6,7 @@ import cors from 'cors';
 import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
+import { UserAuth } from './userAuth.js'; // Update the path accordingly
 
 import { userAuthRouter } from './userAuth.js'; // Adjust the path
 import { passport } from './passport.js';
@@ -68,7 +69,8 @@ const userSchema = new mongoose.Schema({
   bloodType: { type: String, required: true },
   birthdate: { type: Date, required: true },
   countryOfBirth: { type: String, required: true },
-   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
+   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+   addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
 });
 
 const User = mongoose.model('User', userSchema);
@@ -84,7 +86,8 @@ app.use((req, res, next) => {
 v1Router.get('/add',  renderAddUserForm);
 
 v1Router.post('/api/users', validateUserInput, addUser);
-v1Router.get('/api/users',  getAllUsers);
+v1Router.get('/api/users', getAllUsers);
+
 
 // Update and Delete User
 v1Router.get('/updateUser', renderUpdateUserForm);
@@ -250,7 +253,8 @@ async function addUser(req, res) {
     bloodType,
     birthdate,
     countryOfBirth,
-    createdBy: req.user._id, // Set the createdBy field to the authenticated user's ID
+    createdBy: req.user._id,
+    addedBy: req.user._id, // Set both createdBy and addedBy fields
   });
 
   try {
@@ -282,17 +286,15 @@ async function updateUser(req, res) {
     handleServerError(res, error);
   }
 }
-
-// Updated getAllUsers function
 async function getAllUsers(req, res) {
   try {
-
-    const users = await User.find({ createdBy: req.user._id });
+    const users = await User.find({ addedBy: req.user._id });
     res.json(users);
   } catch (error) {
     handleServerError(res, error);
   }
 }
+
 
 
 
