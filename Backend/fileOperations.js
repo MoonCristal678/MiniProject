@@ -238,10 +238,7 @@ async function renderUpdateUserForm(req, res) {
 
 async function addUser(req, res) {
   const errors = validationResult(req);
-  if (!req.user) {
-    // Return an error response if not authenticated
-    return res.status(401).json({ error: 'Authentication required' });
-  }
+  
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -289,9 +286,6 @@ async function updateUser(req, res) {
 // Updated getAllUsers function
 async function getAllUsers(req, res) {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
 
     const users = await User.find({ createdBy: req.user._id });
     res.json(users);
