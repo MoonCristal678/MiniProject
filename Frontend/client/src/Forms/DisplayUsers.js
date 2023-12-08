@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const DisplayUsers = () => {
   const [jsonData, setJsonData] = useState([]);
@@ -6,35 +7,15 @@ const DisplayUsers = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await axios.get('https://miniproject9-backend.onrender.com/v1/api/users', {
+        withCredentials: true,
       });
 
-      if (!response.ok) {
-        console.error(`Error: ${response.status} - ${response.statusText}`);
-        throw new Error(`Error: ${response.status} - ${response.statusText}`);
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        console.log('Data:', data);
-        setJsonData(data);
-      } else {
-        console.warn(`Unexpected response type: ${contentType}.`);
-      }
+      setJsonData(response.data);
     } catch (error) {
       console.error('Fetch Error:', error);
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []); // Empty dependency array ensures the effect runs once on mount
 
   const handleDeleteUser = async () => {
     try {
@@ -43,16 +24,18 @@ const DisplayUsers = () => {
         return;
       }
 
-      const response = await fetch('https://miniproject9-backend.onrender.com/v1/deleteUser', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: selectedUserId }),
-      });
+      const response = await axios.post(
+        'https://miniproject9-backend.onrender.com/v1/deleteUser',
+        { userId: selectedUserId },
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      if (response.ok) {
+      if (response.status === 200) {
         fetchData();
         setSelectedUserId('');
       } else {
@@ -63,6 +46,9 @@ const DisplayUsers = () => {
     }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
   return (
     <div className="app-json-section">
       <h2>JSON Data</h2>
