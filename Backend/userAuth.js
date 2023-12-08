@@ -53,8 +53,27 @@ userAuthRouter.post('/login', passport.authenticate('local', {
   failureFlash: true
 }), (req, res) => {
   // This block will only be executed upon successful authentication
-  res.redirect('/');
+  const htmlContent = `
+    <h1>File Functionality</h1>
+    <button><a href="/v1/read"> Read a File </a></button>
+    <button><a href="/v1/write"> Write to a File </a></button>
+    <button><a href="/v1/delete"> Delete a File </a></button>
+    <button><a href="/v1/updateFile"> Update a File </a></button>
+    <button><a href="/v1/files"> View Files </a></button>
+    <br>
+    <h1>User Functionality</h1>
+    <button><a href="/v1/api/users"> Display JSON Data </a></button>
+    <button><a href="/v1/add"> Add User </a></button>
+    <button><a href="/v1/updateUser"> Update User </a></button>
+    <button><a href="/v1/deleteUser"> Delete User </a></button>
+    <button><a href="/auth/login"> Login </a></button>
+    <form action="/auth/logout" method="post" style="display: inline;">
+      <button type="submit"> Logout </button>
+    </form>
+  `;
+  res.send(htmlContent);
 });
+
 
 // Add a middleware to handle authentication failures
 userAuthRouter.use('/login', (err, req, res, next) => {
