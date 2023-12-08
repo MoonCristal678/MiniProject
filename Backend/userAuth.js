@@ -24,6 +24,11 @@ const userAuthSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  addedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UserAuth',
+    default: null,
+  },
 })
 userAuthSchema.methods.verifyPassword = async function (password) {
   return bcrypt.compare(password, this.password);
