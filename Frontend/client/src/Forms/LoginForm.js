@@ -22,6 +22,8 @@ const LoginForm = ({ onLogin, fetchData }) => {
 
   const handleLogin = async () => {
     try {
+      console.log('Making login request:', loginData);
+  
       const response = await fetch('https://miniproject9-backend.onrender.com/auth/login', {
         method: 'POST',
         headers: {
@@ -30,20 +32,15 @@ const LoginForm = ({ onLogin, fetchData }) => {
         credentials: 'include',
         body: JSON.stringify({ username: loginData.username, password: loginData.password }),
       });
-
-      if (response.ok) {
-        // Handle successful login
-        fetchData(); // Call the function passed as a prop to fetch data or perform actions after successful login
-        onLogin(); // Call the parent component's login callback
-      } else {
-        // Handle login failure
-        const responseBody = await response.json();
-        setErrorMessage(responseBody.message || 'Login failed');
-      }
+  
+      console.log('Login Response:', response);
+  
+      // Rest of the code...
     } catch (error) {
       console.error('Login Error:', error);
     }
   };
+  
 
   const renderLoginForm = () => (
     <div className="app-section">
