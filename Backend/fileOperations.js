@@ -119,7 +119,7 @@ function ensureAuthenticated(req, res, next) {
 
 //Add and view users
 
-v1Router.get('/add',  renderAddUserForm);
+v1Router.get('/add', renderAddUserForm);
 
 v1Router.post('/api/users', validateUserInput, addUser);
 v1Router.get('/api/users',  getAllUsers);
@@ -325,12 +325,17 @@ async function updateUser(req, res) {
 // Updated getAllUsers function
 async function getAllUsers(req, res) {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
     const users = await User.find({ createdBy: req.user._id });
     res.json(users);
   } catch (error) {
     handleServerError(res, error);
   }
 }
+
 
 
 async function renderDeleteUserForm(req, res) {
