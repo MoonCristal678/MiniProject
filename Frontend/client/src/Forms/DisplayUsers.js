@@ -9,14 +9,16 @@ const DisplayUsers = () => {
       const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
         method: 'GET',
         credentials: 'include',
-        redirect: 'manual',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-  
+
       if (!response.ok) {
         console.error(`Error: ${response.status} - ${response.statusText}`);
         throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
-  
+
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();

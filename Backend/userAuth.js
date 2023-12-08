@@ -47,14 +47,24 @@ userAuthRouter.use(passport.session());
 userAuthRouter.get('/login', (req, res) => {
   const errorMessage = req.query.error; 
   res.render('login.ejs', { errorMessage });
-});
-
+}); 
 userAuthRouter.post('/login', passport.authenticate('local', {
   failureRedirect: '/auth/login?error=Invalid credentials',
   failureFlash: true
 }), (req, res) => {
-  // If authentication is successful, redirect to the home page
+  // This block will only be executed upon successful authentication
   res.redirect('/');
+});
+
+// Add a middleware to handle authentication failures
+userAuthRouter.use('/login', (err, req, res, next) => {
+  if (err) {
+    // Handle authentication failures here
+    res.status(401).json({ error: 'Invalid credentials' });
+  } else {
+    // Continue to the next middleware if no error occurred
+    next();
+  }
 });
 
 // Logout route
@@ -98,17 +108,15 @@ userAuthRouter.post(
 
     const { username, password, email } = req.body;
 
-    
     const existingUser = await UserAuth.findOne({ username });
     const existingEmail = await UserAuth.findOne({ email });
 
     if (existingUser) {
-      return res.render('register.ejs', { errorMessage: 'Username is already taken. Please choose a different one.' });
-    }else if(existingEmail){
-      return res.render('register.ejs', {errorMessage: 'An email is already associated with this account please login or choose a different email.'})
+      return res.status(400).json({ error: 'Username is already taken. Please choose a different one.' });
+    } else if (existingEmail) {
+      return res.status(400).json({ error: 'An email is already associated with this account. Please login or choose a different email.' });
     }
 
-   
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUserAuth = new UserAuth({
@@ -118,16 +126,11 @@ userAuthRouter.post(
     });
 
     try {
-      
       await newUserAuth.save();
-
-      
       res.json({ message: 'User registered successfully', user: newUserAuth });
     } catch (error) {
       console.error(error);
-
-    
-      res.status(500).json({ message: 'Registration failed. Please try again.' });
+      res.status(500).json({ error: 'Registration failed. Please try again.' });
     }
   }
 );

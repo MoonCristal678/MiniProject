@@ -18,25 +18,26 @@ const FileForm = ({ type, onSubmit }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Add this line to include credentials
+        credentials: 'include', // Include credentials
         body: JSON.stringify({ fileName, fileContent }),
       });
   
       if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || `Error ${type === 'read' ? 'reading' : 'writing'} file.`);
+        const data = await response.text(); // Assume response is text (HTML error page)
+        setError(data || `Error ${type === 'read' ? 'reading' : 'writing'} file.`);
         return;
       }
   
       if (type === 'read') {
-        const data = await response.text();
-        onSubmit(data.replace(/<\/?[^>]+(>|$)/g, ''));
-      }
-       else {
+        const data = await response.text(); // Assume response is text
+        onSubmit && typeof onSubmit === 'function' && onSubmit(data);
+      } else {
         alert(`File '${fileName}' ${type === 'read' ? 'read' : 'created'} with the provided content.`);
         setFileName('');
         setFileContent('');
-        onSubmit(); 
+        if (onSubmit && typeof onSubmit === 'function') {
+          onSubmit();
+        }
       }
   
       setError(null);
@@ -45,7 +46,6 @@ const FileForm = ({ type, onSubmit }) => {
       setError(`Error ${type === 'read' ? 'reading' : 'writing'} file.`);
     }
   };
-
   return (
     <div className="app-section">
       <h2>{type === 'read' ? 'Read' : 'Create'} File</h2>

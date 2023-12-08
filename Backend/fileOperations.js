@@ -203,7 +203,8 @@ v1Router.post('/write',  ensureAuthenticated, validateFileInput, async (req, res
 });
 
 //View Files
-v1Router.get('/files',  ensureAuthenticated, async (req, res) => {
+// View Files
+v1Router.get('/files', ensureAuthenticated, async (req, res) => {
   try {
     const userFiles = await File.find({ createdBy: req.user._id });
     res.json(userFiles);
@@ -211,6 +212,7 @@ v1Router.get('/files',  ensureAuthenticated, async (req, res) => {
     handleServerError(res, error);
   }
 });
+
 //Delete Files
 
 
