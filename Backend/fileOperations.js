@@ -14,6 +14,10 @@ import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
+app.use(cors({
+  origin: 'https://miniproject9-frontend.onrender.com',
+  credentials: true,
+}));
 
 // Middleware
 app.use(session({
@@ -22,16 +26,13 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 30 * 60 * 1000,
+    secure: true
   },
  
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({
-  origin: 'https://miniproject9-frontend.onrender.com',
-  credentials: true,
-}));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -69,12 +70,8 @@ const userSchema = new mongoose.Schema({
   bloodType: { type: String, required: true },
   birthdate: { type: Date, required: true },
   countryOfBirth: { type: String, required: true },
-   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-   addedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the UserAuth model
-
-  },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  
 });
 
 const User = mongoose.model('User', userSchema);
@@ -258,7 +255,7 @@ async function addUser(req, res) {
     birthdate,
     countryOfBirth,
     createdBy: req.user._id,
-    addedBy: mongoose.Schema.Types.ObjectId, 
+   
   });
 
   try {
@@ -305,13 +302,14 @@ async function getAllUsers(req, res) {
       return res.status(401).json({ message: 'User ID not available' });
     }
 
-    // Fetch users by the authenticated user's ID
-    const users = await UserAuth.find({ addedBy: userId });
+    // Fetch users based on the createdBy field (users created by the authenticated user)
+    const users = await User.find({ createdBy: userId });
     res.json(users);
   } catch (error) {
     handleServerError(res, error);
   }
 }
+
 
 
 

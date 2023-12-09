@@ -23,11 +23,7 @@ const userAuthSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-  },
-  addedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserAuth', 
-  },
+  }
   
 })
 userAuthSchema.methods.verifyPassword = async function (password) {
