@@ -28,7 +28,7 @@ const FileList = () => {
     <div className="app-section">
       <h2>File List</h2>
       <ul className="app-file-list">
-        {files.map((file) => (
+        {Array.isArray(files) && files.map((file) => (
           <li key={file.name}>
             {file.name}
             <DeleteFileButton fileName={file.name} onDelete={handleDeleteFile} />

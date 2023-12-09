@@ -1,90 +1,71 @@
 import React, { useState } from 'react';
-import { loginUser } from '../api';
-import RegistrationForm from './RegistrationForm';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
+import '../App.css';
+import Cookies from 'js-cookie';
 
-const LoginForm = ({ onLogin }) => {
-  const [loginData, setLoginData] = useState({
-    username: '',
-    password: '',
-  });
+const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const [errorMessage, setErrorMessage] = useState('');
-  const [redirectToRegister, setRedirectToRegister] = useState(false);
-
-  const redirectToRegisterPage = () => {
-    setRedirectToRegister(true);
-  };
-
-  const handleInputChange = (field, value) => {
-    setLoginData((prevData) => ({ ...prevData, [field]: value }));
-    setErrorMessage('');
-  };
-
-  const handleLogin = async () => {
-    if (!loginData.username || !loginData.password) {
-      setErrorMessage('Please enter both username and password.');
-      return;
-    }
-
+  const handleLogin = async (e) => {
+    e.preventDefault();
+  
     try {
-      const response = await loginUser(loginData);
-
-      if (response.ok) {
-        // Call the parent component's login callback
-        onLogin();
+      const response = await axios.post('https://miniproject9-backend.onrender.com/auth/login', {
+        username,
+        password,
+      }, { withCredentials: true });
+  
+      if (response.status === 200) {
+        const userId = response.data.userId;
+        sessionStorage.setItem('userId', userId);
+        navigate('/all-forms');
       } else {
-        // Handle login failure and set error message
-        const responseBody = await response.json();
-        setErrorMessage(responseBody.message || 'Login failed');
+        setError('Invalid credentials');
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      setError('Error during login');
+      console.error(error);
     }
   };
-
-  const renderLoginForm = () => (
-    <div className="app-section">
-      <h2>Login</h2>
-      <form>
-        {renderInput('username', 'Username')}
-        {renderInput('password', 'Password', 'password')}
-        <button type="button" onClick={handleLogin}>
-          Login
-        </button>
-        <button type="button" onClick={redirectToRegisterPage}>
-          Register
-        </button>
-        {/* Display error message */}
-        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-      </form>
-    </div>
-  );
-
-  const renderInput = (id, label, type = 'text') => (
-    <>
-      <label htmlFor={id}>{label}:</label>
-      <input
-        type={type}
-        id={id}
-        value={loginData[id]}
-        onChange={(e) => handleInputChange(id, e.target.value)}
-        required
-      />
-    </>
-  );
-
-  if (redirectToRegister) {
-    return <RegistrationForm onRegister={() => setRedirectToRegister(false)} />;
-  }
-
+  
   return (
-    <div className="login-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', border: '5px solid olive', borderRadius: '10px' }}>
-      <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '10px', width: '300px', backgroundColor: 'olive' }}>
-        <h1>Login</h1>
-        {renderLoginForm()}
+    <div className="login-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="login-form" style={{ border: '2px double #CD853F', padding: '20px', borderRadius: '10px', width: '300px', backgroundColor: 'olive' }}>
+        <h2>Login</h2>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <form onSubmit={handleLogin}>
+          <label>
+            Username:
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </label>
+          <br />
+          <label>
+            Password:
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
+          <br />
+          <button type="submit" style={{ width: '100%', backgroundColor: '#8B4513', color: '#C4A484', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>Login</button>
+        </form>
+
+        {/* Add a link to the register form */}
+        <p>
+          Don't have an account?{' '}
+          <Link to="/register">Register here</Link>
+        </p>
       </div>
     </div>
   );
 };
-
-export default LoginForm;
+export default Login;

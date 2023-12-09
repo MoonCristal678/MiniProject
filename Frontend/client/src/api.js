@@ -53,19 +53,31 @@ export const registerUser = async (registrationData) => {
   try {
     const response = await fetch(url, {
       method: 'POST',
+      credentials: 'include', // Include credentials (session cookie)
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(registrationData),
-      credentials: 'include', // Include credentials (cookies)
     });
 
-    return response;
+    if (response.ok) {
+      // Registration successful
+      const responseData = await response.json();
+      console.log('Registration successful:', responseData);
+      return responseData;
+    } else {
+      // Registration failed, handle the error
+      const errorData = await response.json();
+      console.error('Error during user registration:', errorData);
+      throw new Error(`Registration failed: ${errorData.message}`);
+    }
   } catch (error) {
     console.error('Error during user registration:', error);
     throw error;
   }
 };
+
+
 export const fetchUserData = async () => handleApiRequest('/v1/api/users', 'GET');
 
 export const updateUser = async (userId, userData) =>

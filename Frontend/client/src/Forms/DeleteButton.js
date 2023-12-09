@@ -5,7 +5,7 @@ const DeleteButton = ({ url, data, onDelete, buttonText }) => {
     try {
       const response = await fetch(`https://miniproject9-backend.onrender.com/v1/${url}`, {
         method: 'POST',
-        credentials: 'include', // Include credentials if needed
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

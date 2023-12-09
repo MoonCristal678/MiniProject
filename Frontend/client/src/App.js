@@ -1,68 +1,27 @@
-import React, { useState } from 'react';
-import './App.css';
-import FileList from './Forms/fileList';
-import WriteFileForm from './Forms/WriteFileForm';
-import ReadFileForm from './Forms/ReadFileForm';
-import DisplayUsers from './Forms/DisplayUsers';
-import AddUserForm from './Forms/AddUserForm';
-import { UpdateFileForm, UpdateUserForm } from './Forms/ReusableForm';
-import LoginForm from './Forms/LoginForm';
+// App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Login from './Forms/LoginForm';
+import Welcome from './Forms/Welcome';
+import AllForms from './Forms/AllForms';
+import RegisterForm from './Forms/RegistrationForm';
+import { AuthProvider } from './AuthContext';
 
-function App() {
-  const [readContent, setReadContent] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('https://miniproject9-backend.onrender.com/auth/logout', {
-        method: 'POST',
-        credentials: 'include', // Include credentials (cookies) in the request
-      });
-
-      if (response.ok) {
-        setIsAuthenticated(false);
-        // You can add additional logic here, such as clearing user data or redirecting to a login page.
-      } else {
-        console.error('Logout failed:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
-
-  const handleDeleteUser = (deletedUserId) => {
-    console.log(`User '${deletedUserId}' deleted. Update user list logic here.`);
-  };
-
+const App = () => {
   return (
-    <div className="app-container">
-      {isAuthenticated ? (
-        <>
-          <h1 className="app-title">User Data and File Contents</h1>
-          <button onClick={handleLogout}>Logout</button>
-          <DisplayUsers onDeleteUser={handleDeleteUser} />
-          <AddUserForm />
-          <UpdateUserForm />
-          <WriteFileForm />
-          <ReadFileForm setReadContent={setReadContent} />
-          {readContent && (
-            <div className="app-section">
-              <h2>Read Content</h2>
-              <p>{readContent}</p>
-            </div>
-          )}
-          <FileList />
-          <UpdateFileForm />
-        </>
-      ) : (
-        <LoginForm onLogin={handleLogin} />
-      )}
-    </div>
+    <AuthProvider>
+      <div className="app-container">
+        <Router>
+          <Routes>
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/all-forms" element={<AllForms />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<RegisterForm />} />
+          </Routes>
+        </Router>
+      </div>
+    </AuthProvider>
   );
-}
+};
 
 export default App;

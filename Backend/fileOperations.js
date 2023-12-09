@@ -7,13 +7,12 @@ import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
 
-import { userAuthRouter } from './userAuth.js'; // Adjust the path
+import { userAuthRouter } from './userAuth.js'; 
 import { passport } from './passport.js';
 import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
-
 
 // Middleware
 app.use(session({
@@ -22,22 +21,41 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 30 * 60 * 1000,
-    
-   
   },
+ 
+}));
+app.use(cors({
+  origin: 'https://miniproject9-frontend.onrender.com',
   credentials: true,
 }));
+
+
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({
-  origin: 'https://miniproject9-frontend.onrender.com', // Replace with your React app's origin
-  credentials: true,
-}));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
+
 app.use('/auth', userAuthRouter);
+
+
+const allowedOrigins = [
+  'https://miniproject9-frontend.onrender.com',
+
+];
+
+app.all('*', function(req, res, next) {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Credentials", true);
+  next();
+});
+
 
 // Connect to MongoDB using Mongoose
 mongoose.connect("mongodb+srv://blackkrystal438:DemonSlayer1@fileanduserdata.3ynz8zm.mongodb.net/fileAndUserData", {
@@ -55,13 +73,6 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
-// Middleware for checking authentication
-function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect('/auth/login');
-}
 
 // Middleware for logging requests
 app.use((req, res, next) => {
@@ -70,8 +81,14 @@ app.use((req, res, next) => {
 });
 
 // Home page route
-app.get('/', isAuthenticated, (req, res) => {
+app.get('/', (req, res) => {
+  if (!req.isAuthenticated()) {
+    // If not authenticated, render the login form
+    const errorMessage = req.query.error; 
+    res.render('login.ejs', { errorMessage });
+  } else if(req.isAuthenticated()) {
   res.send(`
+  
     <h1>File Functionality</h1>
     <button><a href="/v1/read"> Read a File </a></button>
     <button><a href="/v1/write"> Write to a File </a></button>
@@ -84,32 +101,35 @@ app.get('/', isAuthenticated, (req, res) => {
     <button><a href="/v1/add"> Add User </a></button>
     <button><a href="/v1/updateUser"> Update User </a></button>
     <button><a href="/v1/deleteUser"> Delete User </a></button>
+    <button><a href="/auth/login"> Login </a></button>
     <form action="/auth/logout" method="post" style="display: inline;">
     <button type="submit"> Logout </button>
   </form>
   `);
+  }
 });
 
-// User routes
 //Add and view users
-v1Router.get('/add', isAuthenticated, renderAddUserForm);
-v1Router.post('/api/users',isAuthenticated, validateUserInput, addUser);
-v1Router.get('/api/users', isAuthenticated, getAllUsers);
 
-//Update and Delete User
-v1Router.get('/updateUser', isAuthenticated, renderUpdateUserForm);
-v1Router.post('/updateUser', isAuthenticated, updateUser);
-v1Router.get('/deleteUser', isAuthenticated, renderDeleteUserForm);
-v1Router.post('/deleteUser', isAuthenticated, deleteUser);
+v1Router.get('/add', renderAddUserForm);
+
+v1Router.post('/api/users', validateUserInput, addUser);
+v1Router.get('/api/users', getAllUsers);
+
+// Update and Delete User
+v1Router.get('/updateUser', renderUpdateUserForm);
+v1Router.post('/updateUser', updateUser);
+v1Router.get('/deleteUser', renderDeleteUserForm);
+v1Router.post('/deleteUser', deleteUser);
 
 //File Routes
 //Read
 
-v1Router.post('/read', isAuthenticated, async (req, res) => {
+v1Router.post('/read',   async (req, res) => {
   const fileName = req.body.fileName;
 
   try {
-    const file = await File.findOne({ name: fileName, createdBy: req.user._id });
+    const file = await File.findOne({ name: fileName });
 
     if (file) {
       res.render('readFileContent.ejs', { fileName: file.name, fileContent: file.content });
@@ -123,51 +143,51 @@ v1Router.post('/read', isAuthenticated, async (req, res) => {
 
 const handleUserFilesRender = async (req, res, viewName) => {
   try {
-    // Only retrieve files created by the authenticated user
-    const userFiles = await File.find({ createdBy: req.user._id });
+   
+    const userFiles = await File.find({});
     res.render(viewName, { fileNames: userFiles.map(file => file.name) });
   } catch (error) {
     handleServerError(res, error);
   }
 };
 
-v1Router.get('/delete', isAuthenticated, async (req, res) => {
+v1Router.get('/delete',   async (req, res) => {
   await handleUserFilesRender(req, res, 'deleteFile.ejs');
 });
 
-v1Router.get('/read', isAuthenticated, async (req, res) => {
+v1Router.get('/read',   async (req, res) => {
   await handleUserFilesRender(req, res, 'readFile.ejs');
 });
 const handleUserFilesRenderWithFiles = async (req, res, viewName) => {
   try {
-    // Only retrieve files created by the authenticated user
-    const userFiles = await File.find({ createdBy: req.user._id });
+  
+    const userFiles = await File.find({});
     res.render(viewName, { files: userFiles });
   } catch (error) {
     handleServerError(res, error);
   }
 };
 
-v1Router.get('/write', isAuthenticated, async (req, res) => {
+v1Router.get('/write',   async (req, res) => {
   await handleUserFilesRenderWithFiles(req, res, 'writeFile.ejs');
 });
 
-v1Router.get('/updateFile', isAuthenticated, async (req, res) => {
+v1Router.get('/updateFile', async (req, res) => {
   await handleUserFilesRenderWithFiles(req, res, 'updateFile.ejs');
 });
 
 
-v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => {
+v1Router.post('/write',   validateFileInput, async (req, res) => {
   const fileName = req.body.fileName;
   const fileContent = req.body.fileContent;
 
   try {
-    const existingFile = await File.findOne({ name: fileName, createdBy: req.user._id });
+    const existingFile = await File.findOne({ name: fileName });
 
     if (existingFile) {
       res.status(400).json({ message: 'File with the same name already exists for the user' });
     } else {
-      const newFile = new File({ name: fileName, content: fileContent, createdBy: req.user._id });
+      const newFile = new File({ name: fileName, content: fileContent });
       await newFile.save();
       res.json({ message: 'File created successfully', file: newFile });
     }
@@ -177,9 +197,9 @@ v1Router.post('/write', isAuthenticated, validateFileInput, async (req, res) => 
 });
 
 //View Files
-v1Router.get('/files', isAuthenticated, async (req, res) => {
+v1Router.get('/files',   async (req, res) => {
   try {
-    const userFiles = await File.find({ createdBy: req.user._id });
+    const userFiles = await File.find({});
     res.json(userFiles);
   } catch (error) {
     handleServerError(res, error);
@@ -188,16 +208,16 @@ v1Router.get('/files', isAuthenticated, async (req, res) => {
 //Delete Files
 
 
-v1Router.post('/delete', isAuthenticated, deleteFile);
+v1Router.post('/delete',   deleteFile);
 
 
-v1Router.post('/updateFile', isAuthenticated, async (req, res) => {
+v1Router.post('/updateFile',  async (req, res) => {
   const fileId = req.body.fileId;
   const newName = req.body.name;
   const newContent = req.body.content;
 
   try {
-    const file = await File.findOne({ _id: fileId, createdBy: req.user._id });
+    const file = await File.findOne({ _id: fileId });
 
     if (file) {
       file.name = newName;
@@ -237,7 +257,7 @@ function renderAddUserForm(req, res) {
 //Render update user
 async function renderUpdateUserForm(req, res) {
   try {
-    const users = await User.find({ createdBy: req.user._id });
+    const users = await User.find({});
     res.render('updateUser.ejs', { users });
   } catch (error) {
     handleServerError(res, error);
@@ -252,14 +272,7 @@ async function addUser(req, res) {
   }
 
   const { name, age, bloodType, birthdate, countryOfBirth } = req.body;
-  const newUser = new User({
-    name,
-    age,
-    bloodType,
-    birthdate,
-    countryOfBirth,
-    createdBy: req.user._id, // Set the createdBy field to the authenticated user's ID
-  });
+  const newUser = new User({ name, age, bloodType, birthdate, countryOfBirth });
 
   try {
     await newUser.save();
@@ -291,29 +304,28 @@ async function updateUser(req, res) {
   }
 }
 
+
 async function getAllUsers(req, res) {
   try {
-    if (req.isAuthenticated()) {
-      const users = await User.find({ createdBy: req.user._id });
-      res.json(users);
-    } else {
-      res.status(401).json({ message: 'Unauthorized' });
-    }
+    // Fetch all users in the database
+    const users = await User.find();
+    res.json(users);
   } catch (error) {
     handleServerError(res, error);
   }
 }
 
 
+
 async function renderDeleteUserForm(req, res) {
-  const users = await User.find({ createdBy: req.user._id });
+  const users = await User.find({});
   res.render('deleteUser.ejs', { users });
 }
 async function deleteUser(req, res) {
   const userId = req.body.userId;
 
   try {
-    const result = await User.deleteOne({ _id: userId, createdBy: req.user._id });
+    const result = await User.deleteOne({ _id: userId});
 
     if (result.deletedCount > 0) {
       res.json({ message: 'User deleted successfully' });

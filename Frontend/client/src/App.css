@@ -124,3 +124,20 @@ body {
   color: #5C4033; 
   margin: 5px 0;
 }
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  border: 5px solid olive;
+  border-radius: 10px;
+}
+
+.login-form {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  background-color: olive;
+}

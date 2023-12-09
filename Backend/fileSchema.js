@@ -10,11 +10,7 @@ const fileSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserAuth', 
-    required: true,
-  },
+  
 });
 
 const File = mongoose.model('File', fileSchema);

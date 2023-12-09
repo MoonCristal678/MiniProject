@@ -17,10 +17,11 @@ const AddUserForm = ({ onAddUser }) => {
   const handleAddUser = async () => {
     try {
       const response = await addUser(newUser);
-  
+      window.location.reload();
       if (response.ok) {
         const addedUser = await response.json();
         // Update local state with the new user
+        
         onAddUser(addedUser);
         // Clear the form
         setNewUser({
@@ -31,7 +32,7 @@ const AddUserForm = ({ onAddUser }) => {
           countryOfBirth: '',
         });
         // Reload the page
-        window.location.reload();
+       
       } else {
         console.error('Error adding user:', response.statusText);
       }

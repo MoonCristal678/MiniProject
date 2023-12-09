@@ -1,77 +1,73 @@
 import React, { useState } from 'react';
-import { registerUser } from '../api';
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 
-const RegistrationForm = ({ onRegister }) => {
-  const [registrationData, setRegistrationData] = useState({
-    username: '',
-    email: '',
-    password: '',
-  });
+const RegisterForm = () => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
-  const [errorMessage, setErrorMessage] = useState('');
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-  const handleInputChange = (field, value) => {
-    setRegistrationData({ ...registrationData, [field]: value });
-  };
-
-  const handleRegister = async () => {
     try {
-      const response = await registerUser(registrationData);
-      const errorData = await response.json();
-  
-      if (response.ok) {
-        // Registration successful, notify the parent component
-        alert("Registration Successful!");
-        onRegister();
+      const response = await axios.post('https://miniproject9-backend.onrender.com/auth/register', {
+        username,
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        setSuccess('Registration successful. You can now login.');
+        setError('');
+
+        // Redirect to the login page after a successful registration
+        navigate('/');
       } else {
-        // Registration failed, get the error message from the response
-        if (errorData.message.includes('Username is already taken. Please choose a different one.') || errorData.message.includes('An email is already associated with this account please login or choose a different email.')) {
-          setErrorMessage('Username or email is already associated with an existing account. Please choose a different one or log in.');
-        } else {
-          setErrorMessage('Registration failed. Please try again.');
-          return;
-        }
+        setError(`Registration failed. Server response: ${response.statusText}`);
+        setSuccess('');
       }
     } catch (error) {
-      // Handle network errors or other unexpected issues
-      console.error('Error registering user:', error);
-      setErrorMessage('Username or email is already associated with an existing account. Please choose a different one or log in.');
+      setError(`Error during registration: ${error.message}`);
+      setSuccess('');
+      console.error(error);
     }
-  
   };
 
-  const renderInput = (id, label, type = 'text') => (
-    <>
-      <label htmlFor={id}>{label}:</label>
-    <input
-      type={type}
-      id={id}
-      value={registrationData[id]}
-      onChange={(e) => handleInputChange(id, e.target.value)}
-     
-      required
-    />
-    </>
-  );
-
   return (
-    <div className="app-section">
-      <h2>Register</h2>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-      <form>
-        {renderInput('username', 'Username')}
-        {renderInput('email', 'Email', 'email')}
-        {renderInput('password', 'Password', 'password')}
-        
-        <button type="button" onClick={handleRegister}>
-          Register
-        </button>
+    <div className="login-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="login-form" style={{ border: '2px double #CD853F', padding: '20px', borderRadius: '10px', width: '300px', backgroundColor: 'olive' }}>
+        <h2 style={{ textAlign: 'center', color: '#004526' }}>Register</h2>
+        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+        {success && <p style={{ color: 'green', textAlign: 'center' }}>{success}</p>}
+        <form onSubmit={handleRegister}>
+          <label style={{ color: '#1B4D3E' }}>
+            Username:
+            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+          </label>
+          <br />
+          <label style={{ color: '#1B4D3E' }}>
+            Email:
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </label>
+          <br />
+          <label style={{ color: '#1B4D3E' }}>
+            Password:
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </label>
+          <br />
+          <button type="submit" style={{ width: '100%', backgroundColor: '#8B4513', color: '#C4A484', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>Register</button>
+        </form>
         <p>
-          Already have an account? <a href="/auth/login">Login</a>
+          Already have an account?{' '}
+          <Link to="/">Login</Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 };
 
-export default RegistrationForm;
+export default RegisterForm;

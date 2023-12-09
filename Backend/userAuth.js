@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { passport } from './passport.js';
 import flash from 'express-flash'; 
+import cookieParser from 'cookie-parser';
 
 const userAuthRouter = express.Router();
 
@@ -23,9 +24,12 @@ const userAuthSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-  },
+  }
+  
 })
-
+userAuthSchema.methods.verifyPassword = async function (password) {
+  return bcrypt.compare(password, this.password);
+};
 const UserAuth = mongoose.model('UserAuth', userAuthSchema);
 
 
@@ -45,8 +49,7 @@ userAuthRouter.use(passport.session());
 userAuthRouter.get('/login', (req, res) => {
   const errorMessage = req.query.error; 
   res.render('login.ejs', { errorMessage });
-});
-
+}); 
 userAuthRouter.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -57,7 +60,7 @@ userAuthRouter.post('/login', (req, res, next) => {
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
-      
+
       // If it's a regular browser request, redirect to the login page with an error query parameter
       return res.redirect('/auth/login?error=Invalid credentials');
     }
@@ -69,7 +72,7 @@ userAuthRouter.post('/login', (req, res, next) => {
 
       // If the request is an API request, send a success JSON response
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.json({ message: 'Login successful' });
+        return res.json({ message: 'Login successful', userId: user._id });
       }
 
       // If it's a regular browser request, redirect to the root URL
@@ -78,6 +81,15 @@ userAuthRouter.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
+userAuthRouter.use('/login', (err, req, res, next) => {
+  if (err) {
+    // Handle authentication failures here
+    res.status(401).json({ error: 'Invalid credentials' });
+  } else {
+    // Continue to the next middleware if no error occurred
+    next();
+  }
+});
 
 // Logout route
 userAuthRouter.post('/logout', (req, res) => {
@@ -120,39 +132,40 @@ userAuthRouter.post(
 
     const { username, password, email } = req.body;
 
-    
+    // Check if a user is authenticated
+    const addedBy = req.isAuthenticated() ? req.user._id : null;
+
     const existingUser = await UserAuth.findOne({ username });
     const existingEmail = await UserAuth.findOne({ email });
 
     if (existingUser) {
-      return res.render('register.ejs', { errorMessage: 'Username is already taken. Please choose a different one.' });
-    }else if(existingEmail){
-      return res.render('register.ejs', {errorMessage: 'An email is already associated with this account please login or choose a different email.'})
+      return res.status(400).json({ error: 'Username is already taken. Please choose a different one.' });
+    } else if (existingEmail) {
+      return res.status(400).json({ error: 'An email is already associated with this account. Please login or choose a different email.' });
     }
 
-   
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUserAuth = new UserAuth({
       username,
       password: hashedPassword,
       email,
+     
     });
 
     try {
-      
       await newUserAuth.save();
-
-      
       res.json({ message: 'User registered successfully', user: newUserAuth });
     } catch (error) {
       console.error(error);
-
-    
-      res.status(500).json({ message: 'Registration failed. Please try again.' });
+      res.status(500).json({ error: 'Registration failed. Please try again.' });
     }
   }
 );
+
+
+
+
 
 
 export { UserAuth, userAuthRouter };
