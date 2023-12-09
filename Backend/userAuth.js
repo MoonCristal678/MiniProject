@@ -7,9 +7,9 @@ import mongoose from 'mongoose';
 import { passport } from './passport.js';
 import flash from 'express-flash'; 
 import cookieParser from 'cookie-parser';
-app.use(cookieParser());
+const app = express();
 const userAuthRouter = express.Router();
-
+app.use(cookieParser());
 const userAuthSchema = new mongoose.Schema({
   username: {
     type: String,
