@@ -15,6 +15,7 @@ import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
+const { ObjectId } = require('mongoose').Types;
 
 const allowedOrigins = [
   'https://miniproject9-frontend.onrender.com',
@@ -298,12 +299,15 @@ async function updateUser(req, res) {
 async function getAllUsers(req, res) {
   try {
     // Retrieve the user ID from the cookie or any other storage mechanism
-    const currentUserId = getMyUserIdCookie(); // Use the exported function
+    const currentUserIdString = req.cookies.myUserIdCookie; // Assuming it's stored as a string
 
-    if (!currentUserId) {
+    if (!currentUserIdString) {
       // If the user is not identified, send a 401 Unauthorized response
       return res.status(401).json({ message: 'Unauthorized' });
     }
+
+    // Convert the string user ID to ObjectId
+    const currentUserId = ObjectId(currentUserIdString);
 
     // Fetch users based on the createdBy field (users created by the identified user)
     const users = await User.find({ createdBy: currentUserId });
@@ -313,8 +317,6 @@ async function getAllUsers(req, res) {
     handleServerError(res, error);
   }
 }
-
-
 
 
 async function renderDeleteUserForm(req, res) {
