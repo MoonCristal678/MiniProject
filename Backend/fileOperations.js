@@ -303,7 +303,7 @@ async function updateUser(req, res) {
 async function getAllUsers(req, res) {
   try {
     // Retrieve the user ID from the cookie or any other storage mechanism
-    const currentUserIdString = req.cookies.myUserIdCookie; // Assuming it's stored as a string
+    const currentUserIdString = getMyUserIdCookie(); // Assuming it's stored as a string
 
     if (!currentUserIdString) {
       // If the user is not identified, send a 401 Unauthorized response
