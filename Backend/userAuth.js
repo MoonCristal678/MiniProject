@@ -36,7 +36,7 @@ const UserAuth = mongoose.model('UserAuth', userAuthSchema);
 userAuthRouter.use(flash());
 
 userAuthRouter.use(session({
-  secret: process.env.SECRET,
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -55,6 +55,8 @@ userAuthRouter.post('/login', (req, res, next) => {
     if (err) {
       return res.status(500).json({ message: 'Internal Server Error' });
     }
+    
+    // Check if the user exists
     if (!user) {
       // If the request is an API request, send JSON response
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
@@ -65,9 +67,22 @@ userAuthRouter.post('/login', (req, res, next) => {
       return res.redirect('/auth/login?error=Invalid credentials');
     }
 
-    req.logIn(user, (err) => {
+    // Now, check if the password is valid
+    req.logIn(user, async (err) => {
       if (err) {
         return res.status(500).json({ message: 'Internal Server Error' });
+      }
+
+      const isPasswordValid = await user.verifyPassword(req.body.password);
+
+      if (!isPasswordValid) {
+        // If the request is an API request, send JSON response
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+          return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // If it's a regular browser request, redirect to the login page with an error query parameter
+        return res.redirect('/auth/login?error=Invalid credentials');
       }
 
       // If the request is an API request, send a success JSON response
@@ -80,6 +95,7 @@ userAuthRouter.post('/login', (req, res, next) => {
     });
   })(req, res, next);
 });
+
 
 userAuthRouter.use('/login', (err, req, res, next) => {
   if (err) {
