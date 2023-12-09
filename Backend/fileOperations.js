@@ -42,7 +42,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 30 * 60 * 1000,
-    secure: true
+   
   },
  
 }));
@@ -71,12 +71,14 @@ const userSchema = new mongoose.Schema({
   bloodType: { type: String, required: true },
   birthdate: { type: Date, required: true },
   countryOfBirth: { type: String, required: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'UserAuth', required:true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
   
 });
 
 const User = mongoose.model('User', userSchema);
-
+app.get('/',  async (req, res) => {
+  res.redirect('/auth/login');
+});
 // Middleware for logging requests
 app.use((req, res, next) => {
   console.log(`${req.method} request for ${req.url}`);
@@ -232,6 +234,7 @@ function renderAddUserForm(req, res) {
 
 
 //Render update user
+
 async function renderUpdateUserForm(req, res) {
   try {
     const users = await User.find({ createdBy: req.user._id });
@@ -240,10 +243,9 @@ async function renderUpdateUserForm(req, res) {
     handleServerError(res, error);
   }
 }
-
 async function addUser(req, res) {
   const errors = validationResult(req);
-  
+
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -255,8 +257,7 @@ async function addUser(req, res) {
     bloodType,
     birthdate,
     countryOfBirth,
-    createdBy: req.user._id,
-   
+    createdBy: req.user._id, // Set the createdBy field to the authenticated user's ID
   });
 
   try {
@@ -266,6 +267,8 @@ async function addUser(req, res) {
     handleServerError(res, error);
   }
 }
+
+
 async function updateUser(req, res) {
   const userId = req.body.userId;
 
@@ -291,21 +294,13 @@ async function updateUser(req, res) {
 async function getAllUsers(req, res) {
   try {
     // Check if the user is authenticated
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    if (req.isAuthenticated()) {
+      // Fetch users based on the createdBy field (users created by the authenticated user)
+      const users = await User.find({ createdBy: req.user._id });
+      res.json(users);
+    } else {
+      res.status(401).json({ message: 'Unauthorized' });
     }
-
-    // Get the user ID from the request
-    const userId = req.user._id;
-
-    // Check if the user ID is available
-    if (!userId) {
-      return res.status(401).json({ message: 'User ID not available' });
-    }
-
-    // Fetch users based on the createdBy field (users created by the authenticated user)
-    const users = await User.find({ createdBy: userId });
-    res.json(users);
   } catch (error) {
     handleServerError(res, error);
   }

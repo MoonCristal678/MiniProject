@@ -54,9 +54,10 @@ userAuthRouter.post('/login', passport.authenticate('local', {
   failureRedirect: '/auth/login?error=Invalid credentials',
   failureFlash: true
 }), (req, res) => {
-  const userId = req.user._id; // or any other identifier you want to use
+  console.log('User authenticated:', req.user);
+  const userId = req.user._id; 
   res.cookie('myUserIdCookie', userId, { sameSite: 'None', secure: true });
-  // This block will only be executed upon successful authentication
+  
   const htmlContent = `
     <h1>File Functionality</h1>
     <button><a href="/v1/read"> Read a File </a></button>
