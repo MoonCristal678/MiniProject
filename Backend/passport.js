@@ -11,7 +11,9 @@ passport.use(new LocalStrategy(async (username, password, done) => {
       return done(null, false, { message: 'Incorrect username.' });
     }
 
-    if (!user.verifyPassword(password)) {
+    const isPasswordValid = await user.verifyPassword(password);
+
+    if (!isPasswordValid) {
       return done(null, false, { message: 'Incorrect password.' });
     }
 

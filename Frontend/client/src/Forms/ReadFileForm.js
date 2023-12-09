@@ -56,7 +56,7 @@ const ReadFileForm = () => {
       </button>
       {error && <p className="app-error">{error}</p>}
       <p style={{ fontWeight: 'bold' }}>File Contents of {fileName}:</p>
-      <pre style={{ border: '1px solid black', padding: '10px', borderRadius: '5px' }}>{fileContent}</pre>
+      <pre style={{ border: '1px solid black', padding: '10px', borderRadius: '5px', backgroundColor: '#EAFFF1'}}>{fileContent}</pre>
     </div>
   );
 };

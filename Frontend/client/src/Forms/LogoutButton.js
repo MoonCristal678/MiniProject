@@ -29,15 +29,15 @@ const LogoutButton = () => {
         marginLeft: '10px',
         padding: '8px 12px',
         borderRadius: '5px',
-        backgroundColor: '#8B4513', // Brown color
-        color: '#C4A484', // Light brown color
+        backgroundColor: '#8B4513', 
+        color: '#C4A484', 
         border: 'none',
         cursor: 'pointer',
         fontWeight: 'bold',
         transition: 'background-color 0.3s',
       }}
-      onMouseOver={(e) => (e.target.style.backgroundColor = '#A0522D')} // Darken on hover
-      onMouseOut={(e) => (e.target.style.backgroundColor = '#8B4513')} // Revert to original color
+      onMouseOver={(e) => (e.target.style.backgroundColor = '#A0522D')}
+      onMouseOut={(e) => (e.target.style.backgroundColor = '#8B4513')} 
     >
       Logout
     </button>

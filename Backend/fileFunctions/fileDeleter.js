@@ -4,7 +4,7 @@ import File from '../fileSchema.js';
     const { fileName } = req.body;
   
     try {
-      const result = await File.deleteOne({ name: fileName, createdBy: req.user._id });
+      const result = await File.deleteOne({ name: fileName});
   
       if (result.deletedCount > 0) {
         res.json({ message: `File '${fileName}' deleted successfully` });

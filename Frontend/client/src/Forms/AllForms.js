@@ -12,7 +12,7 @@ const AllForms = () => {
   const { username } = useParams();
   const handleFileSubmit = (fileData) => {
     console.log('File submitted:', fileData);
-    // Do something with the file data
+   
   };
   return (
     <div className="all-forms-container">

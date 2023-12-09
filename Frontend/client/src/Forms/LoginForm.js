@@ -12,19 +12,16 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post('https://miniproject9-backend.onrender.com/auth/login', {
         username,
         password,
-      });
-
+      }, { withCredentials: true });
+  
       if (response.status === 200) {
         const userId = response.data.userId;
-
-        // Store the user ID in sessionStorage
         sessionStorage.setItem('userId', userId);
-
         navigate('/all-forms');
       } else {
         setError('Invalid credentials');
@@ -34,6 +31,7 @@ const Login = () => {
       console.error(error);
     }
   };
+  
   return (
     <div className="login-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <div className="login-form" style={{ border: '2px double #CD853F', padding: '20px', borderRadius: '10px', width: '300px', backgroundColor: 'olive' }}>

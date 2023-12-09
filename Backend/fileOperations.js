@@ -7,7 +7,7 @@ import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
 
-import { userAuthRouter } from './userAuth.js'; // Adjust the path
+import { userAuthRouter } from './userAuth.js'; 
 import { passport } from './passport.js';
 import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
@@ -24,25 +24,26 @@ app.use(session({
   },
  
 }));
-
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(cors({
   origin: 'https://miniproject9-frontend.onrender.com',
   credentials: true,
 }));
 
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
-app.use('/auth', userAuthRouter);
 
+app.use('/auth', userAuthRouter);
 
 
 const allowedOrigins = [
   'https://miniproject9-frontend.onrender.com',
-  // Add other allowed origins if needed
+
 ];
 
 app.all('*', function(req, res, next) {
@@ -142,7 +143,7 @@ v1Router.post('/read',   async (req, res) => {
 
 const handleUserFilesRender = async (req, res, viewName) => {
   try {
-    // Only retrieve files created by the authenticated user
+   
     const userFiles = await File.find({});
     res.render(viewName, { fileNames: userFiles.map(file => file.name) });
   } catch (error) {
@@ -159,7 +160,7 @@ v1Router.get('/read',   async (req, res) => {
 });
 const handleUserFilesRenderWithFiles = async (req, res, viewName) => {
   try {
-    // Only retrieve files created by the authenticated user
+  
     const userFiles = await File.find({});
     res.render(viewName, { files: userFiles });
   } catch (error) {
@@ -186,7 +187,7 @@ v1Router.post('/write',   validateFileInput, async (req, res) => {
     if (existingFile) {
       res.status(400).json({ message: 'File with the same name already exists for the user' });
     } else {
-      const newFile = new File({ name: fileName, content: fileContent, createdBy: req.user._id });
+      const newFile = new File({ name: fileName, content: fileContent });
       await newFile.save();
       res.json({ message: 'File created successfully', file: newFile });
     }

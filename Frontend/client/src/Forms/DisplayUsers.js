@@ -30,16 +30,11 @@ const DisplayUsers = () => {
     }
   };
 
-  const handleDeleteUser = async () => {
+  const handleDeleteUser = async (userId) => {
     try {
-      if (!selectedUserId) {
-        console.error('No user selected for deletion.');
-        return;
-      }
-
       const response = await axios.post(
         'https://miniproject9-backend.onrender.com/v1/deleteUser',
-        { userId: selectedUserId },
+        { userId },
         {
           withCredentials: true,
           headers: {
@@ -50,7 +45,6 @@ const DisplayUsers = () => {
 
       if (response.status === 200) {
         fetchData();
-        setSelectedUserId('');
       } else {
         console.error(`Error deleting user:`, response.statusText);
       }
@@ -60,7 +54,6 @@ const DisplayUsers = () => {
   };
 
   useEffect(() => {
-    // Fetch data only if authenticated
     if (authenticated) {
       fetchData();
     }
@@ -69,38 +62,23 @@ const DisplayUsers = () => {
   return (
     <div className="app-json-section">
       <h2>JSON Data</h2>
-      {authenticated ? ( // Render the content only if authenticated
-        <>
-          <select
-            value={selectedUserId}
-            onChange={(e) => setSelectedUserId(e.target.value)}
-          >
-            <option value="" disabled>Select a user to delete</option>
-            {jsonData.map((user) => (
-              <option key={user._id} value={user._id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
-          <button
-            className="app-delete-button"
-            onClick={handleDeleteUser}
-            disabled={!selectedUserId}
-          >
-            Delete User
-          </button>
+     
           <ul className="app-file-list">
             {jsonData.map((user) => (
-              <li key={user.createdBy}>
+              <li key={user._id}>
                 Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType},
                 Country of Birth: {user.countryOfBirth}, Date of Birth: {user.birthdate}
+                <button
+                  className="app-delete-button"
+                  onClick={() => handleDeleteUser(user._id)}
+                >
+                  Delete User
+                </button>
               </li>
             ))}
           </ul>
-        </>
-      ) : (
-        <p>Please log in to view user data.</p>
-      )}
+      
+    
     </div>
   );
 };
