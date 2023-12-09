@@ -294,18 +294,15 @@ async function updateUser(req, res) {
 }
 async function getAllUsers(req, res) {
   try {
-    // Check if the user is authenticated
-    if (req.isAuthenticated()) {
-      // Fetch users based on the createdBy field (users created by the authenticated user)
-      const users = await User.find({ createdBy: req.user._id });
-      res.json(users);
-    } else {
-      res.status(401).json({ message: 'Unauthorized' });
-    }
+    // Fetch all users from the database
+    const users = await User.find();
+    res.json(users);
   } catch (error) {
+    // If an error occurs, handle it and send a 500 Internal Server Error response
     handleServerError(res, error);
   }
 }
+
 
 
 
