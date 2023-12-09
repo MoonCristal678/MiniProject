@@ -53,7 +53,7 @@ app.use(session({
   },
  
 }));
-app.use('/auth', userAuthRouter);
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -62,7 +62,7 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
 
-
+app.use('/auth', userAuthRouter);
 
 
 
