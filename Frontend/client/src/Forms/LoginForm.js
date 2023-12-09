@@ -19,7 +19,7 @@ const Login = () => {
       }, {
         headers: {
           'Content-Type': 'application/json', // Adjust based on your server's requirements
-          // Other headers if needed
+          'Authorization': `Bearer ${Cookies.get('myUserIdCookie')}`, // Get the cookie value
         },
       });
   
