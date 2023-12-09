@@ -182,7 +182,7 @@ v1Router.post('/write', validateFileInput, async (req, res) => {
 
 //View Files
 // View Files
-v1Router.get('/files', isAuthenticated, async (req, res) => {
+v1Router.get('/files', async (req, res) => {
   try {
     const userFiles = await File.find({ createdBy: req.user._id });
     res.json(userFiles);
