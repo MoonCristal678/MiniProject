@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useAuth } from '../AuthContext'; // Import the useAuth hook
 
 const DisplayUsers = () => {
+  const { authenticated } = useAuth(); // Use the useAuth hook to get authentication status
   const [jsonData, setJsonData] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
 
@@ -58,38 +60,47 @@ const DisplayUsers = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    // Fetch data only if authenticated
+    if (authenticated) {
+      fetchData();
+    }
+  }, [authenticated]);
 
   return (
     <div className="app-json-section">
       <h2>JSON Data</h2>
-      <select
-        value={selectedUserId}
-        onChange={(e) => setSelectedUserId(e.target.value)}
-      >
-        <option value="" disabled>Select a user to delete</option>
-        {jsonData.map((user) => (
-          <option key={user._id} value={user._id}>
-            {user.name}
-          </option>
-        ))}
-      </select>
-      <button
-        className="app-delete-button"
-        onClick={handleDeleteUser}
-        disabled={!selectedUserId}
-      >
-        Delete User
-      </button>
-      <ul className="app-file-list">
-        {jsonData.map((user) => (
-          <li key={user.createdBy}>
-            Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType},
-            Country of Birth: {user.countryOfBirth}, Date of Birth: {user.birthdate}
-          </li>
-        ))}
-      </ul>
+      {authenticated ? ( // Render the content only if authenticated
+        <>
+          <select
+            value={selectedUserId}
+            onChange={(e) => setSelectedUserId(e.target.value)}
+          >
+            <option value="" disabled>Select a user to delete</option>
+            {jsonData.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+          <button
+            className="app-delete-button"
+            onClick={handleDeleteUser}
+            disabled={!selectedUserId}
+          >
+            Delete User
+          </button>
+          <ul className="app-file-list">
+            {jsonData.map((user) => (
+              <li key={user.createdBy}>
+                Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType},
+                Country of Birth: {user.countryOfBirth}, Date of Birth: {user.birthdate}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p>Please log in to view user data.</p>
+      )}
     </div>
   );
 };

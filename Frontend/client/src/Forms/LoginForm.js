@@ -1,4 +1,3 @@
-// Import necessary modules
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -9,26 +8,22 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await axios.post('https://miniproject9-backend.onrender.com/auth/login', {
         username,
         password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json', // Adjust based on your server's requirements
-          'Authorization': `Bearer ${Cookies.get('myUserIdCookie')}`, // Get the cookie value
-        },
       });
-  
+
       if (response.status === 200) {
         const userId = response.data.userId;
-  
-        // Include the user ID in subsequent requests to the backend
-        axios.defaults.headers.common['Authorization'] = `Bearer ${userId}`;
-  
+
+        // Store the user ID in sessionStorage
+        sessionStorage.setItem('userId', userId);
+
         navigate('/all-forms');
       } else {
         setError('Invalid credentials');
@@ -38,7 +33,6 @@ const Login = () => {
       console.error(error);
     }
   };
-
   return (
     <div className="login-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <div className="login-form" style={{ border: '2px double #CD853F', padding: '20px', borderRadius: '10px', width: '300px', backgroundColor: 'olive' }}>
@@ -75,5 +69,3 @@ const Login = () => {
     </div>
   );
 };
-
-export default Login;
