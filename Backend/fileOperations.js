@@ -296,8 +296,8 @@ async function updateUser(req, res) {
 
 async function getAllUsers(req, res) {
   try {
-    // Retrieve the user ID from the session or any other storage mechanism
-    const currentUserId = req.session.userId; // Adjust this based on how you store user information
+    // Retrieve the user ID from the cookie or any other storage mechanism
+    const currentUserId = req.cookies.myUserIdCookie; // Adjust this based on how you store user information
 
     if (!currentUserId) {
       // If the user is not identified, send a 401 Unauthorized response
@@ -312,6 +312,7 @@ async function getAllUsers(req, res) {
     handleServerError(res, error);
   }
 }
+
 
 
 
