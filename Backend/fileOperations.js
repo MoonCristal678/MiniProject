@@ -70,7 +70,11 @@ const userSchema = new mongoose.Schema({
   birthdate: { type: Date, required: true },
   countryOfBirth: { type: String, required: true },
    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-   addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
+   addedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', // Reference to the UserAuth model
+
+  },
 });
 
 const User = mongoose.model('User', userSchema);
@@ -254,7 +258,7 @@ async function addUser(req, res) {
     birthdate,
     countryOfBirth,
     createdBy: req.user._id,
-    addedBy: req.user._id, // Set both createdBy and addedBy fields
+    addedBy: mongoose.Schema.Types.ObjectId, 
   });
 
   try {

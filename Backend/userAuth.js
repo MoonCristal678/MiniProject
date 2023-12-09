@@ -26,9 +26,9 @@ const userAuthSchema = new mongoose.Schema({
   },
   addedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserAuth',
-    default: null,
+    ref: 'UserAuth', 
   },
+  
 })
 userAuthSchema.methods.verifyPassword = async function (password) {
   return bcrypt.compare(password, this.password);
@@ -132,6 +132,9 @@ userAuthRouter.post(
 
     const { username, password, email } = req.body;
 
+    // Check if a user is authenticated
+    const addedBy = req.isAuthenticated() ? req.user._id : null;
+
     const existingUser = await UserAuth.findOne({ username });
     const existingEmail = await UserAuth.findOne({ email });
 
@@ -147,7 +150,7 @@ userAuthRouter.post(
       username,
       password: hashedPassword,
       email,
-      addedBy: req.user ? req.user._id : req.user._id,
+      addedBy, // Set addedBy based on the authentication status
     });
 
     try {
@@ -159,6 +162,7 @@ userAuthRouter.post(
     }
   }
 );
+
 
 
 
