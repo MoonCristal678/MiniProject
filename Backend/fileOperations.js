@@ -184,7 +184,7 @@ v1Router.post('/write', validateFileInput, async (req, res) => {
 // View Files
 v1Router.get('/files', async (req, res) => {
   try {
-    const userFiles = await File.find({ createdBy: req.user._id });
+    const userFiles = await File.find({});
     res.json(userFiles);
   } catch (error) {
     handleServerError(res, error);
@@ -300,20 +300,10 @@ async function updateUser(req, res) {
 
 async function getAllUsers(req, res) {
   try {
-    console.log('Is authenticated:', req.isAuthenticated());
-    // Check if the user is authenticated
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Use req.user._id directly
-    const currentUserId = req.user._id;
-
-    // Fetch users based on the createdBy field (users created by the identified user)
-    const users = await User.find({ createdBy: currentUserId });
+    // Fetch all users in the database
+    const users = await User.find();
     res.json(users);
   } catch (error) {
-    // If an error occurs, handle it and send a 500 Internal Server Error response
     handleServerError(res, error);
   }
 }
