@@ -1,5 +1,5 @@
 // cookieOperations.js
-import Cookies from 'js-cookie';
+import * as Cookies from 'js-cookie';
 
 const getMyUserIdCookie = () => {
   return Cookies.get('myUserIdCookie');
