@@ -6,26 +6,33 @@ const DisplayUsers = () => {
   const [jsonData, setJsonData] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
 
-  fetch('https://your-server-base-url/v1/api/users', {
-    method: 'GET',
-    credentials: 'include', // Include credentials (cookies) in the request
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${Cookies.get('myUserIdCookie')}`, // Get the cookie value
-    },
-  })
-    .then(response => {
+  
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get('myUserIdCookie')}`,
+        },
+      });
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      return response.json();
-    })
-    .then(users => {
-      // Now 'users' contains the user data, and you can use it as needed
-      console.log(users);
-      // Further logic to display users on the front end
-    })
-    .catch(error => console.error('Error fetching users:', error));
+
+      const users = await response.json();
+      setJsonData(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+  useEffect(() => {
+    // Call the fetchData function when the component mounts
+    fetchData();
+  }, []);
 
   const handleDeleteUser = async () => {
     try {
