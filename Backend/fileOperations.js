@@ -292,16 +292,27 @@ async function updateUser(req, res) {
     handleServerError(res, error);
   }
 }
+
+
 async function getAllUsers(req, res) {
   try {
-    // Fetch all users from the database
-    const users = await User.find();
+    // Retrieve the user ID from the session or any other storage mechanism
+    const currentUserId = req.session.userId; // Adjust this based on how you store user information
+
+    if (!currentUserId) {
+      // If the user is not identified, send a 401 Unauthorized response
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Fetch users based on the createdBy field (users created by the identified user)
+    const users = await User.find({ createdBy: currentUserId });
     res.json(users);
   } catch (error) {
     // If an error occurs, handle it and send a 500 Internal Server Error response
     handleServerError(res, error);
   }
 }
+
 
 
 
