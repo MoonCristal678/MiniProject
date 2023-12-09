@@ -15,7 +15,7 @@ import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
-app.use('/auth', userAuthRouter);
+
 const allowedOrigins = [
   'https://miniproject9-frontend.onrender.com',
   // Add other allowed origins if needed
@@ -48,7 +48,7 @@ app.use(session({
   },
  
 }));
-
+app.use('/auth', userAuthRouter);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -299,7 +299,7 @@ async function getAllUsers(req, res) {
   try {
    
     // Retrieve the user ID from the cookie or any other storage mechanism
-    const currentUserId = req.cookies.myUserIdCookie; // Adjust this based on how you store user information
+    const currentUserId = req.Cookies.myUserIdCookie; // Adjust this based on how you store user information
 
     if (!currentUserId) {
       // If the user is not identified, send a 401 Unauthorized response
