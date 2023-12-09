@@ -14,6 +14,22 @@ import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
+
+const allowedOrigins = [
+  'https://miniproject9-frontend.onrender.com',
+  // Add other allowed origins if needed
+];
+
+app.all('*', function(req, res, next) {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Credentials", true);
+  next();
+});
+
 app.use(cors({
   origin: 'https://miniproject9-frontend.onrender.com',
   credentials: true,
@@ -41,21 +57,6 @@ app.use(methodOverride('_method'));
 app.use('/auth', userAuthRouter);
 
 
-
-const allowedOrigins = [
-  'https://miniproject9-frontend.onrender.com',
-  // Add other allowed origins if needed
-];
-
-app.all('*', function(req, res, next) {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header("Access-Control-Allow-Credentials", true);
-  next();
-});
 
 
 // Connect to MongoDB using Mongoose

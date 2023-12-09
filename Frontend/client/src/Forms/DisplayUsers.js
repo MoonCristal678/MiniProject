@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const DisplayUsers = () => {
   const [jsonData, setJsonData] = useState([]);
@@ -9,6 +10,11 @@ const DisplayUsers = () => {
     try {
       const response = await axios.get('https://miniproject9-backend.onrender.com/v1/api/users', {
         withCredentials: true,
+        headers: {
+          'Accept': 'application/json', 
+          'Authorization': `Bearer ${Cookies.get('myUserIdCookie')}`, // Get the cookie value
+          'Content-Type': 'application/json',
+        },
       });
 
       setJsonData(response.data);

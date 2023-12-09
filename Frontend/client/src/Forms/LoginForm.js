@@ -9,22 +9,26 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post('https://miniproject9-backend.onrender.com/auth/login', {
         username,
         password,
+      }, {
+        headers: {
+          'Content-Type': 'application/json', // Adjust based on your server's requirements
+          // Other headers if needed
+        },
       });
-
+  
       if (response.status === 200) {
         const userId = response.data.userId;
-
+  
         // Include the user ID in subsequent requests to the backend
         axios.defaults.headers.common['Authorization'] = `Bearer ${userId}`;
-
+  
         navigate('/all-forms');
       } else {
         setError('Invalid credentials');
