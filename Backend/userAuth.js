@@ -92,25 +92,6 @@ userAuthRouter.use('/login', (err, req, res, next) => {
   }
 });
 
-// Logout route
-userAuthRouter.post('/logout', (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.error('Error logging out:', err);
-      res.status(500).send('Internal Server Error');
-    } else {
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('Error destroying session:', err);
-          res.status(500).send('Internal Server Error');
-        } else {
-          res.redirect('/auth/login');
-        }
-      });
-    }
-  });
-});
-
 
 
 userAuthRouter.get('/register', (req, res) => {
