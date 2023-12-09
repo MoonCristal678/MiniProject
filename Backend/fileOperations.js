@@ -7,6 +7,7 @@ import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
 import { UserAuth } from './userAuth.js'; // Update the path accordingly
+import Cookies from 'js-cookie';
 
 import { userAuthRouter } from './userAuth.js'; // Adjust the path
 import { passport } from './passport.js';
@@ -14,7 +15,7 @@ import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
 const app = express();
 const port = 3000;
-
+app.use('/auth', userAuthRouter);
 const allowedOrigins = [
   'https://miniproject9-frontend.onrender.com',
   // Add other allowed origins if needed
@@ -55,7 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
-app.use('/auth', userAuthRouter);
+
 
 
 
@@ -296,6 +297,7 @@ async function updateUser(req, res) {
 
 async function getAllUsers(req, res) {
   try {
+   
     // Retrieve the user ID from the cookie or any other storage mechanism
     const currentUserId = req.cookies.myUserIdCookie; // Adjust this based on how you store user information
 
