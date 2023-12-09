@@ -78,7 +78,7 @@ const DisplayUsers = () => {
       </button>
       <ul className="app-file-list">
         {jsonData.map((user) => (
-          <li key={user._id}>
+          <li key={user.createdBy}>
             Name: {user.name}, Age: {user.age}, Blood Type: {user.bloodType},
             Country of Birth: {user.countryOfBirth}, Date of Birth: {user.birthdate}
           </li>
