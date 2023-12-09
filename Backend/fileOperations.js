@@ -12,7 +12,7 @@ import { getMyUserIdCookie } from './cookieOperations.js'; // Import the cookie-
 import { userAuthRouter } from './userAuth.js'; // Adjust the path
 import { passport } from './passport.js';
 import { validateUserInput, validateFileInput } from './validators.js';
-
+import { Types } from 'mongoose';
 
 
 
@@ -20,7 +20,7 @@ const v1Router = express.Router();
 const app = express();
 const port = 3000;
 
-
+const { ObjectId } = Types;
 const allowedOrigins = [
   'https://miniproject9-frontend.onrender.com',
   // Add other allowed origins if needed
