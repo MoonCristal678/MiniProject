@@ -7,7 +7,7 @@ import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
 import { UserAuth } from './userAuth.js'; // Update the path accordingly
-import Cookies from 'js-cookie';
+import { getMyUserIdCookie } from './cookieOperations.js'; // Import the cookie-related operations
 
 import { userAuthRouter } from './userAuth.js'; // Adjust the path
 import { passport } from './passport.js';
@@ -48,7 +48,7 @@ app.use(session({
   },
  
 }));
-app.use('/auth', userAuthRouter);
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -56,7 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(methodOverride('_method'));
-
+app.use('/auth', userAuthRouter);
 
 
 
@@ -297,9 +297,8 @@ async function updateUser(req, res) {
 
 async function getAllUsers(req, res) {
   try {
-   
     // Retrieve the user ID from the cookie or any other storage mechanism
-    const currentUserId = req.Cookies.myUserIdCookie; // Adjust this based on how you store user information
+    const currentUserId = getMyUserIdCookie(); // Use the exported function
 
     if (!currentUserId) {
       // If the user is not identified, send a 401 Unauthorized response
@@ -314,10 +313,6 @@ async function getAllUsers(req, res) {
     handleServerError(res, error);
   }
 }
-
-
-
-
 
 
 
