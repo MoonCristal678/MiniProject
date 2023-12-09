@@ -55,7 +55,8 @@ userAuthRouter.post('/login', passport.authenticate('local', {
   failureFlash: true
 }), (req, res) => {
   console.log('User authenticated:', req.user);
-  const userId = req.user._id; 
+  const userId = req.user._id.toString();
+
   res.cookie('myUserIdCookie', userId, { sameSite: 'None', secure: true });
   
   const htmlContent = `
