@@ -6,8 +6,6 @@ const DisplayUsers = () => {
   const [jsonData, setJsonData] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
 
-  
-
   const fetchData = async () => {
     try {
       const response = await fetch('https://miniproject9-backend.onrender.com/v1/api/users', {
@@ -29,10 +27,6 @@ const DisplayUsers = () => {
       console.error('Error fetching users:', error);
     }
   };
-  useEffect(() => {
-    // Call the fetchData function when the component mounts
-    fetchData();
-  }, []);
 
   const handleDeleteUser = async () => {
     try {
@@ -66,6 +60,7 @@ const DisplayUsers = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
   return (
     <div className="app-json-section">
       <h2>JSON Data</h2>
