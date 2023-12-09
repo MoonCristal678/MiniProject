@@ -7,7 +7,7 @@ import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
 import { UserAuth } from './userAuth.js'; // Update the path accordingly
-import { getMyUserIdCookie } from './cookieOperations.js'; // Import the cookie-related operations
+
 
 import { userAuthRouter } from './userAuth.js'; // Adjust the path
 import { passport } from './passport.js';
