@@ -288,7 +288,21 @@ async function updateUser(req, res) {
 }
 async function getAllUsers(req, res) {
   try {
-    const users = await User.find({ addedBy: req.user._id });
+    // Check if the user is authenticated
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Get the user ID from the request
+    const userId = req.user._id;
+
+    // Check if the user ID is available
+    if (!userId) {
+      return res.status(401).json({ message: 'User ID not available' });
+    }
+
+    // Fetch users by the authenticated user's ID
+    const users = await UserAuth.find({ addedBy: userId });
     res.json(users);
   } catch (error) {
     handleServerError(res, error);
