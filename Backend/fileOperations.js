@@ -42,7 +42,17 @@ app.use(cors({
 }));
 
 // Middleware
-
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 30 * 60 * 1000,
+    name: 'myUserIdCookie',
+    
+  },
+ 
+}));
 app.use('/auth', userAuthRouter);
 app.use(passport.initialize());
 app.use(passport.session());
