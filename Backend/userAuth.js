@@ -36,7 +36,7 @@ const UserAuth = mongoose.model('UserAuth', userAuthSchema);
 userAuthRouter.use(flash());
 
 userAuthRouter.use(session({
-  secret: process.env.SECRET,
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
