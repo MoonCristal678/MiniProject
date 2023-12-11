@@ -7,7 +7,8 @@ import mongoose from 'mongoose';
 import { passport } from './passport.js';
 import flash from 'express-flash'; 
 import cookieParser from 'cookie-parser';
-
+import jwt from 'jsonwebtoken';
+import {jwtSecretKey} from './config.js';
 const userAuthRouter = express.Router();
 
 const userAuthSchema = new mongoose.Schema({
@@ -24,11 +25,17 @@ const userAuthSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+  },
+  token: {
+    type: String,
   }
   
 })
 userAuthSchema.methods.verifyPassword = async function (password) {
   return bcrypt.compare(password, this.password);
+};
+userAuthSchema.methods.generateAuthToken = function() {
+  return jwt.sign({ userId: this._id }, jwtSecretKey);
 };
 const UserAuth = mongoose.model('UserAuth', userAuthSchema);
 
@@ -45,29 +52,36 @@ userAuthRouter.use(session({
 }));
 userAuthRouter.use(passport.initialize());
 userAuthRouter.use(passport.session());
+const authenticateToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized access' });
+  }
+
+  jwt.verify(token, jwtSecretKey, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    req.user = user;
+    next();
+  });
+};
 
 userAuthRouter.get('/login', (req, res) => {
   const errorMessage = req.query.error; 
   res.render('login.ejs', { errorMessage });
 }); 
-userAuthRouter.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
+userAuthRouter.post('/login', async (req, res, next) => {
+  passport.authenticate('local', async (err, user, info) => {
     if (err) {
       return res.status(500).json({ message: 'Internal Server Error' });
     }
-    
-    // Check if the user exists
-    if (!user) {
-      // If the request is an API request, send JSON response
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
 
-      // If it's a regular browser request, redirect to the login page with an error query parameter
-      return res.redirect('/auth/login?error=Invalid credentials');
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Now, check if the password is valid
     req.logIn(user, async (err) => {
       if (err) {
         return res.status(500).json({ message: 'Internal Server Error' });
@@ -76,26 +90,19 @@ userAuthRouter.post('/login', (req, res, next) => {
       const isPasswordValid = await user.verifyPassword(req.body.password);
 
       if (!isPasswordValid) {
-        // If the request is an API request, send JSON response
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-          return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        // If it's a regular browser request, redirect to the login page with an error query parameter
-        return res.redirect('/auth/login?error=Invalid credentials');
+        return res.status(401).json({ message: 'Invalid credentials' });
       }
 
-      // If the request is an API request, send a success JSON response
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.json({ message: 'Login successful', userId: user._id });
-      }
-
-      // If it's a regular browser request, redirect to the root URL
-      return res.redirect('/');
+      // Generate and save the token to the user
+      const token = user.generateAuthToken();
+      user.token = token;
+      await user.save();
+      
+      // Redirect to the root path after successful login
+      res.redirect("/");
     });
   })(req, res, next);
 });
-
 
 userAuthRouter.use('/login', (err, req, res, next) => {
   if (err) {
@@ -166,12 +173,18 @@ userAuthRouter.post(
       username,
       password: hashedPassword,
       email,
-     
     });
 
     try {
+      // Save the user
       await newUserAuth.save();
-      res.json({ message: 'User registered successfully', user: newUserAuth });
+
+      // Generate and save the token to the user
+      const token = newUserAuth.generateAuthToken();
+      newUserAuth.token = token;
+      await newUserAuth.save();
+
+      res.json({ message: 'User registered successfully', user: newUserAuth, token });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Registration failed. Please try again.' });
