@@ -15,7 +15,7 @@ const DisplayUsers = () => {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Cookies.get('myUserIdCookie')}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
 
