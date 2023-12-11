@@ -10,7 +10,7 @@ const DisplayUsers = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/v1/api/users', {
+      const response = await fetch('https://miniproject10-backend.onrender.com/v1/api/users', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -33,7 +33,7 @@ const DisplayUsers = () => {
   const handleDeleteUser = async (userId) => {
     try {
       const response = await axios.post(
-        'http://localhost:3000/v1/deleteUser',
+        'https://miniproject10-backend.onrender.com/v1/deleteUser',
         { userId },
         {
           withCredentials: true,
