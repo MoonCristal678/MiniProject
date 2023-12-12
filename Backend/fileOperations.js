@@ -9,7 +9,8 @@ import { deleteFile} from './fileFunctions/fileDeleter.js';
 import jwt from 'jsonwebtoken';
 import {jwtSecretKey} from './config.js';
 import https from 'https';
-
+import fs from 'fs';
+import path from 'path';
 import { userAuthRouter, UserAuth } from './userAuth.js'; 
 import { passport } from './passport.js';
 import { validateUserInput, validateFileInput } from './validators.js';
@@ -59,7 +60,15 @@ app.all('*', function(req, res, next) {
   next();
 });
 
+const privateKey = fs.readFileSync(path.resolve(__dirname, '../private-key.pem'), 'utf8');
+const certificate = fs.readFileSync(path.resolve(__dirname, '../certificate.pem'), 'utf8');
+const credentials = {
+  key: privateKey,
+  cert: certificate,
+  
+};
 
+const httpsServer = https.createServer(credentials, app);
 // Connect to MongoDB using Mongoose
 mongoose.connect("mongodb+srv://blackkrystal438:DemonSlayer1@fileanduserdata.3ynz8zm.mongodb.net/fileAndUserData", {
   useNewUrlParser: true,
@@ -286,10 +295,9 @@ app.use((err, req, res, next) => {
 });
 
 // Server start
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+httpsServer.listen(port, () => {
+  console.log(`Server running on https://localhost:${port}`);
 });
-
 // Helper functions
 //Render user Form
 function renderAddUserForm(req, res) {
