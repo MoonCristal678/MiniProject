@@ -28,7 +28,7 @@ app.use(session({
  
 }));
 app.use(cors({
-  origin: 'http://localhost:3001',
+  origin: 'https://miniproject10-frontend.onrender.com',
   credentials: true,
 }));
 
@@ -45,7 +45,7 @@ app.use('/auth', userAuthRouter);
 
 
 const allowedOrigins = [
-  'http://localhost:3001',
+  'https://miniproject10-frontend.onrender.com',
 
 ];
 
