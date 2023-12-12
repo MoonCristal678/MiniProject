@@ -52,21 +52,6 @@ userAuthRouter.use(session({
 }));
 userAuthRouter.use(passport.initialize());
 userAuthRouter.use(passport.session());
-const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized access' });
-  }
-
-  jwt.verify(token, jwtSecretKey, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid token' });
-    }
-    req.user = user;
-    next();
-  });
-};
 
 userAuthRouter.get('/login', (req, res) => {
   const errorMessage = req.query.error; 

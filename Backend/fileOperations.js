@@ -29,7 +29,7 @@ app.use(session({
  
 }));
 app.use(cors({
-  origin: 'https://miniproject10-frontend.onrender.com',
+  origin: 'http://localhost:3001',
   credentials: true,
 }));
 
@@ -46,7 +46,7 @@ app.use('/auth', userAuthRouter);
 
 
 const allowedOrigins = [
-  'https://miniproject10-frontend.onrender.com',
+  'http://localhost:3001',
 
 ];
 
@@ -60,15 +60,11 @@ app.all('*', function(req, res, next) {
   next();
 });
 
-const privateKey = fs.readFileSync(path.resolve(__dirname, '../private-key.pem'), 'utf8');
-const certificate = fs.readFileSync(path.resolve(__dirname, '../certificate.pem'), 'utf8');
-const credentials = {
-  key: privateKey,
-  cert: certificate,
-  
+const httpsOptions = {
+  key: fs.readFileSync('../key.pem'),
+  cert: fs.readFileSync('../cert.pem')
 };
 
-const httpsServer = https.createServer(credentials, app);
 // Connect to MongoDB using Mongoose
 mongoose.connect("mongodb+srv://blackkrystal438:DemonSlayer1@fileanduserdata.3ynz8zm.mongodb.net/fileAndUserData", {
   useNewUrlParser: true,
@@ -294,11 +290,9 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something went wrong!');
 });
 
-// Server start
-httpsServer.listen(port, () => {
-  console.log(`Server running on https://localhost:${port}`);
+https.createServer(httpsOptions, app).listen(3000, () => {
+  console.log('HTTPS server running on <https://localhost:3000/>');
 });
-// Helper functions
 //Render user Form
 function renderAddUserForm(req, res) {
   res.render('addUser.ejs');
