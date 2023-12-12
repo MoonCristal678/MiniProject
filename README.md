@@ -1,5 +1,5 @@
 ## README for MiniProject-1 Backend
-
+Code Climate Grade C
 ### Overview
 
 This backend application provides functionality for managing user data and files. It's built with Node.js, Express, and MongoDB. The server is configured to run over HTTPS, and it includes user authentication using JWT (JSON Web Token).
