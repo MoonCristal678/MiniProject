@@ -10,7 +10,7 @@
   "private": true,
  
 
-  "proxy": "https://miniproject9-backend.onrender.com",
+  "proxy": "https://miniproject10-frontend.onrender.com",
  
 
   "dependencies": {

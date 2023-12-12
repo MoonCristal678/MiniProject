@@ -6,8 +6,12 @@ import cors from 'cors';
 import session from 'express-session';
 import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
-
-import { userAuthRouter } from './userAuth.js'; 
+import jwt from 'jsonwebtoken';
+import {jwtSecretKey} from './config.js';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import { userAuthRouter, UserAuth } from './userAuth.js'; 
 import { passport } from './passport.js';
 import { validateUserInput, validateFileInput } from './validators.js';
 const v1Router = express.Router();
@@ -25,7 +29,7 @@ app.use(session({
  
 }));
 app.use(cors({
-  origin: 'https://miniproject9-frontend.onrender.com',
+  origin: 'http://localhost:3001',
   credentials: true,
 }));
 
@@ -42,7 +46,7 @@ app.use('/auth', userAuthRouter);
 
 
 const allowedOrigins = [
-  'https://miniproject9-frontend.onrender.com',
+  'http://localhost:3001',
 
 ];
 
@@ -56,6 +60,10 @@ app.all('*', function(req, res, next) {
   next();
 });
 
+const httpsOptions = {
+  key: fs.readFileSync('../key.pem'),
+  cert: fs.readFileSync('../cert.pem')
+};
 
 // Connect to MongoDB using Mongoose
 mongoose.connect("mongodb+srv://blackkrystal438:DemonSlayer1@fileanduserdata.3ynz8zm.mongodb.net/fileAndUserData", {
@@ -79,6 +87,44 @@ app.use((req, res, next) => {
   console.log(`${req.method} request for ${req.url}`);
   next();
 });
+const authenticateUser = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    // User is authenticated, allow access
+    return next();
+  } else {
+    // User is not authenticated, redirect or send an error response
+    res.status(401).json({ message: 'Unauthorized access' });
+  }
+};
+// Middleware for verifying JWT token
+const authenticateToken = async (req, res, next) => {
+  try {
+    // Assuming the token is stored in the 'token' field of the UserAuth schema
+    const user = await UserAuth.findById(req.user._id);
+
+    if (!user || !user.token) {
+      return res.status(401).json({ message: 'Unauthorized access' });
+    }
+
+    const token = user.token;
+
+    jwt.verify(token, jwtSecretKey, (err, decoded) => {
+      if (err) {
+        console.log('Invalid token:', err.message);
+        return res.status(403).json({ message: 'Invalid token' });
+      }
+      req.user = decoded;
+      next();
+    });
+  } catch (error) {
+    console.error('Error authenticating token:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// Use the middleware for routes that require authentication
+v1Router.use(authenticateToken);
+
 
 // Home page route
 app.get('/', (req, res) => {
@@ -129,7 +175,7 @@ v1Router.post('/read',   async (req, res) => {
   const fileName = req.body.fileName;
 
   try {
-    const file = await File.findOne({ name: fileName });
+    const file = await File.findOne({ name: fileName, createdBy: req.user.userId });
 
     if (file) {
       res.render('readFileContent.ejs', { fileName: file.name, fileContent: file.content });
@@ -144,7 +190,7 @@ v1Router.post('/read',   async (req, res) => {
 const handleUserFilesRender = async (req, res, viewName) => {
   try {
    
-    const userFiles = await File.find({});
+    const userFiles = await File.find({createdBy: req.user.userId});
     res.render(viewName, { fileNames: userFiles.map(file => file.name) });
   } catch (error) {
     handleServerError(res, error);
@@ -161,7 +207,7 @@ v1Router.get('/read',   async (req, res) => {
 const handleUserFilesRenderWithFiles = async (req, res, viewName) => {
   try {
   
-    const userFiles = await File.find({});
+    const userFiles = await File.find({createdBy: req.user.userId});
     res.render(viewName, { files: userFiles });
   } catch (error) {
     handleServerError(res, error);
@@ -177,17 +223,20 @@ v1Router.get('/updateFile', async (req, res) => {
 });
 
 
-v1Router.post('/write',   validateFileInput, async (req, res) => {
+v1Router.post('/write', validateFileInput, async (req, res) => {
   const fileName = req.body.fileName;
   const fileContent = req.body.fileContent;
 
+  // Set createdBy to the ID of the authenticated user
+  const createdBy = req.user.userId;
+
   try {
-    const existingFile = await File.findOne({ name: fileName });
+    const existingFile = await File.findOne({ name: fileName, createdBy: req.user.userId });
 
     if (existingFile) {
       res.status(400).json({ message: 'File with the same name already exists for the user' });
     } else {
-      const newFile = new File({ name: fileName, content: fileContent });
+      const newFile = new File({ name: fileName, content: fileContent, createdBy });
       await newFile.save();
       res.json({ message: 'File created successfully', file: newFile });
     }
@@ -195,11 +244,10 @@ v1Router.post('/write',   validateFileInput, async (req, res) => {
     handleServerError(res, error);
   }
 });
-
 //View Files
 v1Router.get('/files',   async (req, res) => {
   try {
-    const userFiles = await File.find({});
+    const userFiles = await File.find({ createdBy: req.user.userId });
     res.json(userFiles);
   } catch (error) {
     handleServerError(res, error);
@@ -217,7 +265,7 @@ v1Router.post('/updateFile',  async (req, res) => {
   const newContent = req.body.content;
 
   try {
-    const file = await File.findOne({ _id: fileId });
+    const file = await File.findOne({ _id: fileId, createdBy: req.user.userId });
 
     if (file) {
       file.name = newName;
@@ -242,12 +290,9 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something went wrong!');
 });
 
-// Server start
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+https.createServer(httpsOptions, app).listen(3000, () => {
+  console.log('HTTPS server running on <https://localhost:3000/>');
 });
-
-// Helper functions
 //Render user Form
 function renderAddUserForm(req, res) {
   res.render('addUser.ejs');
@@ -257,7 +302,7 @@ function renderAddUserForm(req, res) {
 //Render update user
 async function renderUpdateUserForm(req, res) {
   try {
-    const users = await User.find({});
+    const users = await User.find({createdBy: req.user.userId});
     res.render('updateUser.ejs', { users });
   } catch (error) {
     handleServerError(res, error);
@@ -272,7 +317,11 @@ async function addUser(req, res) {
   }
 
   const { name, age, bloodType, birthdate, countryOfBirth } = req.body;
-  const newUser = new User({ name, age, bloodType, birthdate, countryOfBirth });
+
+  // Set createdBy to the ID of the authenticated user
+  const createdBy = req.user.userId;
+
+  const newUser = new User({ name, age, bloodType, birthdate, countryOfBirth, createdBy });
 
   try {
     await newUser.save();
@@ -281,13 +330,14 @@ async function addUser(req, res) {
     handleServerError(res, error);
   }
 }
+
 async function updateUser(req, res) {
   const userId = req.body.userId;
 
   try {
     const user = await User.findById(userId);
 
-    if (user) {
+    if (user && user.createdBy.equals(req.user.userId)) {
       user.name = req.body.name;
       user.age = req.body.age;
       user.bloodType = req.body.bloodType;
@@ -297,7 +347,7 @@ async function updateUser(req, res) {
       await user.save();
       res.json({ message: 'User updated successfully', user });
     } else {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: 'User not found or unauthorized' });
     }
   } catch (error) {
     handleServerError(res, error);
@@ -305,10 +355,11 @@ async function updateUser(req, res) {
 }
 
 
+
 async function getAllUsers(req, res) {
   try {
     // Fetch all users in the database
-    const users = await User.find();
+    const users = await User.find( {createdBy: req.user.userId} );
     res.json(users);
   } catch (error) {
     handleServerError(res, error);
@@ -325,7 +376,7 @@ async function deleteUser(req, res) {
   const userId = req.body.userId;
 
   try {
-    const result = await User.deleteOne({ _id: userId});
+    const result = await User.deleteOne({ _id: userId, createdBy: req.user.userId});
 
     if (result.deletedCount > 0) {
       res.json({ message: 'User deleted successfully' });

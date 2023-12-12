@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
   
     try {
-      const response = await axios.post('https://miniproject9-backend.onrender.com/auth/login', {
+      const response = await axios.post('https://miniproject10-backend.onrender.com/auth/login', {
         username,
         password,
       }, { withCredentials: true });
