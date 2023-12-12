@@ -8,6 +8,7 @@ import File from './fileSchema.js';
 import { deleteFile} from './fileFunctions/fileDeleter.js';
 import jwt from 'jsonwebtoken';
 import {jwtSecretKey} from './config.js';
+import https from 'https';
 
 import { userAuthRouter, UserAuth } from './userAuth.js'; 
 import { passport } from './passport.js';
@@ -27,7 +28,7 @@ app.use(session({
  
 }));
 app.use(cors({
-  origin: 'https://miniproject10-frontend.onrender.com',
+  origin: 'http://localhost:3001',
   credentials: true,
 }));
 
@@ -44,7 +45,7 @@ app.use('/auth', userAuthRouter);
 
 
 const allowedOrigins = [
-  'https://miniproject10-frontend.onrender.com',
+  'http://localhost:3001',
 
 ];
 

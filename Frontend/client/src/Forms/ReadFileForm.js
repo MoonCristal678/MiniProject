@@ -12,7 +12,7 @@ const ReadFileForm = () => {
     }
 
     try {
-      const response = await fetch(`https://miniproject10-backend.onrender.com/v1/read`, {
+      const response = await fetch(`http://localhost:3000/v1/read`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -14,7 +14,7 @@ const RegisterForm = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('https://miniproject10-backend.onrender.com/auth/register', {
+      const response = await axios.post('http://localhost:3000/auth/register', {
         username,
         email,
         password,

@@ -13,7 +13,7 @@ const FileForm = ({ type, onSubmit }) => {
   
     try {
       const endpoint = type === 'read' ? 'read' : 'write';
-      const response = await fetch(`https://miniproject10-backend.onrender.com/v1/${endpoint}`, {
+      const response = await fetch(`http://localhost:3000/v1/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
